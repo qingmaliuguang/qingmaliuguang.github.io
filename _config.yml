@@ -97,9 +97,16 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: polarbear
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+
+# 为主题 polarbear 而添加
+archive_generator:
+  per_page: 0
+  yearly: false
+  monthly: false
+  daily: false

@@ -1,1 +1,1 @@
-<center> <h3>Code the love to the world. </h3> </center>
+<center> <h3>Blog: Code the love to the world. </h3> </center>

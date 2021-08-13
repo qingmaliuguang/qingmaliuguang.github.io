@@ -102,7 +102,10 @@ theme: polarbear
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: 'git'
+  repo: 'https://github.com/qingmaliuguang/qingmaliuguang.github.io.git'
+  branch: 'gh-pages'
+  message: 'hexo 发布'
 
 # 为主题 polarbear 而添加
 archive_generator:

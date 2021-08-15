@@ -159,13 +159,13 @@ tags: Mysql
 
       非抢占。
 
-      ![img](mysql-transaction/assets/format,png.png)
+      ![img](mysql-transaction/assets/wait-die.png)
 
     - wound-wait机制
 
       当前事务如果先于另一事务执行并请求了另一事务的资源，那么另一事务会立刻回滚，将资源让给先执行的事务，否则就会等待其他事务释放资源。抢占。
 
-      ![img](mysql-transaction/assets/format,png-20210814150126622.png)
+      ![img](mysql-transaction/assets/wound-wait.png)
 
 - 死锁的检测与恢复
 
@@ -194,7 +194,7 @@ Basic T/O需要对每条记录额外存储以下几个信息：
 1. **Read Timestamp**: 表示读过该数据中最大的事务Timestamp
 2. **Write Timestamp**: 最近更新该数据的事务Timestamp
 
-![timestamp-ordering-protocol-process](file:///opt/module/coder_love_blog/source/_posts/mysql-transaction/assets/format,png-20210814165132733.png?lastModify=1628935082)
+![timestamp-ordering-protocol-process](mysql-transaction/assets/timestamp-ordering.png)
 
 ​	无论是读操作还是写操作都会从左到右依次比较读写时间戳的值，如果小于当前值就会直接被拒绝然后回滚，数据库系统会给回滚的事务添加一个新的时间戳并重新执行这个事务。
 
@@ -212,50 +212,12 @@ Y: 总结就是后来的事务B已经执行操作（对A当前操作有影响的
 
 - TO协议确保可串行化，因为优先级图如下：
 
-![img](https://www.yiibai.com/uploads/article/2018/10/29/101018_18427.png)
+![img](mysql-transaction/assets/101018_18427.png)
 
 - TS协议确保免于死锁，这意味着没有事务等待。
 
-- 但是时间表可能无法恢复，甚至可能无法级联。基于时间戳的协议
+- 但是时间表可能无法恢复，甚至可能无法级联。基于时间戳的协议。
 
-  **基于锁的协议**执行事务的顺序与获得锁的顺序有关。**基于时间戳的协议**能够在事务执行之前先决定事务的执行顺序。
-
-  每一个事务都会具有一个**全局唯一**的时间戳，它即可以使用系统的时钟时间，也可以使用计数器，只要能够保证所有的时间戳都是唯一并且是**随时间递增**的就可以。
-
-  Basic T/O协议主要特点：
-
-  - 每个事务都会被赋予一个Timestamp
-  - 每条数据都会记录最近读取该数据的事务id，以及最近写入的事务id
-  - 每个事务在读写数据时需要根据事务的timestamp和数据的读写timestamp进行冲突检测
-  - DBMS会把事务读取过的数据拷贝到一个private的空间，来实现可重复读
-
-  Basic T/O需要对每条记录额外存储以下几个信息：
-
-  1. **Read Timestamp**: 表示读过该数据中最大的事务Timestamp
-  2. **Write Timestamp**: 最近更新该数据的事务Timestamp
-
-  ![timestamp-ordering-protocol-process](file:///opt/module/coder_love_blog/source/_posts/mysql-transaction/assets/format,png-20210814165132733.png?lastModify=1628935082)
-
-  ​	无论是读操作还是写操作都会从左到右依次比较读写时间戳的值，如果小于当前值就会直接被拒绝然后回滚，数据库系统会给回滚的事务添加一个新的时间戳并重新执行这个事务。
-
-  - read流程：
-
-    If TS < W-ts(x) then reject read request and abort corresponding transaction else execute transaction Set R-ts(x) to max{R-ts(x), TS}
-
-  - write流程：
-
-    If TS < R-ts(x) or TS < W-ts(x) then reject write request and abort corresponding transaction else execute transaction Set W-ts(x) to TS.
-
-  Y: 总结就是后来的事务B已经执行操作（对A当前操作有影响的操作）了该数据，那当前事务A就需要回滚。但是这样有一个问题，就是在此之前B已经读了A写入的数据，即“脏读”。
-
-  **Basic T/O协议的优点和缺点：**
-
-  - TO协议确保可串行化，因为优先级图如下：
-
-  ![img](https://www.yiibai.com/uploads/article/2018/10/29/101018_18427.png)
-
-  - TS协议确保免于死锁，这意味着没有事务等待。
-  - 但是时间表可能无法恢复，甚至可能无法级联。
 
 ### 基于验证的协议
 
@@ -314,7 +276,7 @@ MVCC 并不是一个与乐观和悲观并发控制对立的东西，它能够与
    6byte，隐含的自增ID（隐藏主键），如果数据表没有主键，InnoDB会自动以DB_ROW_ID产生一个聚簇索引。
 - DELETE_BIT: 删除标志位, 即记录被更新或删除并不代表真的删除，而是删除标志位变了。
 
-![img](mysql-transaction/assets/833.png)
+![img](mysql-transaction/assets/person.png)
 
 如上图，DB_ROW_ID是数据库默认为该行记录生成的唯一隐式主键，DB_TRX_ID是当前操作该记录的事务ID,而DB_ROLL_PTR是一个回滚指针，用于配合undo日志，指向上一个旧版本。
 

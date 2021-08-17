@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="InnoDB"/>
+
+
+
+
+  <meta name="keywords" content="Mysql," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/16/InnoDB/"/>
+
+
+<meta name="description" content="Mysql 架构Mysql 架构图  MySQL区别于其他数据库的一个最重要的特点是插件式存储引擎。它是基于表的，而不是数据库。MySql常用存储引擎如下： MyISAM存储引擎  不支持事务。 缓冲池只缓存索引文件，不缓冲数据文件。 由MYD和MYI文件组成，MYD用来存放数据文件，MYI用来存放索引文件。  InnoDB存储引擎  独立表空间，支持MVCC，行锁设计，提供一致性非锁定读。 支持">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB">
+<meta property="og:url" content="http://blog.coder.love/2021/08/16/InnoDB/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="Mysql 架构Mysql 架构图  MySQL区别于其他数据库的一个最重要的特点是插件式存储引擎。它是基于表的，而不是数据库。MySql常用存储引擎如下： MyISAM存储引擎  不支持事务。 缓冲池只缓存索引文件，不缓冲数据文件。 由MYD和MYI文件组成，MYD用来存放数据文件，MYI用来存放索引文件。  InnoDB存储引擎  独立表空间，支持MVCC，行锁设计，提供一致性非锁定读。 支持">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/v2-5271f9ac34525757edd866a8f9fbba80_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/v2-210d508df6c12e9df71982754ee3225d_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/dd5b5b00329248b3a3c9d5eba40ffc6b.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/4ecc11c77b7a4f67b101d3a0ebc003fa.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/d06d7df771f647acb8fe2ebe5ad9ee3f.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/a7d9d6b7b3a24cb7917dde4c3e8ae134.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/29fabb2da77243758ba324c75ed25e21.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/7636bec2081d4035bfa8abd2e6e402e1.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/78c3c2b5a0f54e418ae4a8d82ba31593.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/481bd5bdd7c44c4a92b5b1fee845b952.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/1ee74dd1ddf0471e8744c704993ec642.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/Clustered-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/Secondary-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/Clustered-Secondary-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/Lock-Type-Compatibility-Matrix.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/suodejianrongxing.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/53abaeb5e5aefad98d02e0240739dcc41603799550974.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/f08513e2d2380ea4a428c40ee9c114cb1603799550974.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/Transaction-Isolation-Matrix.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/c391f56ae077738c088a69e5d9fd3eed1603799550970.jpeg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/webp-20210817172959146">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/webp-20210817164427455">
+<meta property="og:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/webp-20210817165909518">
+<meta property="article:published_time" content="2021-08-16T05:06:04.000Z">
+<meta property="article:modified_time" content="2021-08-17T10:07:43.274Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.coder.love/2021/08/16/InnoDB/InnoDB/assets/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> InnoDB - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          InnoDB
+        
+      </h1>
+
+      <time class="post-time">
+          8月 16 2021
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="Mysql-架构"><a href="#Mysql-架构" class="headerlink" title="Mysql 架构"></a>Mysql 架构</h1><p>Mysql 架构图</p>
+<p><img src="InnoDB/assets/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg" alt="img"></p>
+<p>MySQL区别于其他数据库的一个最重要的特点是<strong>插件式存储引擎</strong>。它是<strong>基于表</strong>的，而不是数据库。MySql常用存储引擎如下：</p>
+<p><strong>MyISAM存储引擎</strong></p>
+<ul>
+<li>不支持事务。</li>
+<li>缓冲池只缓存索引文件，不缓冲数据文件。</li>
+<li>由MYD和MYI文件组成，MYD用来存放数据文件，MYI用来存放索引文件。</li>
+</ul>
+<p><strong>InnoDB存储引擎</strong></p>
+<ul>
+<li>独立表空间，支持MVCC，行锁设计，提供一致性非锁定读。</li>
+<li>支持外键，插入缓冲，二次写，自适应哈希索引，预读。</li>
+<li>使用聚集的方式存储数据，每张表的存储都是按主键顺序存放。</li>
+</ul>
+<p><strong>InnoDB架构图</strong></p>
+<p><img src="InnoDB/assets/v2-5271f9ac34525757edd866a8f9fbba80_720w.jpg" alt="img"></p>
+<p>以下主要从内存和线程的角度分析InnoDB的架构。</p>
+<h2 id="内存池"><a href="#内存池" class="headerlink" title="内存池"></a>内存池</h2><p>主要工作：</p>
+<ul>
+<li>维护所有进程/线程需要使用的多个内部数据结构</li>
+<li>缓存磁盘上的数据，方便快速地读取，同时对磁盘文件数据修改之前在这里缓存</li>
+<li>重做日志缓存</li>
+</ul>
+<p>InnoDB内存池主要有以下部分</p>
+<p><img src="InnoDB/assets/v2-210d508df6c12e9df71982754ee3225d_720w.jpg" alt="img"></p>
+<p><strong>缓冲池</strong><br>InnoDB是基于磁盘存储的，并将其中的记录按照页的方式进行管理。<br>而缓冲池就是一块内存区域，主要缓冲数据页和索引页。<br>InnoDB中对页的读取操作，首先判断该页是否在缓冲池中，若在，直接读取该页，若不在则从磁盘读取页数据，并存放在缓冲池中。<br>对页的修改操作，首先修改在缓冲池中的页，再以一定的频率（Checkpoint机制）刷新到磁盘。<br>参数：innodb_buffer_pool_size设置缓冲池大小</p>
+<p>缓冲池通过<strong>LRU（Latest Recent Used，最近最少使用）算法</strong>进行管理。最频繁使用的页在LRU列表前端，最少使用的页在尾端，当缓冲池不能存放新读取的页时，首先释放LRU列表尾端的页（页数据刷新到磁盘，并从缓冲次中删除）。<br>InnoDB对于新读取的页，不是放到LRU列表最前端，而是放到midpoint位置（默认为5/8处）。<br>这是因为一些SQL操作会访问大量的页（如全表扫描），读取大量非热点数据，如果直接放到首部，可能导致真正的热点数据被移除。</p>
+<p>关于页的概念会在存储篇解释，这里就理解为InnoDB将表数据拆分为若干固定大小的页，每页保存若干表记录。</p>
+<p><strong>重做日志缓存</strong><br>重做日志先放到这个缓冲区，然后按一定频率刷新到重做日志文件。重做日志文件都是以块(block)的方法进行保存的，称为重做日志块（redo log block）<br>参数：innodb_log_buffer_size</p>
+<p>刷新规则：</p>
+<ol>
+<li>Master Thread每秒将一部分重做日志缓冲刷新到重做日志文件。</li>
+<li>每一事务提交时会将重做日志刷新到重做日志文件（如果配置了）。</li>
+<li>重做日志缓冲区使用空间大于1/2。</li>
+</ol>
+<p><strong>额外的内存池</strong><br>内存堆，对InnoDB内部使用的数据结构对象进行管理。</p>
+<h2 id="Checkpoint机制"><a href="#Checkpoint机制" class="headerlink" title="Checkpoint机制"></a>Checkpoint机制</h2><p>InnoDB对于对于DML语句操作（如Update或Delete），事务提交时只需在缓冲池中完成操作，然后再通过Checkpoint将修改后的脏页数据刷新到磁盘。</p>
+<p>InnoDB有两种Checkpoint：</p>
+<ul>
+<li>Sharp Checkpoint：数据库关闭时将所有脏页刷新会磁盘</li>
+<li>Fuzzy Checkpoint：<ul>
+<li>Master Thread Checkpoint<br>Master Thread每个1秒或10秒按一定比例将缓存池的脏页列表刷新会磁盘</li>
+<li>FLUSH LRU LIST Checkpoint<br>Page Cleaner线程发现LRU列表中可用页数量少于innodb_lru_scan_depth(1024)，就将LRU列表尾端移除，如果这些页中有脏页，就需要Checkpoint</li>
+<li>Async/Sync Flush Checkpoint<br>重做日志文件空间不可以用时，将一部分脏页刷新到磁盘。</li>
+<li>Dirty Page too much Checkpoint:<br>脏页数量太多（超过比例innodb_max_dirty_pages_pct,默认75），执行Checkpoint。</li>
+</ul>
+</li>
+</ul>
+<h2 id="重做日志"><a href="#重做日志" class="headerlink" title="重做日志"></a>重做日志</h2><p><strong>重做日志 redo log 是为了保证事务的原子性，持久性。</strong>InnoDB采用<strong>Write Ahread Log</strong>策略，事务提交时，先写重做日志，再修改页。</p>
+<p>数据库宕机重启时通过执行重做日志恢复数据。</p>
+<p>但由于Checkpoint机制，数据库宕机重启并不需要重做所有的日志，因为Checkpoint之前的页都刷新到磁盘了，只需执行最新一次Checkpoint后的重做日志进行恢复，这样可以缩短数据库的恢复时间。</p>
+<p>InnoDB中重做日志文件是循环使用的。当页被Checkpoint刷新到磁盘后，对应的重做日志就不需要使用 ，其空间可以被覆盖重用。</p>
+<p>如果待写入的重做日志文件空间不可用（脏页还没有刷新到磁盘），就需要强制产生Checkpoint，将缓冲池中的页至少刷新到当前重做日志的位置。</p>
+<p>InnoDB 1.2.x(MySql 5.6)后，FLUSH LRU LIST Checkpoint以及Async/Sync Flush Checkpoint操作放到Page Cleaner线程，以免阻塞用户线程。</p>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>主要作用：</p>
+<ul>
+<li>负责刷新内存池中的数据，保证缓冲池的内存缓冲的是最近的数据</li>
+<li>已修改的数据文件刷新到磁盘文件</li>
+<li>保证数据库发生异常的情况下InnoDB能恢复到正常状态。</li>
+</ul>
+<p>InnoDB运行时主要有以下线程</p>
+<ul>
+<li><p>Master Thread<br>负责将缓冲池中的数据异步刷新到磁盘，保证数据的一致性，包括脏页的刷新，合并插入缓冲（INSERT BUFFER），UNDO页的回收等。</p>
+</li>
+<li><p>IO Thread<br>负责AIO请求的回调处理。<br>参数：innodb_read_io_threads，innodb_write_io_threads</p>
+</li>
+<li><p>Purge Thread<br>事务提交后，undo log可能不再需要，由Purge Thread负责回收并重新分配的这些已经使用的undo页。<br>注意：Purge Thread需要离散地读取undo页。</p>
+</li>
+<li><p>Page Cleaner Thread</p>
+<p>InnoDB 1.2.x引入，将Master Threader中刷新脏页的工作移至该线程，如上面说的FLUSH LRU LIST Checkpoint以及Async/Sync Flush Checkpoint。</p>
+</li>
+</ul>
+<h2 id="InnoDB关键特性"><a href="#InnoDB关键特性" class="headerlink" title="InnoDB关键特性"></a>InnoDB关键特性</h2><h3 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h3><p>插入聚集索引一般是顺序的，不需要磁盘的随机读取。但插入非聚集索引叶子节点不是顺序的，需要离散访问非聚集索引页，速度较慢。对于<strong>非聚集索引的插入或更新</strong>，先判断插入的非聚集索引页<strong>是否在缓存池</strong>中，若在，直接插入，或不在，先放到一个<strong>Inser Buffer对象</strong>中，然后根据一些算法将Insert Buffer缓存的记录通过后台线程慢慢合并刷新回辅助索引。插入缓冲将多次插入合并为一次操作，减少磁盘的离散操作。</p>
+<p>使用Insert Buffer需满足两个条件：</p>
+<ul>
+<li>索引是辅助索引</li>
+<li>索引不是唯一的（不需要查找索引页判断唯一性）</li>
+</ul>
+<p>InnoDB从1.0.x引入Change Buffer，对INSERT，DELETE，UPDATE都进行缓冲。</p>
+<p>参数：innodb_change_buffer_max_size，Change Buffer最多使用缓冲池内存空间。</p>
+<h3 id="doublewrite"><a href="#doublewrite" class="headerlink" title="doublewrite"></a>doublewrite</h3><p>这是mysql一个崩溃恢复很重要的特性-重复写入。</p>
+<blockquote>
+<p>doublewrite缓冲区是位于系统表空间中的存储区域，在该区域中，InnoDB会在将页面写入数据文件中的适当位置之前，从InnoDB缓冲池中刷新这些页面。仅在刷新页面并将其写入doublewrite缓冲区后，InnoDB才会将页面写入其适当位置。如果在页面写入过程中发生操作系统，存储子系统或mysqld进程崩溃，InnoDB稍后可以在崩溃恢复期间从doublewrite缓冲区中找到该页面的良好副本。</p>
+</blockquote>
+<p><strong>部分写失效</strong>：页数据写入到磁盘时只写了一部分（如16K数据只写了2K），数据库就宕机了，导致页数据损坏，这时无法使用重做日志恢复。（执行重做日志时需要利用页的一些变量，如checksum）</p>
+<p>因此在使用重做日志恢复数据库，需要有一个页的副本，当发生写失效时，先通过页的副本还原该页，再进行重做。于是InnoDB实现了doublewrite技术。</p>
+<p>doublewrite有两部分，一部分是内存中的doublewrite buffer，大小为2MB，另一部分是磁盘共享表空间连续的128个页，也是2MB。<br>doublewrite要求刷新缓冲池的脏页时执行以下步骤：</p>
+<ol>
+<li>通过memcpy函数将脏页复制到内存的doublewrite buffer；</li>
+<li>doublewrite buffer分两次，每次1MB，顺序写入共享表空间；</li>
+<li>调用fsync函数同步磁盘，避免缓冲写带来问题，确保数据刷新到共享表空间（顺序写，开销小）；</li>
+<li>将上述的脏页数据写入各个表空间文件（离散写）。</li>
+</ol>
+<h3 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h3><p>InnoDB会监控对表上各索引页的查询执行情况，如发现建立哈希索引可以提升速度，则建立哈希索引，这是过程不需要用户干预。<br>参数：innodb_adaptive_hash_index，默认AHI为开启状态。</p>
+<h3 id="异步IO"><a href="#异步IO" class="headerlink" title="异步IO"></a>异步IO</h3><p>InnoDB使用异步IO操作磁盘，避免同步IO导致阻塞，也可以进行IO Merge操作，将多个IO操作合并为一个IO操作。</p>
+<h3 id="刷新邻接页"><a href="#刷新邻接页" class="headerlink" title="刷新邻接页"></a>刷新邻接页</h3><p>当刷新一个脏页时，InnoDB会检测该页所在区的所有页，如果是脏页，一起刷新，这是可以通过AIO将多个IO写入操作合并为一个IO操作。<br>参数：innodb_flush_neighbors，控制开关。</p>
+<h1 id="数据的存储"><a href="#数据的存储" class="headerlink" title="数据的存储"></a>数据的存储</h1><p>在 InnoDB 存储引擎中，所有的数据都被<strong>逻辑地</strong>存放在表空间中，表空间（tablespace）是存储引擎中最高的存储逻辑单位，在表空间的下面又包括<strong>段（segment）</strong>、<strong>区（extent）</strong>、<strong>页（page）</strong>：</p>
+<p><img src="InnoDB/assets/dd5b5b00329248b3a3c9d5eba40ffc6b.jpeg" alt="img"></p>
+<ul>
+<li>表空间<ul>
+<li>InnoDB将所有数据（包括表数据，索引，回滚信息，插入缓冲索引页，系统事务信息，二次写缓冲）逻辑地放在一个空间中，称为<strong>共享表空间</strong>。<br>默认表空间的存储文件为data目录下的ibdata1，初始化为10M。</li>
+</ul>
+</li>
+<li>段<ul>
+<li>一个索引（InnoDB都是B+索引）由两个段管理，叶子节点段（leaf segment）和非叶子节点段（non leaf segment）</li>
+<li>回滚数据也是通过段管理。</li>
+</ul>
+</li>
+<li>区<ul>
+<li>InnoDB申请空间的最小单位，由连续页组成的空间，大小为1MB，保持不变。</li>
+<li>InnoDB一次从磁盘中申请4~5个区。</li>
+</ul>
+</li>
+<li>页<ul>
+<li>InnoDB访问的最小单位，同一个数据库实例的所有表空间都有相同的页大小；默认情况下，表空间中的页大小都为 16KB。</li>
+<li>缓冲池是以页为管理单位，每次读取或刷新一页数据。</li>
+<li>可以通过改变 innodb_page_size选项对默认大小进行修改</li>
+</ul>
+</li>
+</ul>
+<p>需要注意的是不同的页大小最终也会导致区大小的不同：</p>
+<p><img src="InnoDB/assets/4ecc11c77b7a4f67b101d3a0ebc003fa.jpeg" alt="img"></p>
+<p>从图中可以看出，在 InnoDB 存储引擎中，一个区的大小最小为 1MB，页的数量最少为 64 个。</p>
+<h2 id="如何存储表"><a href="#如何存储表" class="headerlink" title="如何存储表"></a>如何存储表</h2><p>MySQL 使用 InnoDB 存储表时，会将<strong>表的定义</strong>和<strong>数据索引</strong>等信息分开存储，其中前者存储在 .frm文件中，后者存储在 .ibd文件中，这一节就会对这两种不同的文件分别进行介绍。</p>
+<p><img src="InnoDB/assets/d06d7df771f647acb8fe2ebe5ad9ee3f.jpeg" alt="img"></p>
+<h3 id="frm-文件"><a href="#frm-文件" class="headerlink" title=".frm 文件"></a>.frm 文件</h3><p>无论在 MySQL 中选择了哪个存储引擎，所有的 MySQL 表都会在硬盘上创建一个 .frm文件用来描述表的格式或者说定义； .frm文件的格式在不同的平台上都是相同的。详见<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/internals/en/frm-file-format.html">11.1 MySQL .frm File Format</a></p>
+<h3 id="ibd-文件"><a href="#ibd-文件" class="headerlink" title=".ibd 文件"></a>.ibd 文件</h3><p>InnoDB 中用于存储数据的文件总共有两个部分，一是系统表空间文件，包括 ibdata1、 ibdata2等文件，其中存储了 InnoDB 系统信息和用户数据库表数据和索引，是所有表公用的。</p>
+<p>当打开 innodb_file_per_table选项时， .ibd文件就是每一个表独有的表空间，文件存储了当前表的数据和相关的索引数据。</p>
+<h2 id="如何存储记录"><a href="#如何存储记录" class="headerlink" title="如何存储记录"></a>如何存储记录</h2><p>与现有的大多数存储引擎一样，InnoDB 使用页作为磁盘管理的最小单位；数据在 InnoDB 存储引擎中都是按行存储的，<strong>每个 16KB 大小的页中可以存放 2-200 行的记录</strong>。</p>
+<p>当 InnoDB 存储数据时，它可以使用不同的行格式进行存储；MySQL 5.7 版本支持以下格式的行存储方式：</p>
+<p><img src="InnoDB/assets/a7d9d6b7b3a24cb7917dde4c3e8ae134.jpeg" alt="img"></p>
+<blockquote>
+<p>Antelope 是 InnoDB 最开始支持的文件格式，它包含两种行格式 Compact 和 Redundant，它最开始并没有名字；Antelope 的名字是在新的文件格式 Barracuda 出现后才起的，Barracuda 的出现引入了两种新的行格式 Compressed 和 Dynamic；InnoDB 对于文件格式都会向前兼容，而官方文档中也对之后会出现的新文件格式预先定义好了名字：Cheetah、Dragon、Elk 等等。</p>
+</blockquote>
+<p>两种行记录格式 Compact 和 Redundant 在磁盘上按照以下方式存储：</p>
+<p><img src="InnoDB/assets/29fabb2da77243758ba324c75ed25e21.jpeg" alt="img"></p>
+<p>Compact 和 Redundant 格式最大的不同就是记录格式的第一个部分；在 Compact 中，行记录的第一部分倒序存放了一行数据中列的长度（Length），而 Redundant 中存的是每一列的偏移量（Offset），从总体上上看，Compact 行记录格式相比 Redundant 格式能够减少 20% 的存储空间。</p>
+<h3 id="行溢出数据"><a href="#行溢出数据" class="headerlink" title="行溢出数据"></a>行溢出数据</h3><p>当 InnoDB 使用 Compact 或者 Redundant 格式存储<strong>极长的 VARCHAR 或者 BLOB 这类大对象</strong>时，我们并不会直接将所有的内容都存放在数据页节点中，而是将行数据中的前 <strong>768</strong> 个字节存储在<strong>数据页</strong>中，后面会通过偏移量指向<strong>溢出页</strong>。</p>
+<p><img src="InnoDB/assets/7636bec2081d4035bfa8abd2e6e402e1.jpeg" alt="img"></p>
+<p>但是当我们使用新的行记录格式 Compressed 或者 Dynamic 时都只会在行记录中保存 20 个字节的指针，实际的数据都会存放在溢出页面中。</p>
+<p><img src="InnoDB/assets/78c3c2b5a0f54e418ae4a8d82ba31593.jpeg" alt="img"></p>
+<p>当然在实际存储中，可能会对不同长度的 TEXT 和 BLOB 列进行优化，不过这就不是本文关注的重点了。</p>
+<p>想要了解更多与 InnoDB 存储引擎中记录的数据格式的相关信息，可查看官方文档 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/internals/en/innodb-record-structure.html">InnoDB Record Structure</a></p>
+<h3 id="数据页结构"><a href="#数据页结构" class="headerlink" title="数据页结构"></a>数据页结构</h3><p>页是 InnoDB 存储引擎管理数据的最小磁盘单位，而 B-Tree 节点就是实际存放表中数据的页面，我们在这里将要介绍页是如何组织和存储记录的；首先，一个 InnoDB 页有以下七个部分：</p>
+<p><img src="InnoDB/assets/481bd5bdd7c44c4a92b5b1fee845b952.jpeg" alt="img"></p>
+<p>每一个页中包含了两对 header/trailer：内部的 Page Header/Page Directory 关心的是页的状态信息，而 Fil Header/Fil Trailer 关心的是记录页的头信息。</p>
+<p>在页的头部和尾部之间就是用户记录和空闲空间了，每一个数据页中都包含 Infimum 和 Supremum 这两个<strong>虚拟</strong>的记录（可以理解为占位符），Infimum 记录是比该页中任何主键值都要小的值，Supremum 是该页中的最大值：</p>
+<p>User Records 就是整个页面中真正用于存放行记录的部分，而 Free Space 就是空余空间了，它是一个链表的数据结构，为了保证插入和删除的效率，整个页面并不会按照主键顺序对所有记录进行排序，它会自动从左侧向右寻找空白节点进行插入，行记录在物理存储上并不是按照顺序的，它们之间的顺序是由 next_record这一指针控制的。</p>
+<p><strong>B+ 树在查找对应的记录时，并不会直接从树中找出对应的行记录，它只能获取记录所在的页，将整个页加载到内存中，再通过 Page Directory 中存储的稀疏索引和 n_owned、 next_record属性取出对应的记录，不过因为这一操作是在内存中进行的，所以通常会忽略这部分查找的耗时。</strong></p>
+<p>InnoDB 存储引擎中对数据的存储是一个非常复杂的话题，这一节中也只是对表、行记录以及页面的存储进行一定的分析和介绍，想要真正消化这部分内容还需要很多的努力和实践。</p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>索引是数据库中非常非常重要的概念，它是存储引擎能够快速定位记录的秘密武器，对于提升数据库的性能、减轻数据库服务器的负担有着非常重要的作用；<strong>索引优化是对查询性能优化的最有效手段</strong>，它能够轻松地将查询的性能提高几个数量级。</p>
+<h3 id="索引的数据结构"><a href="#索引的数据结构" class="headerlink" title="索引的数据结构"></a>索引的数据结构</h3><p>在上一节中，我们谈了行记录的存储和页的存储，在这里我们就要从更高的层面看 InnoDB 中对于数据是如何存储的；InnoDB 存储引擎在绝大多数情况下使用 B+ 树建立索引，这是关系型数据库中查找最为常用和有效的索引，但是B+ 树索引并不能找到一个给定键对应的具体值，它只能找到数据行对应的页，然后正如上一节所提到的，数据库把整个页读入到内存中，并在内存中查找具体的数据行。</p>
+<p><img src="InnoDB/assets/1ee74dd1ddf0471e8744c704993ec642.jpeg" alt="img"></p>
+<p>B+ 树是平衡树，它查找任意节点所耗费的时间都是完全相同的，比较的次数就是 B+ 树的高度；在这里，我们并不会深入分析或者动手实现一个 B+ 树，只是对它的特性进行简单的介绍。</p>
+<h3 id="聚集索引和辅助索引"><a href="#聚集索引和辅助索引" class="headerlink" title="聚集索引和辅助索引"></a>聚集索引和辅助索引</h3><p>数据库中的 B+ 树索引可以分为聚集索引（clustered index）和辅助索引（secondary index），它们之间的最大区别就是，聚集索引中存放着一条行记录的全部信息，而辅助索引中只包含索引列和一个用于查找对应行记录的『书签』。</p>
+<h4 id="聚集索引"><a href="#聚集索引" class="headerlink" title="聚集索引"></a>聚集索引</h4><p>InnoDB 存储引擎中的表都是使用索引组织的，也就是按照键的顺序存放；聚集索引就是按照表中主键的顺序构建一棵 B+ 树，并在叶节点中存放表中的行记录数据。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> users(</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    first_name <span class="type">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    last_name <span class="type">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    age <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    <span class="keyword">PRIMARY</span> KEY(id),</span><br><span class="line">    KEY(last_name, first_name, age)</span><br><span class="line">    KEY(first_name)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>如果使用上面的 SQL 在数据库中创建一张表，B+ 树就会使用 <code>id</code> 作为索引的键，并在叶子节点中存储一条记录中的<strong>所有</strong>信息。</p>
+<p><img src="InnoDB/assets/Clustered-Index.jpg" alt="Clustered-Index"></p>
+<p>图中对 B+ 树的描述与真实情况下 B+ 树中的数据结构有一些差别，不过这里想要表达的主要意思是：聚集索引叶节点中保存的是整条行记录，而不是其中的一部分。</p>
+<p>聚集索引与表的物理存储方式有着非常密切的关系，所有正常的表应该<strong>有且仅有一个</strong>聚集索引（绝大多数情况下都是主键），表中的所有行记录数据都是按照<strong>聚集索引</strong>的顺序存放的。</p>
+<p>当我们使用聚集索引对表中的数据进行检索时，可以直接获得聚集索引所对应的整条行记录数据所在的<strong>页</strong>，不需要进行第二次操作。</p>
+<h4 id="辅助索引"><a href="#辅助索引" class="headerlink" title="辅助索引"></a>辅助索引</h4><p>数据库将所有的非聚集索引都划分为辅助索引，但是这个概念对我们理解辅助索引并没有什么帮助；辅助索引也是通过 B+ 树实现的，但是它的叶节点并不包含行记录的全部数据，仅包含索引中的所有键和一个用于查找对应行记录的『书签』，在 InnoDB 中这个书签就是当前记录的主键。</p>
+<p>辅助索引的存在并不会影响聚集索引，因为聚集索引构成的 B+ 树是数据实际存储的形式，而辅助索引只用于加速数据的查找，所以一张表上往往有多个辅助索引以此来提升数据库的性能。</p>
+<blockquote>
+<p>一张表一定包含一个聚集索引构成的 B+ 树以及若干辅助索引的构成的 B+ 树。</p>
+</blockquote>
+<p><img src="InnoDB/assets/Secondary-Index.jpg" alt="Secondary-Index"></p>
+<p>如果在表 <code>users</code> 中存在一个辅助索引 <code>(first_name, age)</code>，那么它构成的 B+ 树大致就是上图这样，按照 <code>(first_name, age)</code> 的字母顺序对表中的数据进行排序，当查找到主键时，再通过聚集索引获取到整条行记录。</p>
+<p><img src="InnoDB/assets/Clustered-Secondary-Index.jpg" alt="Clustered-Secondary-Index"></p>
+<p>上图展示了一个使用辅助索引查找一条表记录的过程：通过辅助索引查找到对应的主键，最后在聚集索引中使用主键获取对应的行记录，这也是通常情况下行记录的查找方式。</p>
+<h1 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h1><h2 id="锁的种类"><a href="#锁的种类" class="headerlink" title="锁的种类"></a>锁的种类</h2><h3 id="共享和互斥的锁"><a href="#共享和互斥的锁" class="headerlink" title="共享和互斥的锁"></a>共享和互斥的锁</h3><p>InnoDB 实现了标准的行级锁，也就是共享锁（Shared Lock）和互斥锁（Exclusive Lock）</p>
+<ul>
+<li><strong>共享锁（读锁）</strong>：允许事务对一条行数据进行读取；</li>
+<li><strong>互斥锁（写锁）</strong>：允许事务对一条行数据进行删除或更新；</li>
+</ul>
+<h3 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h3><p>无论是共享锁还是互斥锁其实都只是对某一个数据行进行加锁，InnoDB 支持多种粒度的锁，也就是行锁和表锁；为了支持多粒度锁定，InnoDB 存储引擎引入了意向锁（Intention Lock），意向锁就是一种<strong>表级锁</strong>。</p>
+<p>意向锁也分为两种：</p>
+<ul>
+<li><strong>意向共享锁</strong>：事务想要在获得表中某些记录的共享锁，需要在表上先加意向共享锁；</li>
+<li><strong>意向互斥锁</strong>：事务想要在获得表中某些记录的互斥锁，需要在表上先加意向互斥锁；</li>
+</ul>
+<p>LOCK_MODE分别是：IS或IX。</p>
+<p>随着意向锁的加入，锁类型之间的兼容矩阵也变得愈加复杂：</p>
+<p><img src="InnoDB/assets/Lock-Type-Compatibility-Matrix.jpg" alt="Lock-Type-Compatibility-Matrix"></p>
+<p>意向锁其实不会阻塞全表扫描之外的任何请求，它们的主要目的是为了表示<strong>是否有人请求锁定表中的某一行数据</strong>。</p>
+<h3 id="Record-Lock-记录锁"><a href="#Record-Lock-记录锁" class="headerlink" title="Record Lock 记录锁"></a>Record Lock 记录锁</h3><p>记录锁（Record Lock）是加到<strong>索引记录</strong>上的锁，假设我们存在下面的一张表 <code>users</code>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> users(</span><br><span class="line">    id <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">    last_name <span class="type">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    first_name <span class="type">VARCHAR</span>(<span class="number">255</span>),</span><br><span class="line">    age <span class="type">INT</span>,</span><br><span class="line">    <span class="keyword">PRIMARY</span> KEY(id),</span><br><span class="line">    KEY(last_name),</span><br><span class="line">    KEY(age)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>如果我们使用 <code>id</code> 或者 <code>last_name</code> 作为 SQL 中 <code>WHERE</code> 语句的过滤条件，那么 InnoDB 就可以通过索引建立的 B+ 树找到行记录并添加锁，但是如果使用 <code>first_name</code> 作为过滤条件时，由于 InnoDB 不知道待修改的记录具体存放的位置，也无法对将要修改哪条记录提前做出判断就会锁定整个表。</p>
+<h3 id="Gap-Lock-间隙锁"><a href="#Gap-Lock-间隙锁" class="headerlink" title="Gap Lock 间隙锁"></a>Gap Lock 间隙锁</h3><p>间隙锁是对<strong>索引记录</strong>中的一段<strong>连续区域</strong>的锁；当使用类似 <code>SELECT * FROM users WHERE id BETWEEN 10 AND 20 FOR UPDATE;</code> 的 SQL 语句时，就会阻止其他事务向表中插入 <code>id = 15</code> 的记录，因为整个范围都被间隙锁锁定了。</p>
+<blockquote>
+<p>间隙锁是存储引擎对于性能和并发做出的权衡，并且只用于某些事务隔离级别。</p>
+</blockquote>
+<p>虽然间隙锁中也分为共享锁和互斥锁，不过它们之间并不是互斥的，也就是不同的事务可以同时持有一段相同范围的共享锁和互斥锁，它<strong>唯一阻止的就是其他事务向这个范围中添加新的记录</strong>。可以解决幻读的问题。</p>
+<h3 id="Next-Key-Lock-临键锁"><a href="#Next-Key-Lock-临键锁" class="headerlink" title="Next-Key Lock 临键锁"></a>Next-Key Lock 临键锁</h3><p>Next-Key Lock 是记录锁和记录前的间隙锁的结合，在 <code>users</code> 表中有以下记录：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">+</span><span class="comment">------|-------------|--------------|-------+</span></span><br><span class="line"><span class="operator">|</span>   id <span class="operator">|</span> last_name   <span class="operator">|</span> first_name   <span class="operator">|</span>   age <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span><span class="comment">------|-------------|--------------|-------|</span></span><br><span class="line"><span class="operator">|</span>    <span class="number">4</span> <span class="operator">|</span> stark       <span class="operator">|</span> tony         <span class="operator">|</span>    <span class="number">21</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>    <span class="number">1</span> <span class="operator">|</span> tom         <span class="operator">|</span> hiddleston   <span class="operator">|</span>    <span class="number">30</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>    <span class="number">3</span> <span class="operator">|</span> morgan      <span class="operator">|</span> freeman      <span class="operator">|</span>    <span class="number">40</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>    <span class="number">5</span> <span class="operator">|</span> jeff        <span class="operator">|</span> dean         <span class="operator">|</span>    <span class="number">50</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span>    <span class="number">2</span> <span class="operator">|</span> donald      <span class="operator">|</span> trump        <span class="operator">|</span>    <span class="number">80</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------|-------------|--------------|-------+</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>既然叫 Next-Key 锁，锁定的应该是当前值和后面的范围，但是实际上却不是，Next-Key 锁锁定的是当前值和前面的范围。</p>
+</blockquote>
+<p>如果使用 Next-Key 锁，那么 Next-Key 锁就可以在需要的时候锁定以下的范围：</p>
+<p>当我们更新一条记录，比如 <code>SELECT * FROM users WHERE age = 30 FOR UPDATE;</code>，InnoDB 不仅会在范围 <code>(21, 30]</code> 上加 Next-Key 锁，还会在这条记录后面的范围 <code>(30, 40]</code> 加间隙锁，所以插入 <code>(21, 40]</code> 范围内的记录都会被锁定。</p>
+<p>​    Next-Key 锁的作用其实是为了<strong>解决幻读</strong>的问题。<br>Next-Key Lock在不同的场景中会退化:</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>退化成的锁类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>使用unique index精确匹配（=），且记录存在</td>
+<td>Record Lock</td>
+</tr>
+<tr>
+<td>使用unique index精确匹配（=），且记录不存在</td>
+<td>Gap Lock</td>
+</tr>
+<tr>
+<td>使用unique index范围匹配（&lt; 和 &gt; ）</td>
+<td>Record Lock + Gap Lock，锁上界不锁下界（或者锁下界不锁上界，与&gt;还是&lt;有关）</td>
+</tr>
+</tbody></table>
+<h3 id="Insert-Intention-Locks-插入意向锁"><a href="#Insert-Intention-Locks-插入意向锁" class="headerlink" title="Insert Intention Locks 插入意向锁"></a>Insert Intention Locks 插入意向锁</h3><ul>
+<li>插入意向锁是一种Gap锁，不是意向锁，是在行插入之前通过INSERT操作设置的一种特殊间隙锁。</li>
+<li>在多事务同时写入不同数据至同一索引间隙的时候，并不需要等待其他事务完成，不会发生锁等待。</li>
+<li>假设有一个记录索引包含键值4和7，不同的事务分别插入5和6，每个事务都会产生一个加在4-7之间的插入意向锁，获取在插入行上的排它锁，但是不会被互相锁住，因为数据行并不冲突。</li>
+<li>不同事务请求同一个间隙的Gap锁并不会阻塞，但如果一个事务请求了Gap锁，另一个事务再请求插入意向锁，则会阻塞。</li>
+</ul>
+<p>锁的兼容性</p>
+<p><img src="InnoDB/assets/suodejianrongxing.png" alt="锁的兼容性"></p>
+<h3 id="自增锁-AUTO-INC-Locks"><a href="#自增锁-AUTO-INC-Locks" class="headerlink" title="自增锁(AUTO-INC Locks)"></a>自增锁(AUTO-INC Locks)</h3><p>AUTO-INC锁是一种特殊的<strong>表级锁</strong>，发生涉及AUTO_INCREMENT列的事务性插入操作时产生。</p>
+<p>AUTO-INC锁是在语句结束后被释放。</p>
+<h3 id="空间索引的谓词锁"><a href="#空间索引的谓词锁" class="headerlink" title="空间索引的谓词锁"></a>空间索引的谓词锁</h3><h2 id="锁的选择"><a href="#锁的选择" class="headerlink" title="锁的选择"></a>锁的选择</h2><ol>
+<li>如果更新条件没有走索引，例如执行”update test set name=“hello” where name=“world”;” ，此时会进行全表扫描，扫表的时候，要阻止其他任何的更新操作，所以上升为表锁。</li>
+<li>如果更新条件为索引字段，但是并非唯一索引（包括主键索引），例如执行“update test set name=“hello” where code=9;” 那么此时更新会使用Next-Key Lock。使用Next-Key Lock的原因：<ol>
+<li>首先要保证在符合条件的记录上加上排他锁，会锁定当前非唯一索引和对应的主键索引的值；</li>
+<li>还要保证锁定的区间不能插入新的数据。</li>
+</ol>
+</li>
+<li>如果更新条件为唯一索引，则使用Record Lock（记录锁）。</li>
+</ol>
+<h2 id="加锁操作"><a href="#加锁操作" class="headerlink" title="加锁操作"></a>加锁操作</h2><p>重要影响因素：</p>
+<ul>
+<li>当前系统隔离级别<ul>
+<li>RR</li>
+<li>RC</li>
+<li>Serializable</li>
+</ul>
+</li>
+<li>根据sql或者执行计划判断其所使用的索引类型<ul>
+<li>主键索引</li>
+<li>二级索引 &amp; 唯一索引</li>
+<li>二级索引 &amp; ！唯一索引</li>
+<li>无索引，全表扫描</li>
+</ul>
+</li>
+</ul>
+<p>下面列举几种常见场景下的加锁逻辑</p>
+<h4 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h4><ol>
+<li>首先对表加上IX锁。</li>
+<li>唯一索引冲突检查：如果唯一索引上存在相同项，进行S锁当前读，读到数据则唯一索引冲突，返回异常，否则检查通过。</li>
+<li>判断插入位置是否存在Gap锁或Next-Key锁，没有的话直接插入，有的话等待锁释放，并产生插入意向锁。</li>
+<li>对插入记录的所有索引项加X锁。</li>
+</ol>
+<h2 id="死锁原理与分析"><a href="#死锁原理与分析" class="headerlink" title="死锁原理与分析"></a>死锁原理与分析</h2><p>下面，来看看两个死锁的例子 (一个是两个Session的两条SQL产生死锁；另一个是两个Session的一条SQL，产生死锁)：</p>
+<p><img src="InnoDB/assets/53abaeb5e5aefad98d02e0240739dcc41603799550974.jpeg" alt="sql死锁示例1"></p>
+<p>情况一很好理解，也是最常见的死锁，<strong>每个事务</strong>执行两条SQL，分别持有了一把锁，然后加另一把锁，产生死锁。</p>
+<p><img src="InnoDB/assets/f08513e2d2380ea4a428c40ee9c114cb1603799550974.jpeg" alt="sql死锁示例2）——数据库锁看这一篇就足够了12"></p>
+<p>​    第二个用例，虽然每个Session都只有一条语句，仍旧会产生死锁。要分析这个死锁，首先必须用到本文前面提到的MySQL加锁的规则。针对Session 1，从name索引出发，读到的[hdc, 1]，[hdc, 6]均满足条件，不仅会加name索引上的记录X锁，而且会加聚簇索引上的记录X锁，加锁顺序为先[1,hdc,100]，后[6,hdc,10]。而Session 2，从pubtime索引出发，[10,6],[100,1]均满足过滤条件，同样也会加聚簇索引上的记录X锁，加锁顺序为[6,hdc,10]，后[1,hdc,100]。发现没有，跟Session 1的加锁顺序正好相反，如果两个Session恰好都持有了第一把锁，请求加第二把锁，死锁就发生了。</p>
+<p><strong>结论：</strong>死锁的发生与否，并不在于事务中有多少条SQL语句，<strong>死锁的关键在于</strong>：两个(或以上)的Session<strong>加锁的顺序</strong>不一致。</p>
+<h2 id="锁信息查看"><a href="#锁信息查看" class="headerlink" title="锁信息查看"></a>锁信息查看</h2><p>MySQL5.7及之前，可以通过information_schema.innodb_locks查看事务的锁情况，但，只能看到阻塞事务的锁；如果事务并未被阻塞，则在该表中看不到该事务的锁情况。</p>
+<p>MySQL8.0删除了information_schema.innodb_locks，添加了performance_schema.data_locks，可以通过performance_schema.data_locks查看事务的锁情况，和MySQL5.7及之前不同，performance_schema.data_locks不但可以看到阻塞该事务的锁，还可以看到该事务所持有的锁，也就是说即使事务并未被阻塞，依然可以看到事务所持有的锁（不过，正如文中最后一段所说，performance_schema.data_locks并不总是能看到全部的锁）。表名的变化其实还反映了8.0的performance_schema.data_locks更为通用了，即使你使用InnoDB之外的存储引擎，你依然可以从performance_schema.data_locks看到事务的锁情况。</p>
+<p>data_locks详见<a target="_blank" rel="noopener" href="https://www.huaweicloud.com/articles/f571bafcbe55475cd94d1f2f65e729a9.html">官方文档</a>。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> performance_schema.data_locks\G</span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">1.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               ENGINE: INNODB</span><br><span class="line">       ENGINE_LOCK_ID: <span class="number">139664434886512</span>:<span class="number">1059</span>:<span class="number">139664350547912</span></span><br><span class="line">ENGINE_TRANSACTION_ID: <span class="number">2569</span></span><br><span class="line">            THREAD_ID: <span class="number">46</span></span><br><span class="line">             EVENT_ID: <span class="number">12</span></span><br><span class="line">        OBJECT_SCHEMA: test</span><br><span class="line">          OBJECT_NAME: t1</span><br><span class="line">       PARTITION_NAME: <span class="keyword">NULL</span></span><br><span class="line">    SUBPARTITION_NAME: <span class="keyword">NULL</span></span><br><span class="line">           INDEX_NAME: <span class="keyword">NULL</span></span><br><span class="line">OBJECT_INSTANCE_BEGIN: <span class="number">139664350547912</span></span><br><span class="line">            LOCK_TYPE: <span class="keyword">TABLE</span></span><br><span class="line">            LOCK_MODE: IX</span><br><span class="line">          LOCK_STATUS: GRANTED</span><br><span class="line">            LOCK_DATA: <span class="keyword">NULL</span></span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">2.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               ENGINE: INNODB</span><br><span class="line">       ENGINE_LOCK_ID: <span class="number">139664434886512</span>:<span class="number">2</span>:<span class="number">4</span>:<span class="number">1</span>:<span class="number">139664350544872</span></span><br><span class="line">ENGINE_TRANSACTION_ID: <span class="number">2569</span></span><br><span class="line">            THREAD_ID: <span class="number">46</span></span><br><span class="line">             EVENT_ID: <span class="number">12</span></span><br><span class="line">        OBJECT_SCHEMA: test</span><br><span class="line">          OBJECT_NAME: t1</span><br><span class="line">       PARTITION_NAME: <span class="keyword">NULL</span></span><br><span class="line">    SUBPARTITION_NAME: <span class="keyword">NULL</span></span><br><span class="line">           INDEX_NAME: GEN_CLUST_INDEX</span><br><span class="line">OBJECT_INSTANCE_BEGIN: <span class="number">139664350544872</span></span><br><span class="line">            LOCK_TYPE: RECORD</span><br><span class="line">            LOCK_MODE: X</span><br><span class="line">          LOCK_STATUS: GRANTED</span><br><span class="line">            LOCK_DATA: supremum pseudo<span class="operator">-</span>record</span><br></pre></td></tr></table></figure>
+
+<p>重点字段：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> ENGINE_TRANSACTION_ID,OBJECT_NAME,INDEX_NAME,LOCK_TYPE,LOCK_MODE,LOCK_STATUS,LOCK_DATA <span class="keyword">from</span> performance_schema.data_locks;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ENGINE_TRANSACTION_ID</p>
+<ul>
+<li>请求锁的事务的存储引擎内部ID。这可以被认为是锁的所有者，尽管锁可能仍然是挂起的，实际上还没有授予(LOCK_STATUS=’WAITING’)。如果事务还没有执行任何写操作(仍然认为是只读的)，则该列包含用户不应该尝试解释的内部数据。否则，列就是事务ID。对于InnoDB，为了获得事务的详细信息，将该列与INFORMATION_SCHEMA <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/information-schema-innodb-trx-table.html">INNODB_TRX</a>表中的TRX_ID列连接。</li>
+</ul>
+</li>
+<li><p>OBJECT_NAME</p>
+<ul>
+<li>被锁住的表的名称。</li>
+</ul>
+</li>
+<li><p>INDEX_NAME</p>
+<ul>
+<li>锁定索引的名称(如果有的话);否则为null。实际上，InnoDB总是创建一个索引(GEN_CLUST_INDEX)，所以InnoDB表的INDEX_NAME是非null。</li>
+</ul>
+</li>
+<li><p>LOCK_TYPE</p>
+<ul>
+<li>锁的类型。取值依赖存储引擎。对于InnoDB，行级锁允许的值是RECORD，表级锁允许的值是TABLE。</li>
+</ul>
+</li>
+<li><p>LOCK_MODE</p>
+<ul>
+<li>如何请求锁。取值依赖存储引擎。对于InnoDB，允许的值为S[，GAP]， X[，GAP]， IS[，GAP]， IX[，GAP]， AUTO_INC, UNKNOWN。除AUTO_INC和UNKNOWN之外的锁模式表示间隙锁(如果存在)。关于S, X, IS, IX和gap锁的信息，请参考<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html">InnoDB Locking</a>。</li>
+</ul>
+</li>
+<li><p>LOCK_STATUS</p>
+<ul>
+<li>锁的请求状态。取值依赖存储引擎。对于InnoDB，允许的值是GRANTED(锁被持有)和WAITING(锁被等待)。</li>
+</ul>
+</li>
+<li><p>LOCK_DATA</p>
+<ul>
+<li>与锁相关联的数据(如果有)。取值依赖存储引擎。对于InnoDB, LOCK_TYPE为RECORD时显示一个值，否则为NULL。对于放置在主键索引上的锁，将显示锁定记录的主键值。显示被锁定记录的次级索引值，并为放置在次级索引上的锁附加主键值。如果没有主键，根据管理InnoDB集群索引使用的规则(参见集群索引和二级索引)，LOCK_DATA将显示所选唯一索引的键值或唯一InnoDB内部行ID号。LOCK_DATA对一个最高伪记录上获取的锁报告为“supremum pseudo-record”。如果包含锁定记录的页面不在缓冲池中，因为它在锁被持有时被写入了磁盘，InnoDB不会从磁盘获取该页面。相反，LOCK_DATA报告为NULL。</li>
+</ul>
+</li>
+</ul>
+<h1 id="几种隔离级别"><a href="#几种隔离级别" class="headerlink" title="几种隔离级别"></a>几种隔离级别</h1><p>事务的隔离性是数据库处理数据的几大基础之一，而隔离级别其实就是提供给用户用于在性能和可靠性做出选择和权衡的配置项。</p>
+<p>ISO 和 ANSI SQL 标准制定了四种事务隔离级别，而 InnoDB 遵循了 SQL:1992 标准中的四种隔离级别：<code>READ UNCOMMITED</code>、<code>READ COMMITED</code>、<code>REPEATABLE READ</code> 和 <code>SERIALIZABLE</code>；每个事务的隔离级别其实都比上一级多解决了一个问题：</p>
+<ul>
+<li><code>RAED UNCOMMITED</code>：使用查询语句不会加锁，可能会读到未提交的行（Dirty Read）；</li>
+<li><code>READ COMMITED</code>：只对记录加记录锁，而不会在记录之间加间隙锁，所以允许新的记录插入到被锁定记录的附近，所以再多次使用查询语句时，可能得到不同的结果（Non-Repeatable Read）；</li>
+<li><code>REPEATABLE READ</code>：多次读取同一范围的数据会返回第一次查询的快照，不会返回不同的数据行，但是可能发生幻读（Phantom Read）；</li>
+<li><code>SERIALIZABLE</code>：InnoDB 隐式地将全部的查询语句加上共享锁，解决了幻读的问题；</li>
+</ul>
+<p><strong>MySQL 中默认的事务隔离级别就是 <code>REPEATABLE READ</code>，但是它通过 Next-Key 锁也能够在某种程度上解决幻读的问题。</strong></p>
+<p><img src="InnoDB/assets/Transaction-Isolation-Matrix.jpg" alt="Transaction-Isolation-Matrix"></p>
+<p><strong>快照读（一致性非锁定读）：</strong></p>
+<p>简单的select操作，没有lock in share mode或for update，快照读不会加任何的锁，而且由于mysql的一致性非锁定读的机制存在，任何快照读也不会被阻塞。但是如果事务的隔离级别是SERIALIZABLE的话，那么快照读也会被加上共享的next-key锁，本文不对SERIALIZABLE隔离级别做叙述。</p>
+<p><strong>当前读（一致性锁定读）：</strong></p>
+<p>官方文档的术语叫locking read，也就是insert，update，delete,select..in share mode和select..for update,当前读会在所有扫描到的索引记录上加锁，不管它后面的where条件到底有没有命中对应的行记录。当前读可能会引起死锁。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ? lock <span class="keyword">in</span> share mode;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ? <span class="keyword">for</span> update;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">table</span> <span class="keyword">values</span> (…);</span><br><span class="line">update <span class="keyword">table</span> <span class="keyword">set</span> ? <span class="keyword">where</span> ?;</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ?;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>所有以上的语句，都属于当前读，读取记录的最新版本。并且，读取之后，还需要保证其他并发事务不能修改当前记录，对读取记录加锁。其中，除了第一条语句，<strong>对读取记录加S锁 (共享锁)外，其他的操作，都加的是X锁 (排它锁)。</strong></li>
+</ul>
+<p>为什么将 插入/更新/删除 操作，都归为当前读？可以看看下面这个 更新 操作，在数据库中的执行流程：</p>
+<p><img src="InnoDB/assets/c391f56ae077738c088a69e5d9fd3eed1603799550970.jpeg" alt="MySQL 加锁处理分析"></p>
+<p>从图中，可以看到，一个Update操作的具体流程。当Update SQL被发给MySQL后，MySQL Server会根据where条件，读取第一条满足条件的记录，然后InnoDB引擎会将第一条记录返回，并加锁 (current read)。待MySQL Server收到这条加锁的记录之后，会再发起一个Update请求，更新这条记录。一条记录操作完成，再读取下一条记录，直至没有满足条件的记录为止。因此，Update操作内部，就包含了一个当前读。同理，Delete操作也一样。Insert操作会稍微有些不同，简单来说，就是Insert操作可能会触发Unique Key的冲突检查，也会进行一个当前读。</p>
+<p><strong>注</strong>：根据上图的交互，针对一条当前读的SQL语句，InnoDB与MySQL Server的交互，是一条一条进行的，因此，加锁也是一条一条进行的。先对一条满足条件的记录加锁，返回给MySQL Server，做一些DML操作；然后在读取下一条加锁，直至读取完毕。</p>
+<h1 id="Binlog"><a href="#Binlog" class="headerlink" title="Binlog"></a>Binlog</h1><p>Mysql binlog是二进制日志文件，在mysql主从复制中就是依靠的binlog。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> binlog events <span class="keyword">in</span> <span class="string">&#x27;binlogfile&#x27;</span>; <span class="comment">-- 查看binlog的具体事件类型。</span></span><br><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;binlog_format&#x27;</span>; <span class="comment">-- 查看binlog format。</span></span><br></pre></td></tr></table></figure>
+
+<p>binlog记录的所有操作实际上都有对应的事件类型的，MySQL binlog的三种工作模式：</p>
+<ul>
+<li>Row level（用到MySQL的特殊功能如存储过程、触发器、函数，又希望数据最大化，则选择Row模式）<br> 　简介：日志中会记录每一行数据被修改的情况，然后在slave端对相同的数据进行修改。<br> 　优点：能清楚的记录每一行数据修改的细节<br> 　缺点：数据量太大</li>
+<li>Statement level（默认）<br> 　简介：每一条被修改数据的sql都会记录到master的bin-log中，slave在复制的时候sql进程会解析成和原来master端执行过的相同的sql再次执行。在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等<br> 　优点：解决了 Row level下的缺点，不需要记录每一行的数据变化，减少bin-log日志量，节约磁盘IO，提高新能<br> 　缺点：容易出现主从复制不一致</li>
+<li>Mixed（混合模式）<br> 　简介：结合了Row level和Statement level的优点，同时binlog结构也更复杂。在Mixed模式下，一般的语句修改使用statment格式保存binlog，如一些函数，statement无法完成主从复制的操作，则采用row格式保存binlog，MySQL会根据执行的每一条具体的sql语句来区分对待记录的日志形式，也就是在Statement和Row之间选择一种。</li>
+</ul>
+<p><img src="InnoDB/assets/webp-20210817172959146" alt="img"></p>
+<p>下面描述几个重要的EVENT类型：</p>
+<ul>
+<li>QUERY_EVENT<ul>
+<li>QUERY_EVENT以文本的形式来记录事务的操作。QUERY_EVENT类型的事件通常在以下几种情况下使用：<ol>
+<li>事务开始时，执行的BEGIN操作。</li>
+<li>STATEMENT格式中的DML操作。</li>
+<li>ROW格式中的DDL操作。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>FORMAT_DESCRIPTION_EVENT<ul>
+<li>它是binlog文件中的第一个事件，而且，该事件只会在binlog中出现一次。MySQL根据FORMAT_DESCRIPTION_EVENT的定义来解析其它事件。<br> 它通常指定了MySQL Server的版本，binlog的版本，该binlog文件的创建时间。</li>
+</ul>
+</li>
+<li>ROWS_EVENT<ul>
+<li>对于ROW格式的binlog，所有的DML语句都是记录在ROWS_EVENT中。<br> ROWS_EVENT分为三种：WRITE_ROWS_EVENT，UPDATE_ROWS_EVENT，DELETE_ROWS_EVENT，分别对应insert，update和delete操作。<ul>
+<li>对于insert操作，WRITE_ROWS_EVENT包含了要插入的数据</li>
+<li>对于update操作，UPDATE_ROWS_EVENT不仅包含了修改后的数据，还包含了修改前的值。</li>
+<li> 对于delete操作，仅仅需要指定删除的主键（在没有主键的情况下，会给定所有列）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>XID_EVENT<ul>
+<li>在事务提交时，不管是STATEMENT还是ROW格式的binlog，都会在末尾添加一个XID_EVENT事件代表事务的结束。该事件记录了该事务的ID，在MySQL进行崩溃恢复时，根据事务在binlog中的提交情况来决定是否提交存储引擎中状态为prepared的事务。</li>
+</ul>
+</li>
+<li>ROTATE_EVENT<ul>
+<li>当binlog文件的大小达到max_binlog_size的值或者执行flush logs命令时，binlog会发生切换，这个时候会在当前的binlog日志添加一个ROTATE_EVENT事件，用于指定下一个日志的名称和位置。</li>
+</ul>
+</li>
+<li>GTID_LOG_EVENT</li>
+<li>PREVIOUS_GTIDS_LOG_EVENT</li>
+<li>STOP_EVENT<ul>
+<li>当MySQL数据库停止时，会在当前的binlog末尾添加一个STOP_EVENT事件表示数据库停止。</li>
+</ul>
+</li>
+<li>HEARTBEAT_LOG_EVENT<ul>
+<li>这个事件是由master发给slave的，让slave知道master还活着。</li>
+</ul>
+</li>
+</ul>
+<h1 id="WAL机制"><a href="#WAL机制" class="headerlink" title="WAL机制"></a>WAL机制</h1><p>WAL（Write-Ahead Logging）技术，也就是<strong>先写日志，再写磁盘</strong>。</p>
+<p>当内存数据页跟磁盘数据页内容不一致的时候，我们成这个内存页为“<strong>脏页</strong>”。内存数据写入磁盘后，内存和磁盘上的数据页内容就一致了，称为“干净页”。</p>
+<p>MySQL 从 内存更新到磁盘的过程，称为刷脏页的过程（flush）。</p>
+<h4 id="InnoDB-刷脏页的时机"><a href="#InnoDB-刷脏页的时机" class="headerlink" title="InnoDB 刷脏页的时机"></a>InnoDB 刷脏页的时机</h4><ul>
+<li>内存中的<strong>redo log 写满</strong>了，这时系统就会<strong>停止所有更新</strong>操作，把checkoutpoint 往前推，redo log留出空间可以继续写。</li>
+</ul>
+<p><img src="InnoDB/assets/webp-20210817164427455" alt="img"></p>
+<p>往前推进之后，就要把两个点之间的日志对应的所有脏页都 flush 到磁盘上。</p>
+<p>这种情况是 InnoDB 要尽量避免的。因为出现这种情况，整个系统都不能接受更新。更新数会跌为0。 </p>
+<ul>
+<li><p>系统中内存不足时，当这个时候需要新的数据页到内存中，就要淘汰掉一些数据页，如果淘汰的是“脏页”，就要先将“脏页”写到磁盘。</p>
+<p>这种情况在日常应用中其实是常态。<strong>在InnoDB 中，使用缓冲池 （buffer pool）管理内存，缓冲池中的内存页有三种状态：</strong></p>
+<ul>
+<li>还没有使用的；</li>
+<li>使用了并且是干净页</li>
+<li>使用了并且是脏页</li>
+</ul>
+</li>
+<li><p>数据库空闲的时候刷脏页。</p>
+</li>
+<li><p>数据库正常关闭的时候，也要把内存中所有的脏页全都flush 到磁盘上。</p>
+</li>
+</ul>
+<h4 id="对性能的影响"><a href="#对性能的影响" class="headerlink" title="对性能的影响"></a>对性能的影响</h4><p>刷脏页是常态，所以如果出现以下的情况，都会明明显影响性能：</p>
+<ul>
+<li>一个查询要淘汰的脏页太多，会导致查询的响应时间明显变长；</li>
+<li>日志写满，更新全部堵住，写性能跌为0，这种情况对于敏感业务来说是不能接受的。</li>
+</ul>
+<h4 id="binlog-的写入机制"><a href="#binlog-的写入机制" class="headerlink" title="binlog 的写入机制"></a>binlog 的写入机制</h4><p>binlog 的写入机制比较简单：事务执行的过程中，先把日志写到 binlog cache，事务提交的时候，再把 binlog cache 写到binlog 文件中。</p>
+<p>系统给 binlog cache 分配了一片内存，每个线程一个，参数 binglog_cache_size 用于控制单个线程内 binlog cache 的内存大小，超过就要暂存在磁盘。</p>
+<p>事务提交的时候，执行器把 binlog cache 里完整事务写入到 binlog 中，并清空 binlog cache。</p>
+<p><img src="InnoDB/assets/webp-20210817165909518" alt="img"></p>
+<ul>
+<li>write 指的是把日志写入到<strong>文件系统的 page cache</strong>，并没有把数据持久化到磁盘，所以速度比较快。</li>
+<li>fsync 是持久化到磁盘的操作，一般情况下， fsync 才会占磁盘的 IOPS。</li>
+</ul>
+<p>write 和 fsync 的时机，是由参数 sync_binlog 控制的：</p>
+<ul>
+<li>sync_binlog=0 的时候，表示每次提交事务都只 write，不 fsync；</li>
+<li>sync_binlog=1 的时候，表示每次提交事务都会执行 fsync；</li>
+<li>sync_binlog=N(N&gt;1) 的时候，表示每次提交事务都 write，但累积 N 个事务后才 fsync。</li>
+</ul>
+<p>因此，在出现 IO 瓶颈的场景里，将 sync_binlog 设置成一个比较大的值，可以提升性能。在实际的业务场景中，考虑到丢失日志量的可控性，一般不建议将这个参数设成 0，比较常见的是将其设置为 100~1000 中的某个数值。但是，将 sync_binlog 设置为 N，对应的风险是：如果主机发生异常重启，会丢失最近 N 个事务的 binlog 日志。</p>
+<h4 id="redo-log-的写入机制"><a href="#redo-log-的写入机制" class="headerlink" title="redo log 的写入机制"></a>redo log 的写入机制</h4><p>事务的执行过程中，生成的 redo log 是要先写到 redo log buffer。</p>
+<p>redo log 三种状态：</p>
+<ul>
+<li>存在 redo log buffer 中，物理上是在 MySQL 进程内存中。</li>
+<li>写到磁盘（write），但是没有持久化（fsync），物理上是在文件系统的 page cache 里。</li>
+<li>持久化磁盘，对应的是 hard disk。</li>
+</ul>
+<p>日志写到 redo log buffer 是很快的，write 到 page cache 也差不多，但是持久化到磁盘的速度就慢多了。</p>
+<p>InnoDB 提供了 innodb_flush_log_at_trx_commit 参数，取值如下：</p>
+<ul>
+<li>设置为 0 时，表示每次事务提交时都只是把 redo log 留在 redo log buffer 中；</li>
+<li>设置为 1 时，表示每次事务提交时都将 redo log 直接持久化到磁盘；</li>
+<li>设置为 2 时，表示每次事务提交时都只是把 redo log 写到 page cache。</li>
+</ul>
+<p>InnoDB 有一个后台线程，每隔 1 秒，就会把 redo log buffer 中的日志，调用 write 写到文件系统的 page cache，然后调用 fsync 持久化到磁盘。</p>
+<p><strong>组提交机制</strong></p>
+<p>日志逻辑序列号（log sequence number，LSN）是一个单调递增的值，对应 redo log 的一个个写入点。每次写入的长度为 length 的 redo log，LSN的值就会加上 length。</p>
+<p>LSN 也会写到 InnoDB 的数据页中，来确保数据也不会被多次执行重复的 redo log。<br> 在一组提交里面，组员越多，节约磁盘 IOPS 的效果越好。在并发更新的场景下，第一个事务写完 redo log buffer 以后，接下来这个 fsync 越晚调用，组员可能越多，节约 IOPS 的效果就越好。</p>
+<ol>
+<li>binlog_group_commit_sync_delay 参数，表示延迟多少微秒后才调用 fsync;</li>
+<li>binlog_group_commit_sync_no_delay_count 参数，表示累积多少次以后才调用 fsync。</li>
+</ol>
+<p><strong>WAL机制主要得益于两个方面：</strong></p>
+<ol>
+<li>redo log 和binlog 都是顺序写，磁盘的顺序写比随机写速度要快；</li>
+<li>组提交机制，可以大幅度降低磁盘的 IOPS 消耗。</li>
+</ol>
+<p><strong>如果你的 MySQL 现在出现了性能瓶颈，而且瓶颈在 IO 上，可以通过哪些方法来提升性能呢？</strong></p>
+<p>针对这个问题，可以考虑以下三种方法：</p>
+<ol>
+<li>设置 binlog_group_commit_sync_delay 和 binlog_group_commit_sync_no_delay_count 参数，减少 binlog 的写盘次数。这个方法是基于“额外的故意等待”来实现的，因此可能会增加语句的响应时间，但没有丢失数据的风险。</li>
+<li>将 sync_binlog 设置为大于 1 的值（比较常见是 100~1000）。这样做的风险是，主机掉电时会丢 binlog 日志。</li>
+<li>将 innodb_flush_log_at_trx_commit 设置为 2。这样做的风险是，主机掉电的时候会丢数据。</li>
+</ol>
+<hr>
+<blockquote>
+<p>感谢参考（摘抄）的文章及其作者</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/158978012">深入理解InnoDB</a></li>
+<li><a target="_blank" rel="noopener" href="https://draveness.me/mysql-innodb/">『浅入浅出』MySQL 和 InnoDB</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u010841296/article/details/84204701">Mysql锁详解（行锁、表锁、意向锁、Gap锁、插入意向锁）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.huaweicloud.com/articles/f571bafcbe55475cd94d1f2f65e729a9.html">MySQL 加锁处理分析（MVVC、快照读、当前读、GAP锁（间隙锁））</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-perfschema-excerpt/8.0/en/performance-schema-data-locks-table.html">10.13.1 The data_locks Table</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html#innodb-predicate-locks">15.7.1 InnoDB Locking</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f242bc1e95ff">MySQL的WAL（Write-Ahead Logging）机制</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ea666baf0d82">Binlog详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lovezhr/p/14820974.html"><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lovezhr/p/14820974.html">MySQL-DoubleWrite</a></a></li>
+</ul>
+</blockquote>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Mysql/">Mysql</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2021/08/14/mysql-transaction/">
+        <span class="next-text nav-default">Mysql事务</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2021
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

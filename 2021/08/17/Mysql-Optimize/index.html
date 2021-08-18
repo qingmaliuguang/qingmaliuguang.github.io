@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Mysql 优化"/>
+
+
+
+
+  <meta name="keywords" content="Mysql," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/17/Mysql-Optimize/"/>
+
+
+<meta name="description" content="索引窄索引与宽索引 窄索引   宽索引：包含查询中所需要的全部数据列。   ​    对于查询 SELECT id, username, age FROM users WHERE username&#x3D;&quot;draven&quot; 来说，(id, username) 就是一个窄索引，因为该索引没有包含存在于 SQL 查询中的 age 列，而 (id, username, age) 就是该查询的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql 优化">
+<meta property="og:url" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="索引窄索引与宽索引 窄索引   宽索引：包含查询中所需要的全部数据列。   ​    对于查询 SELECT id, username, age FROM users WHERE username&#x3D;&quot;draven&quot; 来说，(id, username) 就是一个窄索引，因为该索引没有包含存在于 SQL 查询中的 age 列，而 (id, username, age) 就是该查询的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Thin-Index-and-Fat-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Thin-Index-and-Clustered-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Filter-Factor.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Combined-Filter-Factor.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Same-Columns-Filter-Factor.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Match-Columns-Filter-Columns.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Three-Star-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Behind-Three-Star-Index.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/764761-20190521094832948-695990984.png">
+<meta property="article:published_time" content="2021-08-17T10:54:41.000Z">
+<meta property="article:modified_time" content="2021-08-18T11:57:07.224Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.coder.love/2021/08/17/Mysql-Optimize/Mysql-Optimize/assets/2017-09-11-Thin-Index-and-Fat-Index.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Mysql 优化 - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Mysql 优化
+        
+      </h1>
+
+      <time class="post-time">
+          8月 17 2021
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><h2 id="窄索引与宽索引"><a href="#窄索引与宽索引" class="headerlink" title="窄索引与宽索引"></a>窄索引与宽索引</h2><ul>
+<li>窄索引</li>
+</ul>
+<ul>
+<li>宽索引：包含查询中所需要的全部数据列。</li>
+</ul>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Thin-Index-and-Fat-Index.jpg" alt="Thin-Index-and-Fat-Index"></p>
+<p>​    对于查询 <code>SELECT id, username, age FROM users WHERE username=&quot;draven&quot;</code> 来说，(id, username) 就是一个窄索引，因为该索引没有包含存在于 SQL 查询中的 age 列，而 (id, username, age) 就是该查询的一个宽索引了，它<strong>包含这个查询中所需要的全部数据列</strong>。</p>
+<p>​    宽索引能够避免二次的随机 IO，而窄索引就需要在对索引进行顺序读取之后再根据主键 id 从主键索引中查找对应的数据：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Thin-Index-and-Clustered-Index.jpg" alt="Thin-Index-and-Clustered-Index"></p>
+<p>​    对于窄索引，每一个在索引中匹配到的记录行最终都需要执行另外的随机读取从聚集索引中获得剩余的数据，如果结果集非常大，那么就会导致随机读取的次数过多进而影响性能。</p>
+<h3 id="过滤因子"><a href="#过滤因子" class="headerlink" title="过滤因子"></a>过滤因子</h3><p>索引片变薄。</p>
+<p>一个 SQL 查询扫描的索引片大小其实是由过滤因子决定的，也就是满足查询条件的记录行数所占的比例：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Filter-Factor.jpg" alt="Filter-Facto"></p>
+<p>对于 users 表来说，sex=“male” 就不是一个好的过滤因子，它会选择整张表中一半的数据，所以<strong>在一般情况下</strong>我们最好不要使用 sex 列作为整个索引的第一列；而 name=“draven” 的使用就可以得到一个比较好的过滤因子了，它的使用能过滤整个数据表中 99.9% 的数据；当然我们也可以将这三个过滤进行组合，创建一个新的索引 (name, age, sex) 并同时使用这三列作为过滤条件：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Combined-Filter-Factor.jpg" alt="Combined-Filter-Facto"></p>
+<blockquote>
+<p>当三个过滤条件都是<strong>等值谓词</strong>时，几个索引列的顺序其实是无所谓的，<strong>索引列的顺序不会影响同一个 SQL 语句对索引的选择</strong>*，也就是索引 (name, age, sex) 和 (age, sex, name) 对于上图中的条件来说是完全一样的，这两个索引在执行查询时都有着完全相同的效果。</p>
+</blockquote>
+<p>这种直接使用乘积来计算组合条件的过滤因子其实有一个比较重要的问题：列与列之间不应该有太强的相关性。</p>
+<p>对于一张表中的同一个列，不同的值也会有不同的过滤因子，这也就造成了同一列的不同值最终的查询性能也会有很大差别：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Same-Columns-Filter-Factor.jpg" alt="Same-Columns-Filter-Facto"></p>
+<p>当我们评估一个索引是否合适时，需要考虑极端情况下查询语句的性能，比如 0% 或者 50% 等；最差的输入往往意味着最差的性能，在平均情况下表现良好的 SQL 语句在极端的输入下可能就完全无法正常工作，这也是在设计索引时需要注意的问题。</p>
+<p>总而言之，需要扫描的索引片的大小对查询性能的影响至关重要，而扫描的索引记录的数量，就是总行数与组合条件的过滤因子的乘积，索引片的大小最终也决定了从表中读取数据所需要的时间。</p>
+<h3 id="匹配列与过滤列"><a href="#匹配列与过滤列" class="headerlink" title="匹配列与过滤列"></a>匹配列与过滤列</h3><p>假设在 users 表中有 name、age 和 (name, sex, age) 三个辅助索引；当 WHERE 条件中存在类似 age = 21 或者 name = “draven” 这种<strong>等值谓词</strong>时，它们都会成为<strong>匹配列</strong>（Matching Column）用于选择索引树中的数据行，但是当我们使用以下查询时：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users</span><br><span class="line"><span class="keyword">WHERE</span> name <span class="operator">=</span> &quot;draven&quot; <span class="keyword">AND</span> sex <span class="operator">=</span> &quot;male&quot; <span class="keyword">AND</span> age <span class="operator">&gt;</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<p>虽然我们有 (name, sex, age) 索引包含了上述查询条件中的全部列，但是在这里只有 name 和 sex 两列才是匹配列，MySQL 在执行上述查询时，会选择 name 和 sex 作为匹配列，扫描所有满足条件的数据行，然后将 age 当做<strong>过滤列</strong>（Filtering Column）：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Match-Columns-Filter-Columns.jpg" alt="Match-Columns-Filter-Columns"></p>
+<p><strong>过滤列虽然不能够减少索引片的大小，但是能够减少从表中随机读取数据的次数</strong>，所以在索引中也扮演着非常重要的角色。</p>
+<h2 id="索引的设计"><a href="#索引的设计" class="headerlink" title="索引的设计"></a>索引的设计</h2><p>从总体来看如何<strong>减少随机读取的次数</strong>是设计索引时需要重视的最重要的问题。</p>
+<h3 id="三星索引"><a href="#三星索引" class="headerlink" title="三星索引"></a>三星索引</h3><p>三星索引是对于一个查询语句可能的最好索引，如果一个查询语句的索引是三星索引，那么它只需要进行<strong>一次磁盘的随机读及一个窄索引片的顺序扫描</strong>就可以得到全部的结果集。</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Three-Star-Index.jpg" alt="Three-Star-Index"></p>
+<p>为了满足三星索引中的三颗星，我们分别需要做以下几件事情：</p>
+<ol>
+<li>第一颗星需要取出<strong>所有等值谓词中的列</strong>，作为索引开头的最开始的列（任意顺序）；</li>
+<li>第二颗星需要将 <strong>ORDER BY 列</strong>加入索引中；</li>
+<li>第三颗星需要将<strong>查询语句剩余的列</strong>全部加入到索引中。</li>
+</ol>
+<p>三星索引中每颗星都有其意义：</p>
+<p><img src="Mysql-Optimize/assets/2017-09-11-Behind-Three-Star-Index.jpg" alt="Behind-Three-Star-Index"></p>
+<ol>
+<li>第一颗星不只是将等值谓词的列加入索引，它的作用是减少索引片的大小以减少需要扫描的数据行；</li>
+<li>第二颗星用于避免排序，减少磁盘 IO 和内存的使用；</li>
+<li>第三颗星用于避免每一个索引对应的数据行都需要进行一次随机 IO 从聚集索引中读取剩余的数据。</li>
+</ol>
+<p>在实际场景中，问题往往没有这么简单，我们虽然可以总能够通过宽索引避免大量的随机访问，但是在一些复杂的查询中（如同时拥有范围谓词和order by时）我们无法同时获得第一颗星和第二颗星。</p>
+<p>总而言之，在设计单表的索引时，首先把查询中所有的<strong>等值谓词全部取出</strong>以任意顺序放在索引最前面，在这时，如果索引中同时存在范围索引和 ORDER BY 就需要权衡利弊了，希望最小化扫描的索引片厚度时，应该将<strong>过滤因子最小的范围索引列</strong>加入索引，如果希望避免排序就选择 <strong>ORDER BY 中的全部列</strong>，在这之后就只需要将查询中<strong>剩余的全部列</strong>加入索引了，通过这种固定的方法和逻辑就可以最快地获得一个查询语句的二星或者三星索引了。</p>
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><p>当 MySQL 读取一个索引行或者一个表行时，就会发生一次访问，当使用全表扫描或者扫描索引片时，<strong>读取的第一个行就是随机访问</strong>，随机访问需要磁盘进行寻道和旋转，所以其代价巨大，而接下来顺序读取的所有行都是通过顺序访问读取的，代价只有随机访问的千分之一。</p>
+<h1 id="Mysql-如何使用索引"><a href="#Mysql-如何使用索引" class="headerlink" title="Mysql 如何使用索引"></a>Mysql 如何使用索引</h1><p>大多数 MySQL 索引（<code>PRIMARY KEY</code>、 <code>UNIQUE</code>、<code>INDEX</code>和 <code>FULLTEXT</code>）都存储在 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_b_tree">B 树中</a>。例外：空间数据类型的索引使用 R 树；<code>MEMORY</code> 表也支持<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_hash_index">哈希索引</a>；<code>InnoDB</code>对<code>FULLTEXT</code>索引使用倒排列表。</p>
+<p>通常，索引的使用如下面的讨论中所述。<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/index-btree-hash.html">第 8.3.9 节“B 树和哈希索引的比较”</a><code>MEMORY</code>中描述了特定于哈希索引（如表中使用的 ）的特征 。</p>
+<p>MySQL 对这些操作使用索引：</p>
+<ul>
+<li><p>WHERE快速查找与<strong>子句匹配</strong>的行。</p>
+</li>
+<li><p>从考虑中排除行。如果有多个索引之间的选择，MySQL通常使用找到<strong>最少行数</strong>的索引（最具 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_selectivity">选择性的</a>索引）。</p>
+</li>
+<li><p>如果表具有多列索引，则优化器可以使用索引的任何<strong>最左边的前缀</strong>来查找行。举例来说，如果你有一个三列的索引 <code>(col1, col2, col3)</code>，你有索引的搜索功能<code>(col1)</code>， <code>(col1, col2)</code>以及<code>(col1, col2, col3)</code>。有关更多信息，请参阅 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html">第 8.3.6 节，“多列索引”</a>。</p>
+</li>
+<li><p>在执行连接时从其他表中检索行。如果<strong>将列声明为相同的类型和大小</strong>，MySQL 可以更有效地使用列上的索引。在这种情况下， <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/char.html"><code>VARCHAR</code></a>与 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/char.html"><code>CHAR</code></a>被认为是相同的，如果它们被声明为相同的大小。例如， <code>VARCHAR(10)</code>和 <code>CHAR(10)</code>是相同的大小，但 <code>VARCHAR(10)</code>和 <code>CHAR(15)</code>不是。</p>
+<p>对于非二进制字符串列之间的比较，两列应使用相同的字符集。例如，将一<code>utf8</code>列与一 <code>latin1</code>列进行比较排除了索引的使用。</p>
+<p>如果不进行转换就无法直接比较值，则不同列的比较（例如，将字符串列与临时或数字列进行比较）可能会阻止使用索引。对于给定的值，如<code>1</code> 在数值列，它可能比较等于在字符串列，例如任何数量的值 <code>&#39;1&#39;</code>，<code>&#39; 1&#39;</code>， <code>&#39;00001&#39;</code>，或<code>&#39;01.e1&#39;</code>。这排除了对字符串列使用任何索引的可能性。</p>
+</li>
+<li><p>查找特定索引列的<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_min"><code>MIN()</code></a>或 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_max"><code>MAX()</code></a>值*<code>key_col</code><em>。这是由预处理器优化的，该预处理器检查您是否 在索引中之前出现的所有关键部分上使用。在这种情况下，MySQL 对每个or 表达式执行单个键查找，并将其替换为常量。如果所有表达式都替换为常量，则查询立即返回。例如： <code>WHERE *</code>key_part_N<code>* = *</code>constant<code>*</code></em><code>key_col</code>*<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_min"><code>MIN()</code></a><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_max"><code>MAX()</code></a></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">MIN</span>(key_part2),<span class="built_in">MAX</span>(key_part2)</span><br><span class="line">  <span class="keyword">FROM</span> tbl_name <span class="keyword">WHERE</span> key_part1<span class="operator">=</span><span class="number">10</span>;</span><br></pre></td></tr></table></figure></li>
+<li><p>如果排序或分组是在可用索引的最左前缀（例如，）上完成的，则对表进行排序或分组 。如果所有关键部分后跟，则以相反的顺序读取密钥。（或者，如果索引是降序索引，<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/order-by-optimization.html">则按</a>前向顺序读取键。）请参阅 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/order-by-optimization.html">第 8.2.1.16 节“ORDER BY 优化”</a>、 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/group-by-optimization.html">第 8.2.1.17 节“GROUP BY 优化”</a>和 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/descending-indexes.html">第 8.3.13 节“降序索引”</a>。 <code>ORDER BY *</code>key_part1<code>*, *</code>key_part2<code>*``DESC</code></p>
+</li>
+<li><p>在某些情况下，可以优化查询以在不咨询数据行的情况下检索值。（为查询提供所有必要结果的<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index">索引</a>称为 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_covering_index">覆盖索引</a>。）如果查询仅使用某个索引中包含的表中的列，则可以从索引树中检索所选值以提高速度：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> key_part3 <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> key_part1<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>索引对于小表或大表的查询不太重要</strong>，其中报告查询处理大部分或所有行。<strong>当查询需要访问大部分行时，顺序读取比通过索引读取要快。顺序读取最小化磁盘搜索，即使查询不需要所有行。</strong>有关详细信息<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/table-scan-avoidance.html">，</a>请参阅<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/table-scan-avoidance.html">第 8.2.1.23 节，“避免全表扫描”</a>。</p>
+<h1 id="Explain"><a href="#Explain" class="headerlink" title="Explain"></a>Explain</h1><p>Explain输出列</p>
+<table>
+<thead>
+<tr>
+<th align="left">Column</th>
+<th align="left">JSON Name</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">id</td>
+<td align="left">select_id</td>
+<td align="left">该SELECT语句的标识符</td>
+</tr>
+<tr>
+<td align="left">select_type</td>
+<td align="left">None</td>
+<td align="left">该SELECT语句的类型</td>
+</tr>
+<tr>
+<td align="left">table</td>
+<td align="left">table_name</td>
+<td align="left">表名</td>
+</tr>
+<tr>
+<td align="left">partitions</td>
+<td align="left">partitions</td>
+<td align="left">查询将从其中匹配记录的分区。对于非分区表，该值为NULL。</td>
+</tr>
+<tr>
+<td align="left">type</td>
+<td align="left">access_type</td>
+<td align="left">join 类型</td>
+</tr>
+<tr>
+<td align="left">possible_keys</td>
+<td align="left">possible_keys</td>
+<td align="left">指示MySQL可以选择从哪些索引中查找该表中的行。</td>
+</tr>
+<tr>
+<td align="left">key</td>
+<td align="left">key</td>
+<td align="left">表示MySQL实际决定使用的键(索引)。如果MySQL决定使用一个possible_keys索引来查找行，该索引将作为键值列出。</td>
+</tr>
+<tr>
+<td align="left">key_len</td>
+<td align="left">key_length</td>
+<td align="left">key_len列表示MySQL决定使用的键的长度。key_len的值使您能够确定MySQL实际使用的多部分键的多少部分。如果key列为NULL, key_len列也为NULL。</td>
+</tr>
+<tr>
+<td align="left">ref</td>
+<td align="left">ref</td>
+<td align="left">ref列显示哪些列或常量与key列中指定的索引进行比较，以从表中选择行。<br/>如果值是func，则使用的值是某个函数的结果。<br/>要查看哪个函数，请使用EXPLAIN后面的SHOW WARNINGS查看扩展的EXPLAIN输出。这个函数实际上可能是一个运算符，比如算术运算符。</td>
+</tr>
+<tr>
+<td align="left">rows</td>
+<td align="left">rows</td>
+<td align="left">示MySQL认为执行查询时必须检查的行数。<br/>对于InnoDB表，这个数字是一个估计，可能并不总是准确的。</td>
+</tr>
+<tr>
+<td align="left">filtered</td>
+<td align="left">filtered</td>
+<td align="left">按表条件过滤的行百分比。</td>
+</tr>
+<tr>
+<td align="left">Extra</td>
+<td align="left">None</td>
+<td align="left">这一列包含关于MySQL如何解析查询的附加信息。</td>
+</tr>
+</tbody></table>
+<p>select_type的值</p>
+<table>
+<thead>
+<tr>
+<th align="left">select_type Value</th>
+<th align="left">JSON Name</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">SIMPLE</td>
+<td align="left">None</td>
+<td align="left">简单的 SELECT (没有使用 UNION 或者 子查询)</td>
+</tr>
+<tr>
+<td align="left">PRIMARY</td>
+<td align="left">None</td>
+<td align="left">SELECT中若包含任何复杂的子部分，最外层SELECT则被标记为Primary</td>
+</tr>
+<tr>
+<td align="left">UNION</td>
+<td align="left">None</td>
+<td align="left">UNION语句中的第二个或之后的 SELECT 语句</td>
+</tr>
+<tr>
+<td align="left">DEPENDENT UNION</td>
+<td align="left">dependent (true)</td>
+<td align="left">一个 UNION 语句中的第二个或之后的SELECT语句, 依赖于外层查询。</td>
+</tr>
+<tr>
+<td align="left">UNION RESULT</td>
+<td align="left">union_result</td>
+<td align="left">UNION 的结果</td>
+</tr>
+<tr>
+<td align="left">SUBQUERY</td>
+<td align="left">None</td>
+<td align="left">子查询中的第一个 SELECT。</td>
+</tr>
+<tr>
+<td align="left">DEPENDENT SUBQUERY</td>
+<td align="left">dependent (true)</td>
+<td align="left">子查询中的第一个 SELECT, 依赖于外层查询。</td>
+</tr>
+<tr>
+<td align="left">DERIVED</td>
+<td align="left">None</td>
+<td align="left">在FROM列表中包含的子查询被标记为DERIVED(衍生);MySQL会递归执行这些子查询, 把结果放在临时表里。</td>
+</tr>
+<tr>
+<td align="left">DEPENDENT DERIVED</td>
+<td align="left">dependent (true)</td>
+<td align="left">依赖于另一张表的衍生表。</td>
+</tr>
+<tr>
+<td align="left">MATERIALIZED</td>
+<td align="left">materialized_from_subquery</td>
+<td align="left">物化子查询</td>
+</tr>
+<tr>
+<td align="left">UNCACHEABLE SUBQUERY</td>
+<td align="left">cacheable (false)</td>
+<td align="left">无法缓存其结果的子查询，必须对外部查询的每一行重新求值。</td>
+</tr>
+<tr>
+<td align="left">UNCACHEABLE UNION</td>
+<td align="left">cacheable (false)</td>
+<td align="left">属于非缓存子查询的UNION中的第二或之后的SELECT。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>通过物化来优化子查询</p>
+<p>优化器使用物化能够更有效的来处理子查询。物化通过将子查询结果作为一个临时表来加快查询执行速度，正常来说是在内存中的。mysql第一次需要子查询结果是，它物化结果到一张<strong>临时表</strong>中。在之后的任何地方需要该结果集，mysql会再次引用临时表。优化器也许会使用一个哈希索引来使得查询更快速代价更小。索引是唯一的，排除重复并使得表数据更少。<br>子查询物化如果可以的话会使用一个内存临时表，如果表太大则会落实为磁盘存储。具体请看8.4.4的在mysql中使用内部临时表。</p>
+</blockquote>
+<p><strong>EXPLAIN 输出的 type 列描述表是如何连接的。</strong>在json格式的输出中，可以找到access_type属性的值。下面的列表描述了连接类型，按<strong>从好到坏</strong>的顺序排列:</p>
+<ul>
+<li><p>system</p>
+<ul>
+<li>该表只有一行(= system table)。这是const连接类型的特殊情况。</li>
+</ul>
+</li>
+<li><p>const</p>
+<ul>
+<li><p>该表最多有一个匹配的行，在查询的开始读取。因为只有一行，所以这一行中的列的值可以被优化器的其余部分视为常量。const表非常快，因为它们只被读取一次。</p>
+</li>
+<li><p>当将<strong>PRIMARY KEY</strong>或<strong>UNIQUE索引</strong>的所有部分与<strong>常量</strong>进行比较时，使用const。在下面的查询中，tbl_name可以用作const表:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name <span class="keyword">WHERE</span> primary_key<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> primary_key_part1<span class="operator">=</span><span class="number">1</span> <span class="keyword">AND</span> primary_key_part2<span class="operator">=</span><span class="number">2</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>eq_ref</p>
+<ul>
+<li><p>对于前面表中的每个行组合，将从该表中读取一行。除了系统类型和const类型，这是最好的连接类型。当连接使用索引的所有部分，并且<strong>索引是主键或UNIQUE NOT NULL索引</strong>时使用。</p>
+</li>
+<li><p>eq_ref可以用于使用=操作符进行比较的索引列。比较值可以是常量或表达式，该表达式使用在该表之前读取的表中的列。在下面的例子中，MySQL可以使用eq_ref连接来处理ref_table:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table,other_table</span><br><span class="line">  <span class="keyword">WHERE</span> ref_table.key_column<span class="operator">=</span>other_table.column;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table,other_table</span><br><span class="line">  <span class="keyword">WHERE</span> ref_table.key_column_part1<span class="operator">=</span>other_table.column</span><br><span class="line">  <span class="keyword">AND</span> ref_table.key_column_part2<span class="operator">=</span><span class="number">1</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>ref</p>
+<ul>
+<li><p>对于前面表中的每个行组合，将从该表中读取具有匹配索引值的所有行。如果连接仅使用键的最左边前缀，或者该键不是PRIMARY key或UNIQUE索引(换句话说，<strong>如果连接不能根据键值选择单行</strong>)，则使用ref。如果所使用的键只匹配少数行，那么这是一种很好的连接类型。</p>
+</li>
+<li><p>ref可用于使用=或&lt;=&gt;操作符进行比较的索引列。在下面的例子中，MySQL可以使用ref连接来处理ref_table:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table <span class="keyword">WHERE</span> key_column<span class="operator">=</span>expr;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table,other_table</span><br><span class="line">  <span class="keyword">WHERE</span> ref_table.key_column<span class="operator">=</span>other_table.column;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table,other_table</span><br><span class="line">  <span class="keyword">WHERE</span> ref_table.key_column_part1<span class="operator">=</span>other_table.column</span><br><span class="line">  <span class="keyword">AND</span> ref_table.key_column_part2<span class="operator">=</span><span class="number">1</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>fulltext</p>
+<ul>
+<li>使用FULLTEXT索引执行的join。</li>
+</ul>
+</li>
+<li><p>ref_or_null</p>
+<ul>
+<li><p>这个连接类型类似于ref，但是MySQL会额外搜索包含NULL值的行。这种连接类型优化最常用于解析子查询。在下面的例子中，MySQL可以使用ref_or_null连接来处理ref_table:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> ref_table</span><br><span class="line">  <span class="keyword">WHERE</span> key_column<span class="operator">=</span>expr <span class="keyword">OR</span> key_column <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>index_merge</p>
+<ul>
+<li>此连接类型表明使用了Index Merge优化。在本例中，输出行中的key列包含所使用索引的列表，key_len包含所使用索引的最长key部分的列表。</li>
+</ul>
+</li>
+<li><p>unique_subquery</p>
+<ul>
+<li><p>这个类型替换了以下形式的IN子查询的eq_ref:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">value</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> primary_key <span class="keyword">FROM</span> single_table <span class="keyword">WHERE</span> some_expr)</span><br></pre></td></tr></table></figure></li>
+<li><p>unique_subquery只是一个<strong>索引查找函数</strong>，它完全替代子查询以提高效率。</p>
+</li>
+</ul>
+</li>
+<li><p>index_subquery</p>
+<ul>
+<li><p>这种连接类型类似于unique_subquery。它代替了IN子查询，但它适用于以下形式的子查询中的<strong>非唯一索引</strong>:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">value</span> <span class="keyword">IN</span> (<span class="keyword">SELECT</span> key_column <span class="keyword">FROM</span> single_table <span class="keyword">WHERE</span> some_expr)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>range</p>
+<ul>
+<li><p>只检索给定范围内的行，使用索引选择行。输出行中的key列指示使用哪个索引。key_len包含所使用的最长的key部分。对于这种类型，ref列是NULL。</p>
+</li>
+<li><p>当使用任意的=，&lt;&gt;，&gt;，&gt;=，&lt;，&lt;=，is NULL， &lt;=&gt;， BETWEEN, LIKE, or IN()操作符将key列与常量进行比较时，可以使用range:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> key_column <span class="operator">=</span> <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> key_column <span class="keyword">BETWEEN</span> <span class="number">10</span> <span class="keyword">and</span> <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> key_column <span class="keyword">IN</span> (<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tbl_name</span><br><span class="line">  <span class="keyword">WHERE</span> key_part1 <span class="operator">=</span> <span class="number">10</span> <span class="keyword">AND</span> key_part2 <span class="keyword">IN</span> (<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>index</p>
+<ul>
+<li><p>index 连接类型与ALL相同，只是扫描的是索引树。这有两种方式:</p>
+<ul>
+<li>如果索引是查询的覆盖索引，并且可以用来满足表中所需的所有数据，则只扫描索引树。在本例中，Extra 列显示”<em>Using index</em>“。仅索引扫描通常比ALL扫描快，因为索引的大小通常小于表数据。</li>
+<li>全表扫描是通过从索引中读取数据以按照索引顺序查找数据行来执行的。”<em>Using index</em>“不出现在 Extra 列。</li>
+</ul>
+<p>当查询只使用属于单个索引的列时，MySQL可以使用这种连接类型。</p>
+</li>
+</ul>
+</li>
+<li><p>all</p>
+<ul>
+<li>对前面表中的每个行组合进行全表扫描。如果表是第一个没有标记为const的表，这通常不太好，在所有其他情况下通常都很糟糕。通常，您可以通过添加索引来避免ALL，这些索引支持基于常量值或早期表中的列值从表中检索行。</li>
+</ul>
+</li>
+</ul>
+<h1 id="mysqldumpslow-慢查询日志"><a href="#mysqldumpslow-慢查询日志" class="headerlink" title="mysqldumpslow 慢查询日志"></a>mysqldumpslow 慢查询日志</h1><p>MySQL 慢查询日志包含有关需要很长时间执行的查询的信息。mysqldumpslow解析 MySQL 慢查询日志文件并汇总其内容。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldumpslow [<span class="operator">*</span>options<span class="operator">*</span>] [<span class="operator">*</span>log_file<span class="operator">*</span> ...]</span><br></pre></td></tr></table></figure>
+
+<p>mysqldumpslow 支持以下 options：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Option Name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-a</td>
+<td align="left">不要把所有数字抽象为N，字符串抽象为S。</td>
+</tr>
+<tr>
+<td align="left">-n</td>
+<td align="left">名称中至少包含N位的抽象数字。</td>
+</tr>
+<tr>
+<td align="left">–debug</td>
+<td align="left">以debug模式运行，输出debug信息。</td>
+</tr>
+<tr>
+<td align="left">-g</td>
+<td align="left">只考虑与模式匹配的语句。</td>
+</tr>
+<tr>
+<td align="left">–help</td>
+<td align="left">打印help信息并退出。</td>
+</tr>
+<tr>
+<td align="left">-h</td>
+<td align="left">日志文件名中添加服务器的主机名。</td>
+</tr>
+<tr>
+<td align="left">-i</td>
+<td align="left">server 实例的名称。</td>
+</tr>
+<tr>
+<td align="left">-l</td>
+<td align="left">不从总时间中减去 lock 的时间。</td>
+</tr>
+<tr>
+<td align="left">-r</td>
+<td align="left">反向排序</td>
+</tr>
+<tr>
+<td align="left">-s</td>
+<td align="left">如何对输出进行排序，sort_type：t、at、l、al、r、ar、c</td>
+</tr>
+<tr>
+<td align="left">-t</td>
+<td align="left">在输出中只显示前N个查询。</td>
+</tr>
+<tr>
+<td align="left">–verbose</td>
+<td align="left">详细模式。</td>
+</tr>
+</tbody></table>
+<h1 id="semi-join"><a href="#semi-join" class="headerlink" title="semi-join"></a>semi-join</h1><p>semi-join Materialization 是用于semi-join的一种特殊的子查询物化技术。通常包含两种策略：</p>
+<p>1.Materialization/lookup</p>
+<p>2.Materialization/scan</p>
+<p>考虑一个查询欧洲有大城市的国家:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> Country</span><br><span class="line"><span class="keyword">where</span> Country.code <span class="keyword">IN</span> (<span class="keyword">select</span> City.Country</span><br><span class="line">                       <span class="keyword">from</span> City</span><br><span class="line">                       <span class="keyword">where</span> City.Population <span class="operator">&gt;</span> <span class="number">7</span><span class="operator">*</span><span class="number">1000</span><span class="operator">*</span><span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">and</span> Country.continent<span class="operator">=</span><span class="string">&#x27;Europe&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>子查询是非相关子查询。也即是我们可以独立运行内查询。semi-materialization的思想是使用city.country中可能的值填充一个临时表，然后和欧洲的国家进行关联。</p>
+<p><img src="Mysql-Optimize/assets/764761-20190521094832948-695990984.png" alt="img"></p>
+<p>这个join可以从两个方向进行：</p>
+<ol>
+<li>从物化表到国家表</li>
+<li>从国家表到物化表</li>
+</ol>
+<p>第一个方向涉及一个全表扫描(在物化表上的全表扫描)，因此被称为”Materialization-scan”；如果从第二个方向进行，最廉价的方式是使用主键从物化表中lookup出匹配的记录。这种方式被称为”Materialization-lookup”。</p>
+<h1 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h1><p>本节讨论MySQL 8.0中可用的分区类型。这些包括这里列出的类型:</p>
+<ul>
+<li>RANGE partitioning<ul>
+<li>这种类型的分区根据位于给定范围内的列值将行分配给分区。</li>
+</ul>
+</li>
+<li>LIST partitioning<ul>
+<li>类似于RANGE分区，但分区是根据匹配一组离散值之一的列。</li>
+</ul>
+</li>
+<li>HASH partitioning<ul>
+<li>使用这种类型的分区，将根据用户定义表达式返回的值选择分区，该表达式对要插入到表中的行中的列值进行操作。这个函数可以包含任何在MySQL中有效的表达式，并产生一个非负整数值。该类型的扩展 LINEAR HASH 也可用。</li>
+</ul>
+</li>
+<li>KEY partitioning<ul>
+<li>这种类型的分区类似于HASH分区，除了只提供一个或多个要计算的列，而且MySQL服务器提供自己的哈希函数。这些列可以包含非整数值，因为MySQL提供的散列函数保证了一个整数结果，而不管列数据类型是什么。这种类型的扩展，LINEAR KEY，也可用。</li>
+</ul>
+</li>
+</ul>
+<p>数据库分区的一个非常常见的用途是按日期隔离数据。一些数据库系统支持显式的日期分区，MySQL在8.0中没有实现。然而，在MySQL中创建基于DATE、TIME或DATETIME列或基于使用这些列的表达式的分区方案并不困难。</p>
+<p>当使用KEY或LINEAR KEY进行分区时，可以使用DATE、TIME或DATETIME列作为分区列，而不需要对列值进行任何修改。例如，这个表创建语句在MySQL中是完全有效的:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> members (</span><br><span class="line">    firstname <span class="type">VARCHAR</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    lastname <span class="type">VARCHAR</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    username <span class="type">VARCHAR</span>(<span class="number">16</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    email <span class="type">VARCHAR</span>(<span class="number">35</span>),</span><br><span class="line">    joined <span class="type">DATE</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> KEY(joined)</span><br><span class="line">PARTITIONS <span class="number">6</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在MySQL 8.0中，也可以使用DATE或DATETIME列作为使用RANGE列和LIST列分区的分区列。</p>
+<p>其他分区类型需要生成整数值或NULL的分区表达式。如果你想使用RANGE、LIST、HASH或LINEAR HASH的基于日期的分区，你可以简单地使用一个函数，在DATE、TIME或DATETIME列上操作并返回这样一个值，如下所示:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> members (</span><br><span class="line">    firstname <span class="type">VARCHAR</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    lastname <span class="type">VARCHAR</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    username <span class="type">VARCHAR</span>(<span class="number">16</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">    email <span class="type">VARCHAR</span>(<span class="number">35</span>),</span><br><span class="line">    joined <span class="type">DATE</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">RANGE</span>( <span class="keyword">YEAR</span>(joined) ) (</span><br><span class="line">    <span class="keyword">PARTITION</span> p0 <span class="keyword">VALUES</span> LESS THAN (<span class="number">1960</span>),</span><br><span class="line">    <span class="keyword">PARTITION</span> p1 <span class="keyword">VALUES</span> LESS THAN (<span class="number">1970</span>),</span><br><span class="line">    <span class="keyword">PARTITION</span> p2 <span class="keyword">VALUES</span> LESS THAN (<span class="number">1980</span>),</span><br><span class="line">    <span class="keyword">PARTITION</span> p3 <span class="keyword">VALUES</span> LESS THAN (<span class="number">1990</span>),</span><br><span class="line">    <span class="keyword">PARTITION</span> p4 <span class="keyword">VALUES</span> LESS THAN MAXVALUE</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>使用日期进行分区的其他例子可在本章的以下章节中找到:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-range.html">Section 24.2.1, “RANGE Partitioning”</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-hash.html">Section 24.2.4, “HASH Partitioning”</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-linear-hash.html">Section 24.2.4.1, “LINEAR HASH Partitioning”</a></li>
+</ul>
+<p>有关更复杂的基于日期的分区示例，请参见以下部分:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-pruning.html">Section 24.4, “Partition Pruning”</a></li>
+<li><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-subpartitions.html">Section 24.2.6, “Subpartitioning”</a></li>
+</ul>
+<p>MySQL分区通过TO_DAYS()、YEAR()和TO_SECONDS()函数进行了优化。但是，您可以使用其他返回整数或NULL的日期和时间函数，如WEEKDAY()、DAYOFYEAR()或MONTH()。</p>
+<p>重要的是要记住—不管您使用的分区类型是什么—分区总是在创建时自动编号并按顺序编号，从0开始。当将新行插入分区表时，将使用这些分区号来标识正确的分区。例如，如果您的表使用4个分区，则这些分区编号为0、1、2和3。对于RANGE和LIST分区类型，必须确保为每个分区号定义了一个分区。对于HASH分区，用户提供的表达式必须计算为大于0的整数值。对于KEY分区，这个问题是由MySQL服务器内部使用的哈希函数自动处理的。</p>
+<p>分区的名称通常遵循管理其他MySQL标识符(如表和数据库标识符)的规则。但是，您应该注意分区名称不区分大小写。例如，下面的CREATE TABLE语句失败，如下所示:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t2 (val <span class="type">INT</span>)</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> <span class="keyword">PARTITION</span> <span class="keyword">BY</span> LIST(val)(</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span>     <span class="keyword">PARTITION</span> mypart <span class="keyword">VALUES</span> <span class="keyword">IN</span> (<span class="number">1</span>,<span class="number">3</span>,<span class="number">5</span>),</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span>     <span class="keyword">PARTITION</span> MyPart <span class="keyword">VALUES</span> <span class="keyword">IN</span> (<span class="number">2</span>,<span class="number">4</span>,<span class="number">6</span>)</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> );</span><br><span class="line">ERROR <span class="number">1488</span> (HY000): Duplicate <span class="keyword">partition</span> name mypart</span><br></pre></td></tr></table></figure>
+
+<p>因为MySQL看不到分区名mypart和mypart之间的区别，所以会发生失败。</p>
+<p>当您指定表的分区数时，必须将其表示为一个正的、不带前导零的非零整数字面值，并且可能不是像0.8E+01或6-2这样的表达式，即使它计算出的值是一个整数值。小数是不允许的。</p>
+<hr>
+<blockquote>
+<p>感谢摘抄（或参考）的文章：</p>
+<p><a target="_blank" rel="noopener" href="https://draveness.me/sql-index-intro/">MySQL 索引设计概要</a></p>
+<p><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html">8.3.1 How MySQL Uses Indexes</a></p>
+<p><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/explain-output.html#explain-join-types">8.8.2 EXPLAIN Output Format</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/abclife/p/10899350.html">semi-join子查询优化 – semi-join Materialization策略</a></p>
+<p><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/mysqldumpslow.html">4.6.10 mysqldumpslow — Summarize Slow Query Log Files</a></p>
+<p><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/partitioning-types.html">24.2 Partitioning Types</a></p>
+</blockquote>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Mysql/">Mysql</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2021/08/16/InnoDB/">
+        <span class="next-text nav-default">InnoDB</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2021
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

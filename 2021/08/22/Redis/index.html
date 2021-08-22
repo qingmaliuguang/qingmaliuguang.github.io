@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Redis"/>
+
+
+
+
+  <meta name="keywords" content="Redis," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/22/Redis/"/>
+
+
+<meta name="description" content="1. Redis 数据类型Redis 不是一个普通的键值存储，它实际上是一个数据结构服务器，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：  Binary-safe strings。 Lists Sets Sorted sets Hashes Bit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis">
+<meta property="og:url" content="http://blog.coder.love/2021/08/22/Redis/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="1. Redis 数据类型Redis 不是一个普通的键值存储，它实际上是一个数据结构服务器，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：  Binary-safe strings。 Lists Sets Sorted sets Hashes Bit">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1289934-20190621163930814-1395015700.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/sds_def.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213200117107-1518159670.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213200929586-318083919.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205210928206.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205211105653.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205211246498.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205211539787.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212059243.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212409123.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212458264.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212553339.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212659309.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/20161205212712590.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213201733089-1490815062.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213201838639-805210660.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213202024590-570344443.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213202038671-1204788410.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213202122053-915674055.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1238581-20210213202144716-2013979073.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/image-20210822195733449.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006113347736-1579349638.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006113541904-1736285180.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006121120390-676037470.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006122611921-809764078.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006122741113-1584577962.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1350922-20191006124637992-2055348918.png">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822233424914">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822234038823">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822234537782">
+<meta property="article:published_time" content="2021-08-22T01:44:22.000Z">
+<meta property="article:modified_time" content="2021-08-22T15:59:46.881Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/1289934-20190621163930814-1395015700.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Redis - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Redis
+        
+      </h1>
+
+      <time class="post-time">
+          8月 22 2021
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="1-Redis-数据类型"><a href="#1-Redis-数据类型" class="headerlink" title="1. Redis 数据类型"></a>1. Redis 数据类型</h1><p>Redis 不是一个<em>普通的</em>键值存储，它实际上是一个<em>数据结构服务器</em>，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：</p>
+<ul>
+<li>Binary-safe strings。</li>
+<li>Lists</li>
+<li>Sets</li>
+<li>Sorted sets</li>
+<li>Hashes</li>
+<li>Bit arrays (or simply bitmaps)</li>
+<li>HyperLogLogs</li>
+<li>Streams</li>
+</ul>
+<h2 id="1-0-Redis-键（非数据类型）"><a href="#1-0-Redis-键（非数据类型）" class="headerlink" title="1.0 Redis 键（非数据类型）"></a>1.0 Redis 键（非数据类型）</h2><p>Redis 键是<strong>二进制安全</strong>的，这意味着您可以使用任何二进制序列作为键，从像“foo”这样的字符串到 JPEG 文件的内容。空字符串也是一个有效的键。</p>
+<p>关于key的其他一些规则：</p>
+<ul>
+<li>很长的键不是一个好主意。例如，1024 字节的键不仅在内存方面是个坏主意，而且因为在数据集中查找键可能需要多次昂贵的键比较。即使手头的任务是匹配一个大值的存在，对其进行散列（例如使用 SHA1）也是一个更好的主意，尤其是从内存和带宽的角度来看。</li>
+<li>很短的键通常不是一个好主意。如果您可以改写成“user:1000:followers”，那么将“u1000flw”写为键就没有什么意义了。前者更具可读性，与键对象本身和值对象使用的空间相比，增加的空间较小。虽然短键显然会消耗更少的内存，但您的工作是找到正确的平衡点。</li>
+<li>尝试坚持使用一种模式。例如“object-type:id”是个好主意，如“user:1000”。点或破折号通常用于多词字段，如“comment:234:reply.to”或“comment:234:reply-to”。</li>
+<li>允许的最大key大小为 512 MB。</li>
+</ul>
+<blockquote>
+<p><strong>SHA-1</strong>是一种安全散列算法，SHA-1可以生成一个被称为消息摘要的160位（20字节）散列值，散列值通常的呈现形式为40个十六进制数。</p>
+</blockquote>
+<p>有些命令没有在特定类型上定义，但对于与键空间交互很有用，因此可以与任何类型的键一起使用。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> mykey hello</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">#</span><span class="bash"> 例如，EXISTS 命令返回 1 或 0 以表示数据库中是否存在给定的键</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> exists mykey</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 还有TYPE命令，它返回存储在指定键上的值的种类</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">type</span> mykey</span></span><br><span class="line">string</span><br><span class="line"><span class="meta">#</span><span class="bash"> 而DEL 命令删除键和关联的值，无论值是什么。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> del mykey</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> exists mykey</span></span><br><span class="line">(integer) 0</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">type</span> mykey</span></span><br><span class="line">none</span><br></pre></td></tr></table></figure>
+
+<h3 id="Redis-过期：生存时间有限的键"><a href="#Redis-过期：生存时间有限的键" class="headerlink" title="Redis 过期：生存时间有限的键"></a>Redis 过期：生存时间有限的键</h3><p>基本上，您可以为key设置超时，这是有限的生存时间。当生存时间结束时，key会自动销毁，就像用户使用key调用DEL命令一样。</p>
+<p>关于 Redis 过期的一些快速信息：</p>
+<ul>
+<li>它们可以使用秒或毫秒精度进行设置；</li>
+<li>但是，过期时间<strong>分辨率</strong>始终为 <strong>1 毫秒</strong>；</li>
+<li>有关过期的信息被复制并保存在磁盘上，当您的 Redis 服务器保持停止状态时，时间实际上已经过去了（这意味着 Redis 会保存key的过期日期）。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> key some-value</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置过期</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> expire key 5</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> get key (immediately)</span></span><br><span class="line">&quot;some-value&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> get key (after some time)</span></span><br><span class="line">(nil)</span><br><span class="line"><span class="meta">#</span><span class="bash"> 也可以使用其他 Redis 命令创建带有过期时间的键。expire 单位是秒，对应pexpire是毫秒。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> key 100 ex 10</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看剩余过期时间，单位是秒，对应pttl是毫秒</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> ttl key</span></span><br><span class="line">(integer) 9</span><br></pre></td></tr></table></figure>
+
+<h3 id="自动删除和创建key"><a href="#自动删除和创建key" class="headerlink" title="自动删除和创建key"></a>自动删除和创建key</h3><p>当列表为空时，Redis会负责删除该键；如果键不存在，而我们又试图添加元素到它，Redis会负责创建一个空列表。这并不是特定于列表，它适用于所有由多个元素组成的Redis数据类型——Streams, Sets, Sorted Sets and Hashes。</p>
+<p>基本上，我们可以用三条规则来总结这种行为:</p>
+<ul>
+<li>在向聚合数据类型添加元素时，如果目标键不存在，则在添加元素之前创建一个空的聚合数据类型。</li>
+<li>当从聚合数据类型中删除元素时，如果值仍然为空，则自动销毁键。Stream数据类型是此规则的唯一例外。</li>
+<li>调用只读命令，如LLEN(它返回列表的长度)，或使用空键删除元素的write命令，总是产生与该键持有命令期望查找的空聚合类型相同的结果。</li>
+</ul>
+<p>常用的五种数据结构：</p>
+<img src="Redis/assets/1289934-20190621163930814-1395015700.png" alt="img" style="zoom: 67%;" />
+
+<h2 id="1-1-Redis-Strings"><a href="#1-1-Redis-Strings" class="headerlink" title="1.1 Redis Strings"></a>1.1 Redis Strings</h2><p>Redis 字符串类型是您可以与 Redis 键关联的最简单的值类型。String类型是二进制安全的，可以是各种字符串（包括二进制数据），例如您可以在值中存储 jpeg 图像。值不能大于 512 MB。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> mykey somevalue</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> get mykey</span></span><br><span class="line">&quot;somevalue&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> nx 选项，如果键已经存在，则<span class="built_in">set</span>失败。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> mykey newval nx</span></span><br><span class="line">(nil)</span><br><span class="line"><span class="meta">#</span><span class="bash"> xx 选项，只有键已经村子，才会成功。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> mykey newval xx</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">#</span><span class="bash"> 即使字符串是 Redis 的基本值，您也可以使用它们执行一些	有趣的操作。例如，一个原子增量：</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> <span class="built_in">set</span> counter 100</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> incr counter</span></span><br><span class="line">(integer) 101</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> incr counter</span></span><br><span class="line">(integer) 102</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> incrby counter 50</span></span><br><span class="line">(integer) 152</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在单个命令中设置或检索多个键的值的能力对于减少延迟也很有用。出于这个原因，有MSET和MGET命令：</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> mset a 10 b 20 c 30</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> mget a b c</span></span><br><span class="line">1) &quot;10&quot;</span><br><span class="line">2) &quot;20&quot;</span><br><span class="line">3) &quot;30&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实战场景"><a href="#实战场景" class="headerlink" title="实战场景"></a>实战场景</h3><ol>
+<li>缓存： 经典使用场景，把常用信息，字符串，图片或者视频等信息放到redis中，redis作为缓存层，mysql做持久化层，降低mysql的读写压力。</li>
+<li>计数器：redis是单线程模型，一个命令执行完才会执行下一个，同时数据可以一步落地到其他的数据源。</li>
+<li>session：常见方案spring session + redis实现session共享。</li>
+</ol>
+<h2 id="1-2-Redis-Lists"><a href="#1-2-Redis-Lists" class="headerlink" title="1.2 Redis Lists"></a>1.2 Redis Lists</h2><p>Redis 列表是通过链表实现的。这意味着即使列表中有数百万个元素，在列表的头部或尾部添加新元素的操作也是<em>在常数时间内</em>执行的。使用<a target="_blank" rel="noopener" href="https://redis.io/commands/lpush">LPUSH</a>命令在10个元素的列表头添加一个新元素的速度与在1000万个元素的列表头添加一个元素的速度是一样的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> rpush mylist A</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">#</span><span class="bash"> RPUSH命令在右侧（在尾部）向列表中添加一个新元素</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> rpush mylist B</span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">#</span><span class="bash"> LPUSH命令在左侧（头部）向列表中添加一个新元素</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> lpush mylist first</span></span><br><span class="line">(integer) 3</span><br><span class="line"><span class="meta">#</span><span class="bash"> 请注意，LRANGE需要两个索引，即要返回的范围的第一个和最后一个元素。两个索引都可以是负数，告诉 Redis 从末尾开始计数：所以 -1 是最后一个元素，-2 是列表的倒数第二个元素，依此类推。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> lrange mylist 0 -1</span></span><br><span class="line">1) &quot;first&quot;</span><br><span class="line">2) &quot;A&quot;</span><br><span class="line">3) &quot;B&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> rpush mylist 1 2 3 4 5 <span class="string">&quot;foo bar&quot;</span></span></span><br><span class="line">(integer) 9</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> rpush mylist a b c</span></span><br><span class="line">(integer) 3</span><br><span class="line"><span class="meta">#</span><span class="bash"> 从右侧弹出元素</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> rpop mylist</span></span><br><span class="line">&quot;foo bar&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="列表的常见用例"><a href="#列表的常见用例" class="headerlink" title="列表的常见用例"></a>列表的常见用例</h3><p>列表对许多任务有用，以下两个非常有代表性的用例：</p>
+<ul>
+<li>记住用户发布到社交网络的最新更新。</li>
+<li>进程之间的通信，使用消费者-生产者模式，将项目推入列表，消费者（通常是<em>工人</em>）消费这些项目并执行操作。Redis有特殊的列表命令，使此用例更加可靠和高效。</li>
+</ul>
+<p>例如，流行的Ruby库resque和sidekiq都在幕后使用Redis列表来实现后台任务。</p>
+<p>流行的Twitter社交网络将用户发布的最新推文放到Redis列表中。</p>
+<p>为了一步一步地描述一个常用的用例，假设您的主页显示了在照片分享社交网络中发布的最新照片，并且您希望加快访问速度。</p>
+<ul>
+<li>每当用户发布一张新照片时，我们就使用LPUSH将其ID添加到列表中。</li>
+<li>当用户访问主页时，我们使用<code>LRANGE 0 9</code>来获取最新的10个发布项目。</li>
+</ul>
+<h3 id="上限列表"><a href="#上限列表" class="headerlink" title="上限列表"></a>上限列表</h3><p>在许多用例中，我们只想使用列表来存储<em>最新项目</em>，无论它们是：社交网络更新、日志或其他任何东西。</p>
+<p>Redis允许我们使用列表作为带上限的集合，只记住最新的N项，并使用<a target="_blank" rel="noopener" href="https://redis.io/commands/ltrim">LTRIM</a>命令丢弃所有最古老的项。</p>
+<p>LTRIM命令类似于LRANGE，但是它不显示指定的元素范围，而是将该范围设置为新的列表值。所有超出给定范围的元素都将被删除。</p>
+<p>一个例子将使它更加清晰：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> rpush mylist 1 2 3 4 5</span></span><br><span class="line">(integer) 5</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> ltrim mylist 0 2</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> lrange mylist 0 -1</span></span><br><span class="line">1) &quot;1&quot;</span><br><span class="line">2) &quot;2&quot;</span><br><span class="line">3) &quot;3&quot;</span><br></pre></td></tr></table></figure>
+
+<p>上面的LTRIM命令告诉Redis只取索引0到2的列表元素，其他的元素将被丢弃。这允许了一个非常简单但有用的模式:同时执行List push操作和List trim操作，以添加新元素和丢弃超出限制的元素:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LPUSH mylist &lt;some element&gt;</span><br><span class="line">LTRIM mylist 0 999</span><br></pre></td></tr></table></figure>
+
+<p>上面的组合添加了一个新元素，并且只接受1000个最新元素到列表中。使用LRANGE，您可以访问最重要的项，而不需要记住非常旧的数据。</p>
+<p>注意:虽然LRANGE在技术上是一个O(N)命令，但在列表的头部或尾部访问小范围是一个常数时间操作。</p>
+<h3 id="列表上的阻塞操作"><a href="#列表上的阻塞操作" class="headerlink" title="列表上的阻塞操作"></a>列表上的阻塞操作</h3><p>列表有一个特殊功能，使其适合实现队列，通常作为进程间通信系统的基石：阻塞操作。</p>
+<p>Redis实现了叫做BRPOP和BLPOP的命令，这是RPOP和LPOP的阻塞版本，如果列表是空的，它们会阻塞:它们只会在列表中添加新元素时返回给调用者，或者当用户指定的超时到达时。</p>
+<p>这是一个我们可以在worker中使用的BRPOP调用示例:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> brpop tasks 5</span></span><br><span class="line">1) &quot;tasks&quot;</span><br><span class="line">2) &quot;do_something&quot;</span><br></pre></td></tr></table></figure>
+
+<p>它的意思是:“等待列表任务中的元素，但如果5秒后没有元素可用则返回”。</p>
+<p>注意，可以使用0作为超时来永远等待元素，还可以指定多个列表而不是一个，以便同时在多个列表上等待，并在第一个列表接收到元素时获得通知。</p>
+<p>关于BRPOP有几点需要注意:</p>
+<ul>
+<li><strong>客户端以有序的方式被服务</strong>:第一个客户端阻塞等待列表，当某个元素被其他客户端推入时，第一个客户端被服务，以此类推。</li>
+<li>返回值与RPOP不同:它是一个<strong>双元素数组，因为它还包括键名</strong>，因为BRPOP和BLPOP能够阻塞等待来自多个列表的元素。</li>
+<li>如果超时，则返回NULL。</li>
+</ul>
+<p>关于列表和阻塞操作，还有更多你应该知道的事情。我们建议你多阅读以下内容:</p>
+<ul>
+<li>可以使用<a target="_blank" rel="noopener" href="https://redis.io/commands/lmove">LMOVE</a>构建更安全的队列或旋转队列；</li>
+<li>该命令还有一个阻塞变体，称为<a target="_blank" rel="noopener" href="https://redis.io/commands/blmove">BLMOVE</a>。</li>
+</ul>
+<p><strong>LMOVE</strong></p>
+<p><strong>原子地</strong>返回并删除存储在<strong>源列表</strong>的第一个/最后一个元素(head/tail取决于wherefrom参数)，并将元素推入存储在<strong>目标列表</strong>的第一个/最后一个元素(head/tail取决于whereto参数)。时间复杂度O(1)。</p>
+<p>这个命令代替了现在已弃用的RPOPLPUSH。LMOVE RIGHT LEFT 是等价的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">redis&gt;</span><span class="bash"> RPUSH mylist <span class="string">&quot;one&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> RPUSH mylist <span class="string">&quot;two&quot;</span></span></span><br><span class="line">(integer) 2</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> RPUSH mylist <span class="string">&quot;three&quot;</span></span></span><br><span class="line">(integer) 3</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> LMOVE mylist myotherlist RIGHT LEFT</span></span><br><span class="line">&quot;three&quot;</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> LMOVE mylist myotherlist LEFT RIGHT</span></span><br><span class="line">&quot;one&quot;</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> LRANGE mylist 0 -1</span></span><br><span class="line">1) &quot;two&quot;</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> LRANGE myotherlist 0 -1</span></span><br><span class="line">1) &quot;three&quot;</span><br><span class="line">2) &quot;one&quot;</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> </span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>模式:可靠队列</strong></p>
+<blockquote>
+<p>Redis经常被用作消息服务器来实现后台任务或其他类型的消息任务的处理。一种简单的队列形式通常是在生产者端将值压入列表，然后在消费者端使用RPOP(使用轮询)或BRPOP(如果阻塞操作更好地服务客户端)等待该值。</p>
+<p>然而，在这种上下文中，获得的队列并不可靠，因为消息可能会丢失，例如，在出现网络问题或消费者刚刚收到消息但仍在处理时崩溃的情况下。</p>
+<p>LMOVE(或阻塞变量的BLMOVE)提供了一种避免这个问题的方法:使用者获取消息，同时将其推入<strong>处理列表</strong>。一旦消息被处理，它将使用LREM命令从处理列表中删除消息。</p>
+<p>另一个客户端可能会<strong>监视处理列表中停留时间过长的项目</strong>，如果需要，将把那些超时的项目再次推入队列。</p>
+<p>Y：通过加一个中间环节来保障未处理元素是可知的。</p>
+</blockquote>
+</li>
+<li><p><strong>模式:循环列表</strong></p>
+<blockquote>
+<p><strong>使用具有相同源和目标键的LMOVE，客户端可以在O(N)中依次访问N个元素列表的所有元素，而无需使用单个LRANGE操作将整个列表从服务器传输到客户端。</strong></p>
+<p>即使有以下两个条件，上面的模式也可以工作:</p>
+<ul>
+<li>有多个客户端在旋转列表:它们将获取不同的元素，直到列表中的所有元素都被访问并重新启动。<br>即使其他客户端在列表的末尾积极地推送新项目。</li>
+<li>上述情况使得实现一个必须由N个工人以尽可能快的速度连续处理一组项的系统变得非常简单。一个例子是一个监控系统，它必须检查一组网站是否可达，以尽可能最小的延迟，使用多个并行工作器。</li>
+</ul>
+<p>请注意，workers的这种实现可扩展性和可靠性都很低，因为即使消息丢失，该项仍在队列中，并将在下一次迭代时进行处理。</p>
+</blockquote>
+</li>
+</ul>
+<p>BLMOVE</p>
+<p>BLMOVE是LMOVE的阻塞变体。当source包含元素时，此命令的行为与LMOVE完全相同。当在MULTI/EXEC块中使用时，此命令的行为与LMOVE完全相同。<strong>当源是空的，Redis将阻塞连接</strong>，直到另一个客户端推到它或直到超时(一个双值指定阻塞的最大秒数)达到。timeout值为0可用于无限期阻塞。</p>
+<h3 id="使用列表的技巧"><a href="#使用列表的技巧" class="headerlink" title="使用列表的技巧"></a>使用列表的技巧</h3><ul>
+<li>lpush+lpop=Stack(栈)</li>
+<li>lpush+rpop=Queue（队列）</li>
+<li>lpush+ltrim=Capped Collection（有限集合）</li>
+<li>lpush+brpop=Message Queue（消息队列）</li>
+</ul>
+<h3 id="实战场景-1"><a href="#实战场景-1" class="headerlink" title="实战场景"></a>实战场景</h3><p>1.timeline：例如微博的时间轴，有人发布微博，用lpush加入时间轴，展示新的列表信息。</p>
+<h2 id="1-3-Redis-Hashes"><a href="#1-3-Redis-Hashes" class="headerlink" title="1.3 Redis Hashes"></a>1.3 Redis Hashes</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> hmset user:1000 username antirez birthyear 1977 verified 1</span></span><br><span class="line">OK</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> hget user:1000 username</span></span><br><span class="line">&quot;antirez&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> hget user:1000 birthyear</span></span><br><span class="line">&quot;1977&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> hgetall user:1000</span></span><br><span class="line">1) &quot;username&quot;</span><br><span class="line">2) &quot;antirez&quot;</span><br><span class="line">3) &quot;birthyear&quot;</span><br><span class="line">4) &quot;1977&quot;</span><br><span class="line">5) &quot;verified&quot;</span><br><span class="line">6) &quot;1&quot;</span><br></pre></td></tr></table></figure>
+
+<p>虽然哈希用于表示对象很方便，但实际上您可以在哈希中放入的字段的数量没有实际限制(除了可用内存)，因此您可以在应用程序中以许多不同的方式使用哈希。</p>
+<p>命令HMSET设置散列的多个字段，而HGET检索单个字段。HMGET与HGET类似，但返回一个值数组:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> hmget user:1000 username birthyear no-such-field</span></span><br><span class="line">1) &quot;antirez&quot;</span><br><span class="line">2) &quot;1977&quot;</span><br><span class="line">3) (nil)</span><br></pre></td></tr></table></figure>
+
+<p>还有一些命令可以对单个字段执行操作，比如HINCRBY:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> hincrby user:1000 birthyear 10</span></span><br><span class="line">(integer) 1987</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> hincrby user:1000 birthyear 10</span></span><br><span class="line">(integer) 1997</span><br></pre></td></tr></table></figure>
+
+<p>您可以在文档中找到<a target="_blank" rel="noopener" href="https://redis.io/commands#hash">散列命令的完整列表</a>。</p>
+<p>值得注意的是，小哈希(即带有小值的几个元素)在内存中以特殊的方式编码，这使得它们非常高效。</p>
+<h3 id="实战场景-2"><a href="#实战场景-2" class="headerlink" title="实战场景"></a>实战场景</h3><p>1.缓存： 能直观，相比string更节省空间，的维护缓存信息，如用户信息，视频信息等。</p>
+<blockquote>
+<p>Y: 为什么说比String更节省空间？可能是value分层，避免了key的重复。</p>
+</blockquote>
+<h2 id="1-4-Redis-Sets"><a href="#1-4-Redis-Sets" class="headerlink" title="1.4 Redis Sets"></a>1.4 Redis Sets</h2><p>Redis集合是无序的字符串集合。SADD命令向集合中添加新元素。还可以对集合执行许多其他操作，比如测试给定元素是否已经存在，执行多个集合之间的交集、并集或差集，等等。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd myset 1 2 3</span></span><br><span class="line">(integer) 3</span><br><span class="line"><span class="meta">#</span><span class="bash"> Redis在每次调用时都可以自由地以任何顺序返回元素，因为与用户没有关于元素排序的约定。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> smembers myset</span></span><br><span class="line">1. 3</span><br><span class="line">2. 1</span><br><span class="line">3. 2</span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查元素是否存在。</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> sismember myset 3</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> sismember myset 30</span></span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+
+<p><strong>集合适合于表达对象之间的关系</strong>。例如，我们可以很容易地使用set来实现标记。</p>
+<p>建模这个问题的一个简单方法是为我们想要标记的每个对象设置一个集合。集合包含与对象关联的标记的id。</p>
+<p>其中一个例子是给新闻贴标签。如果文章ID 1000被标记为标签1、2、5和77，一个集合可以将这些标签ID与新闻项目关联起来:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd news:1000:tags 1 2 5 77</span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p>我们也可能想要有相反的关系:所有带有给定标签的新闻列表:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd tag:1:news 1000</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd tag:2:news 1000</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd tag:5:news 1000</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> sadd tag:77:news 1000</span></span><br><span class="line">(integer) 1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获取给定对象的所有标签是很简单的:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> smembers news:1000:tags</span></span><br><span class="line">1. 5</span><br><span class="line">2. 1</span><br><span class="line">3. 77</span><br><span class="line">4. 2</span><br></pre></td></tr></table></figure>
+
+<p>注意:在这个例子中，我们假设你有另一个数据结构，例如一个Redis哈希，它将标签id映射到标签名称。</p>
+<p>使用正确的Redis命令还可以轻松实现其他非琐碎的操作。例如，我们可能想要包含标记为1、2、10和27的所有对象的列表。我们可以使用SINTER命令来实现这一点，它执行不同集合之间的交集。我们可以使用:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> sinter tag:1:news tag:2:news tag:10:news tag:27:news</span></span><br><span class="line">... results here ...</span><br></pre></td></tr></table></figure>
+
+<p>除了交集之外，您还可以执行联合、差分、提取随机元素等等。</p>
+<p>提取元素的命令称为SPOP，它便于对某些问题建模。例如，为了实现一个基于web的扑克游戏，你可能想要用一组牌来表示你的牌组。假设我们使用一个单字符前缀(C)lubs， (D)iamond， (H)earts， (S)pades:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash">  sadd deck C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 CJ CQ CK</span></span><br><span class="line">   D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 DJ DQ DK H1 H2 H3</span><br><span class="line">   H4 H5 H6 H7 H8 H9 H10 HJ HQ HK S1 S2 S3 S4 S5 S6</span><br><span class="line">   S7 S8 S9 S10 SJ SQ SK</span><br><span class="line">   (integer) 52</span><br></pre></td></tr></table></figure>
+
+<p>现在我们想给每个玩家5张牌。<strong>SPOP命令删除一个随机元素，将其返回给客户端</strong>，因此它是本例中的完美操作。</p>
+<p>然而，如果我们直接针对牌组调用它，那么在游戏的下一回合中，我们就需要再次填充牌组，这可能并不理想。首先，我们可以复制一套存储在牌组键中的牌组game:1:deck 键。</p>
+<p>这是使用<strong>SUNIONSTORE</strong>完成的，它通常执行多个集之间的并集，并将结果存储到另一个集。然而，由于<strong>单个集合的并集是它本身</strong>，我可以用以下方法<strong>复制</strong>我的deck:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> sunionstore game:1:deck deck</span></span><br><span class="line">(integer) 52</span><br></pre></td></tr></table></figure>
+
+<p>现在我准备给第一个玩家五张牌:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> spop game:1:deck</span></span><br><span class="line">&quot;C6&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> spop game:1:deck</span></span><br><span class="line">&quot;CQ&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> spop game:1:deck</span></span><br><span class="line">&quot;D1&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> spop game:1:deck</span></span><br><span class="line">&quot;CJ&quot;</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> spop game:1:deck</span></span><br><span class="line">&quot;SJ&quot;</span><br></pre></td></tr></table></figure>
+
+<p>现在是引入set命令的好时机，该命令提供集合中元素的数量。在集合理论的背景下，这通常被称为集合的基数，因此Redis命令被称为SCARD。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> scard game:1:deck</span></span><br><span class="line">(integer) 47</span><br></pre></td></tr></table></figure>
+
+<p>算式是:52 - 5 = 47。</p>
+<p>当您需要只获取随机元素而不从集合中删除它们时，有适合该任务的SRANDMEMBER命令。它还具有返回重复和非重复元素的功能。</p>
+<h3 id="实战场景-3"><a href="#实战场景-3" class="headerlink" title="实战场景"></a>实战场景</h3><p>1.标签（tag）,给用户添加标签，或者用户给消息添加标签，这样有同一标签或者类似标签的可以给推荐关注的事或者关注的人。</p>
+<p>2.点赞，或点踩，收藏等，可以放到set中实现</p>
+<h2 id="1-5-Redis-Sorted-sets"><a href="#1-5-Redis-Sorted-sets" class="headerlink" title="1.5 Redis Sorted sets"></a>1.5 Redis Sorted sets</h2><p>排序集是一种数据类型，类似于集合和哈希的混合。与集合一样，排序集合也是由唯一的、非重复的字符串元素组成的，所以在某种意义上，一个排序集合也是一个集合。</p>
+<p>然而，尽管集合中的元素不是有序的，但已排序集合中的每个元素都与一个浮点值关联，称为score(这就是为什么该类型也类似于散列，因为每个元素都映射到一个值)。</p>
+<p>此外，排序集中的元素是按顺序取的(所以它们不是按请求排序的，顺序是用于表示排序集的数据结构的特性)。它们是按照以下<strong>规则</strong>排列的:</p>
+<ul>
+<li>如果A和B是两个不同分数的元素，则A &gt; B 如果A.score&gt; B.score。</li>
+<li>如果A和B有完全相同的分数，那么A &gt; B如果A字符串在字典顺序上大于B字符串。A和B字符串不能相等，因为排序集只有唯一的元素。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1940 <span class="string">&quot;Alan Kay&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1957 <span class="string">&quot;Sophie Wilson&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1953 <span class="string">&quot;Richard Stallman&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1949 <span class="string">&quot;Anita Borg&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1965 <span class="string">&quot;Yukihiro Matsumoto&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1914 <span class="string">&quot;Hedy Lamarr&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1916 <span class="string">&quot;Claude Shannon&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1969 <span class="string">&quot;Linus Torvalds&quot;</span></span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 1912 <span class="string">&quot;Alan Turing&quot;</span></span></span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+
+<p>正如您所看到的，ZADD类似于SADD，但是有一个附加参数(放在要添加的元素之前)，即分数。ZADD也是可变的，所以您可以自由地指定多个分数-值对，即使在上面的示例中没有使用。</p>
+<p>使用排序集，返回一个按出生年份排序的黑客列表是很简单的，因为实际上他们已经排序了。</p>
+<p><strong>实现说明</strong>:排序集是通过一个<strong>双端口数据结构</strong>实现的，它包含一个<strong>跳跃表</strong>和一个<strong>哈希表</strong>，所以每次我们<strong>添加</strong>一个元素时，Redis都会执行一个<strong>O(log(N))<strong>操作。这很好，但当我们要求排序元素时，Redis不需要做任何工作，它</strong>已经全部排序</strong>:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zrange hackers 0 -1</span></span><br><span class="line">1) &quot;Alan Turing&quot;</span><br><span class="line">2) &quot;Hedy Lamarr&quot;</span><br><span class="line">3) &quot;Claude Shannon&quot;</span><br><span class="line">4) &quot;Alan Kay&quot;</span><br><span class="line">5) &quot;Anita Borg&quot;</span><br><span class="line">6) &quot;Richard Stallman&quot;</span><br><span class="line">7) &quot;Sophie Wilson&quot;</span><br><span class="line">8) &quot;Yukihiro Matsumoto&quot;</span><br><span class="line">9) &quot;Linus Torvalds&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意:0和-1表示从元素索引0到最后一个元素(-1在这里就像在LRANGE命令中一样)。</p>
+<p>如果我想按<strong>相反的顺序排列</strong>呢，从最小到最大?使用<strong>ZREVRANGE</strong>代替ZRANGE:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zrevrange hackers 0 -1</span></span><br><span class="line">1) &quot;Linus Torvalds&quot;</span><br><span class="line">2) &quot;Yukihiro Matsumoto&quot;</span><br><span class="line">3) &quot;Sophie Wilson&quot;</span><br><span class="line">4) &quot;Richard Stallman&quot;</span><br><span class="line">5) &quot;Anita Borg&quot;</span><br><span class="line">6) &quot;Alan Kay&quot;</span><br><span class="line">7) &quot;Claude Shannon&quot;</span><br><span class="line">8) &quot;Hedy Lamarr&quot;</span><br><span class="line">9) &quot;Alan Turing&quot;</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用WITHSCORES参数返回scores:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zrange hackers 0 -1 withscores</span></span><br><span class="line">1) &quot;Alan Turing&quot;</span><br><span class="line">2) &quot;1912&quot;</span><br><span class="line">3) &quot;Hedy Lamarr&quot;</span><br><span class="line">4) &quot;1914&quot;</span><br><span class="line">5) &quot;Claude Shannon&quot;</span><br><span class="line">6) &quot;1916&quot;</span><br><span class="line">7) &quot;Alan Kay&quot;</span><br><span class="line">8) &quot;1940&quot;</span><br><span class="line">9) &quot;Anita Borg&quot;</span><br><span class="line">10) &quot;1949&quot;</span><br><span class="line">11) &quot;Richard Stallman&quot;</span><br><span class="line">12) &quot;1953&quot;</span><br><span class="line">13) &quot;Sophie Wilson&quot;</span><br><span class="line">14) &quot;1957&quot;</span><br><span class="line">15) &quot;Yukihiro Matsumoto&quot;</span><br><span class="line">16) &quot;1965&quot;</span><br><span class="line">17) &quot;Linus Torvalds&quot;</span><br><span class="line">18) &quot;1969&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>操作范围</strong><br>排序集比这个更强大。它们可以在范围内操作。让我们把1950年之前出生的所有人包括在内。我们使用ZRANGEBYSCORE命令来完成:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zrangebyscore hackers -inf 1950</span></span><br><span class="line">1) &quot;Alan Turing&quot;</span><br><span class="line">2) &quot;Hedy Lamarr&quot;</span><br><span class="line">3) &quot;Claude Shannon&quot;</span><br><span class="line">4) &quot;Alan Kay&quot;</span><br><span class="line">5) &quot;Anita Borg&quot;</span><br></pre></td></tr></table></figure>
+
+<p>我们要求Redis返回所有得分在负无穷到1950之间的元素(包括两个极端)。</p>
+<p>还可以删除元素的范围。让我们将所有出生于1940年至1960年之间的黑客从已排序的集合中删除:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zremrangebyscore hackers 1940 1960</span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p><strong>zremangebyscore</strong>可能不是最好的命令名，但它可能非常有用，并返回删除元素的数量。</p>
+<p>为已排序的集合元素定义的另一个非常有用的操作是get-rank操作。可以<strong>询问一个元素在有序元素集合中的排名</strong>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zrank hackers <span class="string">&quot;Anita Borg&quot;</span></span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p>考虑到按<strong>降序排序</strong>的元素，也可以使用<strong>ZREVRANK</strong>命令来获取排名。</p>
+<p><strong>字典序 scores</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> zadd hackers 0 <span class="string">&quot;Alan Kay&quot;</span> 0 <span class="string">&quot;Sophie Wilson&quot;</span> 0 <span class="string">&quot;Richard Stallman&quot;</span> 0</span></span><br><span class="line">  &quot;Anita Borg&quot; 0 &quot;Yukihiro Matsumoto&quot; 0 &quot;Hedy Lamarr&quot; 0 &quot;Claude Shannon&quot;</span><br><span class="line">  0 &quot;Linus Torvalds&quot; 0 &quot;Alan Turing&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> score相同，按字典序排序</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zrange hackers 0 -1</span></span><br><span class="line">1) &quot;Alan Kay&quot;</span><br><span class="line">2) &quot;Alan Turing&quot;</span><br><span class="line">3) &quot;Anita Borg&quot;</span><br><span class="line">4) &quot;Claude Shannon&quot;</span><br><span class="line">5) &quot;Hedy Lamarr&quot;</span><br><span class="line">6) &quot;Linus Torvalds&quot;</span><br><span class="line">7) &quot;Richard Stallman&quot;</span><br><span class="line">8) &quot;Sophie Wilson&quot;</span><br><span class="line">9) &quot;Yukihiro Matsumoto&quot;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 使用ZRANGEBYLEX，我们可以使用字典序范围查询:</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> zrangebylex hackers [B [P</span></span><br><span class="line">1) &quot;Claude Shannon&quot;</span><br><span class="line">2) &quot;Hedy Lamarr&quot;</span><br><span class="line">3) &quot;Linus Torvalds&quot;</span><br></pre></td></tr></table></figure>
+
+<p><strong>更新分数:排行榜</strong></p>
+<p>排序集的分数可以在任何时候更新。仅对已包含在已排序集合中的元素调用ZADD，就会以**O(log(N))**时间复杂度更新其分数(和位置)。因此，当有大量更新时，排序集是合适的。</p>
+<p>由于这个特点，一个常见的用例是排行榜。典型的应用是Facebook游戏，你可以根据用户的高分来排序，再加上“获得排名”操作，以显示排名前n的用户，以及用户在排行榜上的排名(游戏邦注:例如，“你在这里排名第4932”)。</p>
+<h3 id="实战场景-4"><a href="#实战场景-4" class="headerlink" title="实战场景"></a>实战场景</h3><p>1.排行榜：有序集合经典使用场景。例如小说视频等网站需要对用户上传的小说视频做排行榜，榜单可以按照用户关注数，更新时间，字数等打分，做排行。</p>
+<h2 id="1-6-Bitmaps"><a href="#1-6-Bitmaps" class="headerlink" title="1.6 Bitmaps"></a>1.6 Bitmaps</h2><p><strong>位图不是一种实际的数据类型，而是一组定义在String类型上的面向位操作。</strong>因为字符串是二进制安全的blob，它们的最大长度是512 MB，所以它们<strong>适合设置为232个不同的位</strong>。</p>
+<p>位操作分为两组:</p>
+<ul>
+<li>常数时间单位操作，如设置位为1或0，或获取其值。</li>
+<li>对位组的操作，例如计算给定位范围内的集合位数(例如population counting)。</li>
+</ul>
+<p>位图的最大优势之一是，在存储信息时，它们通常可以极大地节省空间。例如，在一个用增量用户id表示不同用户的系统中，只使用512 MB内存就可以记住40亿用户的单个位信息(例如，知道用户是否想要接收时事通讯)。</p>
+<p>使用SETBIT和GETBIT命令设置和检索位:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> setbit key 10 1</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> getbit key 10</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> getbit key 11</span></span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+
+<p>SETBIT命令的第一个参数是位号，第二个参数是将位设置为1或0的值。如果指定的位超出了当前字符串的长度，该命令将自动扩大字符串。</p>
+<p>GETBIT只是返回指定索引处的位的值。超出范围的位(寻址位超出了存储在目标键中的字符串的长度)总是被认为是零。</p>
+<p>有三个命令对一组位进行操作:</p>
+<ul>
+<li>BITOP在不同的字符串之间执行按位操作。提供的操作有AND、OR、XOR和NOT。</li>
+<li>BITCOUNT执行人口计数，报告设置为1的位数。</li>
+<li>BITPOS查找第一个具有指定值0或1的位。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> setbit key 0 1</span></span><br><span class="line">(integer) 0</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> setbit key 100 1</span></span><br><span class="line">(integer) 0</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> bitcount key</span></span><br><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
+
+<p>位图的常见使用情况有:</p>
+<ul>
+<li>所有类型的实时分析。</li>
+<li>存储与对象id相关联的高效且高性能的boolean信息。</li>
+</ul>
+<p>例如，假设你想知道网站用户每天最长的访问记录。你从零开始计算天数，也就是你公开你的网站的那一天，并且每次用户访问网站的时候都用SETBIT设置一个点。作为位索引，只需取当前unix时间，减去初始偏移量，然后除以一天中的秒数(通常为3600*24)。</p>
+<p>这样，每个用户都有一个包含每天访问信息的小字符串。通过BITCOUNT，可以很容易地得到给定用户访问网站的天数，而通过一些BITPOS调用，或简单地获取和分析位图客户端，可以很容易地计算最长连胜。</p>
+<p>将位图分割成多个键是很简单的，例如为了分片数据集，因为一般来说最好避免使用大键。要在不同的键之间分割位图，而不是将所有位设置为一个键，一个简单的策略是每个键存储M位，并获得位号为/M的键名和位号为MOD M的键内的第n位地址。</p>
+<h2 id="1-7-HyperLogLogs"><a href="#1-7-HyperLogLogs" class="headerlink" title="1.7 HyperLogLogs"></a>1.7 HyperLogLogs</h2><p>HyperLogLog是一种<strong>用于计数唯一事物的概率数据结构</strong>(技术上这是指估计集合的基数)。通常，计算唯一的元素需要使用与你想要计算的元素数量成比例的内存，因为你需要记住你以前见过的元素，以避免多次计算它们。然而，有一套算法是用内存换取精度的:你最终得到的是一个带有标准误差的估计值，在Redis实现的情况下，这个误差小于1%。这个算法的神奇之处在于，您不再需要使用与所计数的项目数量成比例的内存，而是可以使用恒定数量的内存!最坏的情况是12k字节，或者更少，如果你的HyperLogLog(我们现在就叫他们HLL)看到的元素很少。</p>
+<p><strong>HLL在Redis中，虽然技术上是一种不同的数据结构，但被编码为一个Redis字符串</strong>，所以你可以调用GET来序列化一个HLL，并调用SET来反序列化它回服务器。</p>
+<p>从概念上讲，HLL API就像使用set来完成相同的任务。您可以将每个观察到的元素添加到一个集合中，并使用SCARD检查集合中元素的数量，这是惟一的，因为SADD不会重新添加现有的元素。</p>
+<p>因为数据结构只包含一个不包含实际元素的状态，所以你并没有真正地在HLL中添加项，API是相同的:</p>
+<ul>
+<li>每次看到新元素时，就使用PFADD将其添加到计数中。</li>
+<li>每次您想要检索到目前为止使用PFADD添加的惟一元素的当前近似值时，都要使用PFCOUNT。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> pfadd hll a b c d</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> pfcount hll</span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p>这个数据结构的一个用例示例是计算用户每天在搜索表单中执行的唯一查询。</p>
+<p>Redis也能够执行联合的hls，请查看完整的文档以获得更多信息。</p>
+<h1 id="2-Redis-数据类型的底层实现"><a href="#2-Redis-数据类型的底层实现" class="headerlink" title="2. Redis 数据类型的底层实现"></a>2. Redis 数据类型的底层实现</h1><h2 id="2-1-简单动态字符串"><a href="#2-1-简单动态字符串" class="headerlink" title="2.1 简单动态字符串"></a>2.1 简单动态字符串</h2><p>Redis 没有直接使用 C 语言传统的字符串表示（以空字符结尾的字符数组，以下简称 C 字符串）， 而是自己构建了一种名为简单动态字符串（simple dynamic string，SDS）的抽象类型， 并将 SDS 用作 Redis 的默认字符串表示。</p>
+<h3 id="SDS-的定义"><a href="#SDS-的定义" class="headerlink" title="SDS 的定义"></a>SDS 的定义</h3><p>sds.h/sdshdr 结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="comment">// 记录 buf 数组中已使用字节的数量，等于 SDS 所保存字符串的长度。</span></span><br><span class="line">    <span class="keyword">int</span> len;</span><br><span class="line">    <span class="comment">// 记录 buf 数组中未使用字节的数量</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;</span><br><span class="line">    <span class="comment">// 字节数组，用于保存字符串</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<img src="Redis/assets/sds_def.png" alt="buf 保存了字符串信息   free为预留出的空间 len为长度" style="zoom:50%;" />
+
+<h3 id="C-字符串和-SDS-之间的区别"><a href="#C-字符串和-SDS-之间的区别" class="headerlink" title="C 字符串和 SDS 之间的区别"></a>C 字符串和 SDS 之间的区别</h3><table>
+<thead>
+<tr>
+<th>C 字符串</th>
+<th>SDS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>获取字符串长度的复杂度为O(N)。</td>
+<td>获取字符串长度的复杂度为O(1)。</td>
+</tr>
+<tr>
+<td>API 是不安全的，可能会造成缓冲区溢出。</td>
+<td>API 是安全的，不会造成缓冲区溢出。</td>
+</tr>
+<tr>
+<td>修改字符串长度N次必然需要执行N次内存重分配。</td>
+<td>修改字符串长度N次最多需要执行N次内存重分配。</td>
+</tr>
+<tr>
+<td>只能保存文本数据。</td>
+<td>可以保存文本或者二进制数据。</td>
+</tr>
+<tr>
+<td>可以使用所有&lt;string.h&gt;库中的函数。</td>
+<td>可以使用一部分&lt;string.h&gt;库中的函数。</td>
+</tr>
+</tbody></table>
+<p><strong>SDS 减少修改字符串时带来的内存重分配次数</strong></p>
+<ul>
+<li>空间预分配：通过这种策略， SDS 将连续增长 N 次字符串所需的内存重分配次数从必定 N 次降低为最多 N 次。</li>
+<li>惰性空间释放：通过这种策略， SDS 避免了缩短字符串时所需的内存重分配操作， 并为将来可能有的增长操作提供了优化。</li>
+</ul>
+<p><strong>二进制安全</strong></p>
+<ul>
+<li>所有 SDS API 都会以处理二进制的方式来处理 SDS 存放在 buf 数组里的数据， 程序不会对其中的数据做任何限制、过滤、或者假设 —— 数据在写入时是什么样的， 它被读取时就是什么样。这也是我们将 SDS 的 buf 属性称为字节数组的原因 —— Redis 不是用这个数组来保存字符， 而是用它来保存一系列二进制数据。</li>
+<li>SDS 使用 len 属性的值而不是空字符来判断字符串是否结束。</li>
+<li>通过使用二进制安全的 SDS ， 而不是 C 字符串， 使得 Redis 不仅可以保存文本数据， 还可以保存任意格式的二进制数据。</li>
+</ul>
+<h2 id="2-2-链表"><a href="#2-2-链表" class="headerlink" title="2.2 链表"></a>2.2 链表</h2><p>每个链表节点使用一个 adlist.h/listNode 结构来表示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 双向链表。</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> *<span class="title">prev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> *<span class="title">next</span>;</span></span><br><span class="line">    <span class="keyword">void</span> *value;</span><br><span class="line">&#125; listNode;</span><br></pre></td></tr></table></figure>
+
+<p>虽然仅仅使用多个 listNode 结构就可以组成链表， 但使用 adlist.h/list 来持有链表的话， 操作起来会更方便：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">list</span> &#123;</span></span><br><span class="line">    <span class="comment">// 表头节点</span></span><br><span class="line">    listNode *head;</span><br><span class="line">    <span class="comment">// 表尾节点</span></span><br><span class="line">    listNode *tail;</span><br><span class="line">    <span class="comment">// 链表所包含的节点数量。</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> len;</span><br><span class="line">    <span class="comment">// 节点值复制函数，函数用于复制链表节点所保存的值。</span></span><br><span class="line">    <span class="keyword">void</span> *(*dup)(<span class="keyword">void</span> *ptr);</span><br><span class="line">    <span class="comment">// 节点值释放函数，用于释放链表节点所保存的值。</span></span><br><span class="line">    <span class="keyword">void</span> (*<span class="built_in">free</span>)(<span class="keyword">void</span> *ptr);</span><br><span class="line">    <span class="comment">// 节点值对比函数，用于对比链表节点所保存的值和另一个输入值是否相等。</span></span><br><span class="line">    <span class="keyword">int</span> (*match)(<span class="keyword">void</span> *ptr, <span class="keyword">void</span> *key);</span><br><span class="line">&#125; <span class="built_in">list</span>;</span><br></pre></td></tr></table></figure>
+
+<p>一个由一个 list 结构和三个 listNode 结构组成的链表：</p>
+<img src="Redis/assets/1238581-20210213200117107-1518159670.png" alt="img" style="zoom: 67%;" />
+
+<h2 id="2-3-字典"><a href="#2-3-字典" class="headerlink" title="2.3 字典"></a>2.3 字典</h2><p>字典</p>
+<ul>
+<li>字典， 又称符号表（symbol table）、关联数组（associative array）或者映射（map）， 是一种用于保存键值对（key-value pair）的抽象数据结构。</li>
+<li>在字典中， 一个键（key）可以和一个值（value）进行关联（或者说将键映射为值）， 这些关联的键和值就被称为键值对。</li>
+<li>字典中的每个键都是独一无二的， 程序可以在字典中根据键查找与之关联的值， 或者通过键来更新值， 又或者根据键来删除整个键值对， 等等。</li>
+</ul>
+<p>Redis 所使用的 C 语言并没有内置这种数据结构， 因此 Redis 构建了自己的字典实现。</p>
+<ul>
+<li>字典被广泛用于实现 Redis 的各种功能， 其中包括数据库和哈希键。</li>
+<li>Redis 中的字典<strong>使用哈希表作为底层实现</strong>， 每个字典带有<strong>两个哈希表， 一个用于平时使用， 另一个仅在进行 rehash 时使用</strong>。</li>
+<li>当字典被用作数据库的底层实现， 或者哈希键的底层实现时， Redis 使用 MurmurHash2 算法来计算键的哈希值。</li>
+<li>哈希表使用<strong>链地址法</strong>来解决键冲突， 被分配到同一个索引上的多个键值对会连接成一个<strong>单向链表</strong>。</li>
+<li>在对哈希表进行扩展或者收缩操作时， 程序需要将现有哈希表包含的所有键值对 rehash 到新哈希表里面， 并且这个 rehash 过程并不是一次性地完成的， 而是<strong>渐进式</strong>地完成的。</li>
+</ul>
+<p>Redis 中的字典由 dict.h/dict 结构表示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    <span class="comment">// 类型特定函数</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="comment">// 私有数据</span></span><br><span class="line">    <span class="keyword">void</span> *privdata;</span><br><span class="line">    <span class="comment">// 哈希表</span></span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="comment">// rehash 索引</span></span><br><span class="line">    <span class="comment">// 当 rehash 不在进行时，值为 -1</span></span><br><span class="line">    <span class="keyword">int</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>type 属性和 privdata 属性是针对不同类型的键值对， 为创建多态字典而设置的：<ul>
+<li>type 属性是一个指向 dictType 结构的指针， 每个 dictType 结构保存了一簇用于操作特定类型键值对的函数， Redis 会为用途不同的字典设置不同的类型特定函数。</li>
+<li>而 privdata 属性则保存了需要传给那些类型特定函数的可选参数。</li>
+</ul>
+</li>
+<li>ht 属性是一个包含两个项的数组， 数组中的每个项都是一个 dictht 哈希表， 一般情况下， 字典只使用 ht[0] 哈希表， ht[1] 哈希表只会在对 ht[0] 哈希表进行 rehash 时使用。<ul>
+<li>除了 ht[1] 之外， 另一个和 rehash 有关的属性就是 rehashidx ： 它记录了 rehash 目前的进度， 如果目前没有在进行 rehash ， 那么它的值为 -1 。</li>
+</ul>
+</li>
+</ul>
+<p>Redis 字典所使用的哈希表由 dict.h/dictht 结构定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    <span class="comment">// 哈希表数组</span></span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="comment">// 哈希表大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> size;</span><br><span class="line">    <span class="comment">// 哈希表大小掩码，用于计算索引值</span></span><br><span class="line">    <span class="comment">// 总是等于 size - 1</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> sizemask;</span><br><span class="line">    <span class="comment">// 该哈希表已有节点的数量</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"><span class="comment">//table 属性是一个数组， 数组中的每个元素都是一个指向 dict.h/dictEntry 结构的指针， 每个 dictEntry 结构保存着一个键值对。</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>table 属性是一个数组， 数组中的每个元素都是一个指向 dict.h/dictEntry 结构的指针， 每个 dictEntry 结构保存着一个键值对。</li>
+<li>size 属性记录了哈希表的大小， 也即是 table 数组的大小， 而 used 属性则记录了哈希表目前已有节点（键值对）的数量。</li>
+<li>sizemask 属性的值总是等于 size - 1 ， 这个属性和哈希值一起决定一个键应该被放到 table 数组的哪个索引上面。</li>
+</ul>
+<p><strong>哈希表节点</strong></p>
+<ul>
+<li>哈希表节点使用 dictEntry 结构表示， 每个 dictEntry 结构都保存着一个键值对。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="comment">// 键</span></span><br><span class="line">    <span class="keyword">void</span> *key;</span><br><span class="line">    <span class="comment">// 值</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="keyword">void</span> *val;</span><br><span class="line">        <span class="keyword">uint64_t</span> u64;</span><br><span class="line">        <span class="keyword">int64_t</span> s64;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="comment">// 指向下个哈希表节点，形成链表，用于冲突链表。</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; dictEntry;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>key 属性保存着键值对中的键。</li>
+<li>v 属性则保存着键值对中的值， 其中键值对的值可以是一个指针， 或者是一个 uint64_t 整数， 又或者是一个 int64_t 整数。</li>
+<li>next 属性是指向另一个哈希表节点的指针， 这个指针可以将多个哈希值相同的键值对连接在一次， 以此来解决键冲突（collision）的问题。</li>
+</ul>
+<p>一个普通状态下（没有进行 rehash）的字典：</p>
+<p><img src="Redis/assets/1238581-20210213200929586-318083919.png" alt="img"></p>
+<p><strong>渐进式 rehash</strong></p>
+<p>哈希表渐进式 rehash 的详细步骤：</p>
+<ol>
+<li>为 ht[1] 分配空间， 让字典同时持有 ht[0] 和 ht[1] 两个哈希表。</li>
+<li>在字典中维持一个索引计数器变量 rehashidx ， 并将它的值设置为 0 ， 表示 rehash 工作正式开始。</li>
+<li>在 rehash 进行期间， 每次对字典执行添加、删除、查找或者更新操作时， 程序除了执行指定的操作以外， 还会顺带将 ht[0] 哈希表在 rehashidx 索引上的所有键值对 rehash 到 ht[1] ， 当 rehash 工作完成之后， 程序将 rehashidx 属性的值增一。</li>
+<li>随着字典操作的不断执行， 最终在某个时间点上， ht[0] 的所有键值对都会被 rehash 至 ht[1] ， 这时程序将 rehashidx 属性的值设为 -1 ， 表示 rehash 操作已完成。</li>
+</ol>
+<h2 id="2-4-跳跃表"><a href="#2-4-跳跃表" class="headerlink" title="2.4 跳跃表"></a>2.4 跳跃表</h2><h3 id="2-4-1-跳跃表原理"><a href="#2-4-1-跳跃表原理" class="headerlink" title="2.4.1 跳跃表原理"></a>2.4.1 跳跃表原理</h3><p>学过数据结构的都知道，在单链表中查询一个元素的时间复杂度为O(n)，即使该单链表是有序的，我们也不能通过2分的方式缩减时间复杂度。 </p>
+<p><img src="Redis/assets/20161205210928206.png" alt="这里写图片描述"></p>
+<p>   如上图，我们要查询元素为55的结点，必须从头结点，循环遍历到最后一个节点，不算-INF(负无穷)一共查询8次。那么用什么办法能够用更少的次数访问55呢？最直观的，当然是新开辟一条捷径去访问55。 </p>
+<p><img src="Redis/assets/20161205211105653.png" alt="这里写图片描述"></p>
+<p>   如上图，我们要查询元素为55的结点，只需要在L2层查找4次即可。在这个结构中，查询结点为46的元素将耗费最多的查询次数5次。即先在L2查询46，查询4次后找到元素55，因为链表是有序的，46一定在55的左边，所以L2层没有元素46。然后我们退回到元素37，到它的下一层即L1层继续搜索46。非常幸运，我们只需要再查询1次就能找到46。这样一共耗费5次查询。</p>
+<p>那么，如何才能更快的搜寻55呢？有了上面的经验，我们就很容易想到，再开辟一条捷径。 </p>
+<p><img src="Redis/assets/20161205211246498.png" alt="这里写图片描述"></p>
+<p>如上图，我们搜索55只需要2次查找即可。这个结构中，查询元素46仍然是最耗时的，需要查询5次。即首先在L3层查找2次，然后在L2层查找2次，最后在L1层查找1次，共5次。很显然，这种思想和2分非常相似，那么我们最后的结构图就应该如下图。</p>
+<p><img src="Redis/assets/20161205211539787.png" alt="这里写图片描述"></p>
+<p>我们可以看到，最耗时的访问46需要6次查询。即L4访问55，L3访问21、55，L2访问37、55，L1访问46。我们直觉上认为，这样的结构会让查询有序链表的某个元素更快。那么究竟算法复杂度是多少呢？</p>
+<p>如果有n个元素，因为是2分，所以层数就应该是log n层 (本文所有log都是以2为底)，再加上自身的1层。以上图为例，如果是4个元素，那么分层为L3和L4，再加上本身的L2，一共3层；如果是8个元素，那么就是3+1层。最耗时间的查询自然是访问所有层数，耗时logn+logn，即2logn。为什么是2倍的logn呢？我们以上图中的46为例，查询到46要访问所有的分层，每个分层都要访问2个元素，中间元素和最后一个元素。所以时间复杂度为O(logn)。</p>
+<p>至此为止，我们引入了<strong>最理想的跳跃表</strong>，但是如果想要在上图中插入或者删除一个元素呢？比如我们要插入一个元素22、23、24……，自然在L1层，我们将这些元素插入在元素21后，那么L2层，L3层呢？我们是不是要考虑插入后怎样调整连接，才能维持这个理想的跳跃表结构。我们知道，平衡二叉树的调整是一件令人头痛的事情，左旋右旋左右旋……一般人还真记不住，而调整一个理想的跳跃表将是一个比调整平衡二叉树还复杂的操作。幸运的是，我们并不需要通过复杂的操作调整连接来维护这样完美的跳跃表。<strong>有一种基于概率统计的插入算法，也能得到时间复杂度为O(logn)的查询效率，这种跳跃表才是我们真正要实现的</strong>。</p>
+<h4 id="插入过程分析"><a href="#插入过程分析" class="headerlink" title="插入过程分析"></a>插入过程分析</h4><p> 先讨论插入，我们先看理想的跳跃表结构，L2层的元素个数是L1层元素个数的1/2，L3层的元素个数是L2层的元素个数的1/2，以此类推。从这里，我们可以想到，只要<strong>在插入时尽量保证上一层的元素个数是下一层元素的1/2</strong>，我们的跳跃表就能成为理想的跳跃表。那么怎么样才能在插入时保证上一层元素个数是下一层元素个数的1/2呢？很简单，抛硬币就能解决了！假设元素X要插入跳跃表，很显然，L1层肯定要插入X。那么L2层要不要插入X呢？我们希望上层元素个数是下层元素个数的1/2，所以我们有1/2的概率希望X插入L2层，那么抛一下硬币吧，正面就插入，反面就不插入。那么L3到底要不要插入X呢？相对于L2层，我们还是希望1/2的概率插入，那么继续抛硬币吧！以此类推，元素X插入第n层的概率是(1/2)的n次。这样，我们能在跳跃表中插入一个元素了。</p>
+<p>在此还是以上图为例：跳跃表的初试状态如下图，表中没有一个元素： </p>
+<p><img src="Redis/assets/20161205212059243.png" alt="这里写图片描述"></p>
+<p>如果我们要插入元素2，首先是在底部插入元素2，如下图： </p>
+<p><img src="Redis/assets/20161205212409123.png" alt="这里写图片描述"></p>
+<p>继续抛硬币，结果是反面，那么元素2的插入操作就停止了，插入后的表结构就是上图所示。接下来，我们插入元素33，跟元素2的插入一样，现在L1层插入33，如下图： </p>
+<p><img src="Redis/assets/20161205212458264.png" alt="这里写图片描述"></p>
+<p>然后抛硬币，结果是反面，那么元素33的插入操作就结束了，插入后的表结构就是上图所示。接下来，我们插入元素55，首先在L1插入55，插入后如下图： </p>
+<p><img src="Redis/assets/20161205212553339.png" alt="这里写图片描述"></p>
+<p>然后抛硬币，结果是正面，那么L2层需要插入55，如下图： </p>
+<p><img src="Redis/assets/20161205212659309.png" alt="这里写图片描述"></p>
+<p>继续抛硬币，结果又是正面，那么L3层需要插入55，如下图： </p>
+<p><img src="Redis/assets/20161205212712590.png" alt="这里写图片描述"></p>
+<p> 以此类推，插入剩余的元素。当然因为规模小，结果很可能不是一个理想的跳跃表。但是如果元素个数n的规模很大，基于概率，最终的表结构可能非常接近于理想跳跃表。</p>
+<p>再讨论删除，直接删除元素，然后调整一下删除元素后的指针即可，跟普通的链表删除操作完全一样。插入和删除的时间复杂度就是查询元素插入位置的时间复杂度，所以是O(logn)。关于时间复杂度的证明，感兴趣的话可以去看关于跳跃表的paper。</p>
+<h3 id="2-4-2-Redis-中的跳跃表"><a href="#2-4-2-Redis-中的跳跃表" class="headerlink" title="2.4.2 Redis 中的跳跃表"></a>2.4.2 Redis 中的跳跃表</h3><h4 id="Redis跳跃表的实现"><a href="#Redis跳跃表的实现" class="headerlink" title="Redis跳跃表的实现"></a>Redis跳跃表的实现</h4><p>Redis 的跳跃表</p>
+<ul>
+<li>redis.h/zskiplistNode：zskiplistNode 结构用于表示跳跃表节点。</li>
+<li>redis.h/zskiplist：zskiplist 结构则用于保存跳跃表节点的相关信息， 比如节点的数量， 以及指向表头节点和表尾节点的指针， 等等。</li>
+</ul>
+<p><img src="Redis/assets/1238581-20210213201733089-1490815062.png" alt="img"></p>
+<p>zskiplist （图片最左边）属性：</p>
+<ul>
+<li>header ：指向跳跃表的表头节点。</li>
+<li>tail ：指向跳跃表的表尾节点。</li>
+<li>level ：记录目前跳跃表内，层数最大的那个节点的层数（表头节点的层数不计算在内）。</li>
+<li>length ：记录跳跃表的长度，即跳跃表目前包含节点的数量（表头节点不计算在内）。</li>
+</ul>
+<p>zskiplistNode （zskiplist 结构右方的是四个zskiplistNode  ）属性：</p>
+<ul>
+<li>层（level）：节点中用 L1 、 L2 、 L3 等字样标记节点的各个层， L1 代表第一层， L2 代表第二层，以此类推。每个层都带有两个属性：前进指针和跨度。前进指针用于访问位于表尾方向的其他节点，而跨度则记录了前进指针所指向节点和当前节点的距离。在上面的图片中，连线上带有数字的箭头就代表前进指针，而那个数字就是跨度。当程序从表头向表尾进行遍历时，访问会沿着层的前进指针进行。</li>
+<li>后退（backward）指针：节点中用 BW 字样标记节点的后退指针，它指向位于当前节点的前一个节点。后退指针在程序从表尾向表头遍历时使用。</li>
+<li>分值（score）：各个节点中的 1.0 、 2.0 和 3.0 是节点所保存的分值。在跳跃表中，节点按各自所保存的分值从小到大排列。</li>
+<li>成员对象（obj）：各个节点中的 o1 、 o2 和 o3 是节点所保存的成员对象。</li>
+</ul>
+<p>注意表头节点和其他节点的构造是一样的： 表头节点也有后退指针、分值和成员对象， 不过表头节点的这些属性都不会被用到， 所以图中省略了这些部分， 只显示了表头节点的各个层。</p>
+<p><strong>zskiplist 结构的定义如下：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplist</span> &#123;</span></span><br><span class="line">    <span class="comment">// header 和 tail 指针分别指向跳跃表的表头和表尾节点， 通过这两个指针， 程序定位表头节点和表尾节点的复杂度为 O(1) 。</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">header</span>, *<span class="title">tail</span>;</span></span><br><span class="line">    <span class="comment">// 用来记录表中节点的数量， 程序可以在 O(1) 复杂度内返回跳跃表的长度。</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> length;</span><br><span class="line">    <span class="comment">// 表中层数最大的节点的层数，用于在 O(1) 复杂度内获取跳跃表中层高最大的那个节点的层数，注意表头节点的层高并不计算在内。</span></span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125; zskiplist;</span><br></pre></td></tr></table></figure>
+
+<p><strong>zskiplistNode 结构定义：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> &#123;</span></span><br><span class="line">    <span class="comment">// 后退指针，一个节点只有一个</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">backward</span>;</span></span><br><span class="line">    <span class="comment">// 分值</span></span><br><span class="line">    <span class="keyword">double</span> score;</span><br><span class="line">    <span class="comment">// 成员对象</span></span><br><span class="line">    robj *obj;</span><br><span class="line">    <span class="comment">// 层</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistLevel</span> &#123;</span></span><br><span class="line">        <span class="comment">// 前进指针，对于该节点每层一个</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">forward</span>;</span></span><br><span class="line">        <span class="comment">// 跨度</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> span;</span><br><span class="line">    &#125; level[];</span><br><span class="line">&#125; zskiplistNode;</span><br></pre></td></tr></table></figure>
+
+<p><strong>层</strong></p>
+<ul>
+<li><p>跳跃表节点的 level 数组可以包含多个元素， 每个元素都包含一个指向其他节点的前进指针， 程序可以通过这些层来加快访问其他节点的速度， 一般来说， 层的数量越多， 访问其他节点的速度就越快。</p>
+</li>
+<li><p>每次创建一个新跳跃表节点的时候， 程序都根据<strong>幂次定律</strong> （<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Power_law">power law</a>，越大的数出现的概率越小） 随机生成一个介于 1 和 32 之间的值作为 level 数组的大小， 这个大小就是层的“高度”。</p>
+<blockquote>
+<p>Y：第n（n&gt;1）层有节点x，则第n-1层也一定有x节点。</p>
+</blockquote>
+</li>
+</ul>
+<p>图 5-2 分别展示了三个高度为 1 层、 3 层和 5 层的节点， 因为 C 语言的数组索引总是从 0 开始的， 所以节点的第一层是 level[0] ， 而第二层是 level[1] ， 以此类推。</p>
+<p><img src="Redis/assets/1238581-20210213201838639-805210660.png" alt="img"></p>
+<p><strong>前进指针</strong></p>
+<p>用于从表头向表尾方向访问该层节点，即层的遍历。</p>
+<p><strong>跨度</strong></p>
+<ul>
+<li>用于记录两个节点之间的距离：<ul>
+<li>  两个节点之间的跨度越大， 它们相距得就越远。</li>
+<li>  指向 NULL 的所有前进指针的跨度都为 0 ， 因为它们没有连向任何节点。</li>
+</ul>
+</li>
+<li> <strong>跨度实际上是用来计算排位（rank）的</strong>： 在查找某个节点的过程中， 将沿途访问过的所有层的跨度累计起来， 得到的结果就是目标节点在跳跃表中的排位。</li>
+</ul>
+<p>举个例子， 图 5-4 用虚线标记了在跳跃表中查找分值为 3.0 、 成员对象为 o3 的节点时， 沿途经历的层： 查找的过程只经过了一个层L3， 并且层的跨度为 3 ， 所以目标节点在跳跃表中的排位为 3 。</p>
+<p><img src="Redis/assets/1238581-20210213202024590-570344443.png" alt="img"></p>
+<p>再举个例子， 图 5-5 用虚线标记了在跳跃表中查找分值为 2.0 、 成员对象为 o2 的节点时， 沿途经历的层： 在查找节点的过程中， 程序经过了两个跨度为 1 的节点， 因此可以计算出， 目标节点在跳跃表中的排位为 2 。</p>
+<p><img src="Redis/assets/1238581-20210213202038671-1204788410.png" alt="img"></p>
+<p><strong>后退指针</strong></p>
+<ul>
+<li>节点的后退指针（backward 属性）用于从表尾向表头方向访问节点： 跟可以一次跳过多个节点的前进指针不同， 因为每个节点只有一个后退指针， 所以每次只能后退至前一个节点。</li>
+</ul>
+<p>图 5-6 用虚线展示了如何<strong>从表尾向表头遍历跳跃表中的所有节点</strong>： 程序首先通过跳跃表的 tail 指针访问表尾节点， 然后通过后退指针访问倒数第二个节点， 之后再沿着后退指针访问倒数第三个节点， 再之后遇到指向 NULL 的后退指针， 于是访问结束。</p>
+<p><img src="Redis/assets/1238581-20210213202122053-915674055.png" alt="img"></p>
+<p><strong>分值和成员</strong></p>
+<ul>
+<li>节点的分值（score 属性）是一个 <strong>double</strong> 类型的浮点数， 跳跃表中的所有节点都按<strong>分值</strong>从小到大来排序。</li>
+<li>节点的成员对象（obj 属性）是一个指针， 它指向一个字符串对象， 而字符串对象则保存着一个 SDS 值。</li>
+<li>在同一个跳跃表中， 各个节点保存的成员对象必须是唯一的， 但是多个节点保存的分值却可以是相同的： 分值相同的节点将按照成员对象在字典序中的大小来进行排序， 成员对象较小的节点会排在前面（靠近表头的方向）， 而成员对象较大的节点则会排在后面（靠近表尾的方向）。</li>
+</ul>
+<p>举个例子， 在图 5-7 所示的跳跃表中， 三个跳跃表节点都保存了相同的分值 10086.0 ， 但保存成员对象 o1 的节点却排在保存成员对象 o2 和 o3 的节点之前， 而保存成员对象 o2 的节点又排在保存成员对象 o3 的节点之前， 由此可见， o1 、 o2 、 o3 三个成员对象在字典中的排序为 o1 &lt;= o2 &lt;= o3 。</p>
+<p><img src="Redis/assets/1238581-20210213202144716-2013979073.png" alt="img"></p>
+<p><strong>总结</strong></p>
+<ul>
+<li>跳跃表基于单链表加索引的方式实现</li>
+<li>跳跃表以空间换时间的方式提升了查找速度</li>
+<li>Redis有序集合在节点元素较大或者元素数量较多时使用跳跃表实现，它在 Redis 中没有其他应用。</li>
+<li>Redis的跳跃表实现由 zskiplist和 zskiplistnode两个结构组成,其中 zskiplist用于保存跳跃表信息(比如表头节点、表尾节点、长度),而zskiplistnode则用于表示跳跃表节点</li>
+<li>Redis每个跳跃表节点的层高都是1至32之间的随机数</li>
+<li>在同一个跳跃表中,多个节点可以包含相同的分值,但每个节点的成员对象必须是唯一的跳跃表中的节点按照分值大小进行排序,当分值相同时,节点按照成员对象的大小进行排序。</li>
+</ul>
+<h3 id="2-4-3-Redis跳跃表常用操作的时间复杂度"><a href="#2-4-3-Redis跳跃表常用操作的时间复杂度" class="headerlink" title="2.4.3 Redis跳跃表常用操作的时间复杂度"></a>2.4.3 Redis跳跃表常用操作的时间复杂度</h3><table>
+<thead>
+<tr>
+<th align="left">操作</th>
+<th align="left">时间复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">创建一个跳跃表</td>
+<td align="left">O(1)</td>
+</tr>
+<tr>
+<td align="left">释放给定跳跃表以及其中包含的节点</td>
+<td align="left">O(N)</td>
+</tr>
+<tr>
+<td align="left">添加给定成员和分值的新节点</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">删除除跳跃表中包含给定成员和分值的节点</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">返回给定成员和分值的节点再表中的排位</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">返回在给定排位上的节点</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">给定一个分值范围,返回跳跃表中第一个符合这个范围的节点</td>
+<td align="left">O(1)</td>
+</tr>
+<tr>
+<td align="left">给定一个分值范围,返回跳跃表中最后一个符合这个范围的节点</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">给定一个分值范围,除跳跃表中所有在这个范围之内的节点</td>
+<td align="left">平均O(logN),最坏O(logN)(N为跳跃表的长度)</td>
+</tr>
+<tr>
+<td align="left">给定一个排位范围,鼎除跳跃表中所有在这个范围之内的节点</td>
+<td align="left">O(N),N为被除节点数量</td>
+</tr>
+<tr>
+<td align="left">给定一个分值范固(range),比如0到15,20到28,诸如此类,如果跳氏表中有至少一个节点的分值在这个范間之内,那么返回1,否则返回0</td>
+<td align="left">O(N),N为被除节点数量</td>
+</tr>
+</tbody></table>
+<h2 id="2-5-整数集合"><a href="#2-5-整数集合" class="headerlink" title="2.5 整数集合"></a>2.5 整数集合</h2><p>当一个集合中只包含整数，并且元素的个数不是很多的话，redis 会用整数集合作为底层存储，它的一个优点就是可以节省很多内存，虽然字典结构的效率很高，但是它的实现结构相对复杂并且会分配较多的内存空间。</p>
+<p>而我们的整数集合（intset）可以做到使用较少的内存空间却达到和字典一样效率的实现，但也是前提的，集合中只能包含整型数据并且数量不能太多。整数集合最多能存多少个元素在 redis 中也是有体现的。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">OBJ_SET_MAX_INTSET_ENTRIES</span> <span class="string">512</span></span><br></pre></td></tr></table></figure>
+
+<p>也就是超过 512 个元素，或者向集合中添加了字符串或其他数据结构，redis 会将整数集合向字典结构进行转换。</p>
+<p>intset 的结构定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding;</span><br><span class="line">    <span class="comment">// 记录整数集合中目前存储了多少个元素。</span></span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    <span class="comment">// 记录我们实际的数据集合。虽然我们看到结构体中给数组元素的类型定死成 int8_t，但实际上这个 int8_t 定义的毫无意义，因为这里的处理方式非常规的数组操作，content 字段虽然被定义成指向一个 int8_t 类型数据的指针，但实际上 redis 无论是读取数组元素还是新增元素进去都依赖 encoding 和 length 两个字段直接操作的内存。</span></span><br><span class="line">    <span class="keyword">int8_t</span> contents [];</span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure>
+
+<p>encoding 记录当前 intset 使用编码，有三个取值：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INTSET_ENC_INT16 (sizeof(int16_t))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INTSET_ENC_INT32 (sizeof(int32_t))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INTSET_ENC_INT64 (sizeof(int64_t))</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-6-压缩列表"><a href="#2-6-压缩列表" class="headerlink" title="2.6 压缩列表"></a>2.6 压缩列表</h2><p>​    压缩列表（ziplist）是列表键和哈希键的底层实现之一。当一个列表键只包含少量列表项， 并且每个列表项要么就是小整数值， 要么就是长度比较短的字符串， 那么 Redis 就会使用压缩列表来做列表键的底层实现。</p>
+<h2 id="2-7-对象"><a href="#2-7-对象" class="headerlink" title="2.7 对象"></a>2.7 对象</h2><ul>
+<li>Redis 并没有直接使用简单动态字符串（SDS）、双端链表、字典、压缩列表、整数集合等数据结构来实现键值对数据库， 而是<strong>基于这些数据结构创建了一个对象系统</strong>， 这个系统包含<strong>字符串对象</strong>、<strong>列表对象</strong>、<strong>哈希对象</strong>、<strong>集合对象</strong>和<strong>有序集合对象</strong>这五种类型的对象， 每种对象都用到了至少一种我们前面所介绍的数据结构。</li>
+<li>通过这五种不同类型的对象<ol>
+<li>Redis 可以在执行命令之前， 根据对象的类型来判断一个对象是否可以执行给定的命令。</li>
+<li>可以针对不同的使用场景， 为对象设置多种不同的数据结构实现， 从而优化对象在不同场景下的使用效率。</li>
+</ol>
+</li>
+<li>Redis 的对象系统还实现了基于<strong>引用计数技术</strong>的内存回收机制： 当程序不再使用某个对象的时候， 这个对象所占用的内存就会被自动释放； 另外， Redis 还通过引用计数技术实现了对象共享机制， 这一机制可以在适当的条件下， 通过让多个数据库键共享同一个对象来节约内存。</li>
+<li>最后， Redis 的对象带有访问时间记录信息， 该信息可以用于计算数据库键的空转时长， 在服务器启用了 maxmemory 功能的情况下， 空转时长较大的那些键可能会优先被服务器删除。</li>
+</ul>
+<h3 id="2-7-1-对象的类型与编码"><a href="#2-7-1-对象的类型与编码" class="headerlink" title="2.7.1 对象的类型与编码"></a>2.7.1 对象的类型与编码</h3><ul>
+<li><p>Redis 使用对象来表示数据库中的键和值， 每次当我们在 Redis 的数据库中新创建一个键值对时， 我们至少会创建两个对象， 一个对象用作键值对的键（键对象）， 另一个对象用作键值对的值（值对象）。</p>
+</li>
+<li><p>Redis 中的每个对象都由一个 redisObject 结构表示， 该结构中和保存数据有关的三个属性分别是 type 属性、 encoding 属性和 ptr 属性：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="comment">// 对象类型</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="comment">// 编码</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="comment">// 指向底层实现数据结构的指针</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 引用计数，用于内存回收与对象共享</span></span><br><span class="line">    <span class="keyword">int</span> refcount;</span><br><span class="line">  	<span class="comment">// ...</span></span><br><span class="line">  	<span class="comment">// 该属性记录了对象最后一次被命令程序访问的时间，用于计算空转时长</span></span><br><span class="line">  	<span class="keyword">unsigned</span> lru:<span class="number">22</span>;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+
+<p><strong>对象类型</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型常量</th>
+<th>对象的名称</th>
+<th>TYPE 命令的输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REDIS_STRING</td>
+<td>字符串对象</td>
+<td>“string”</td>
+</tr>
+<tr>
+<td>REDIS_LIST</td>
+<td>列表对象</td>
+<td>“list”</td>
+</tr>
+<tr>
+<td>REDIS_HASH</td>
+<td>哈希对象</td>
+<td>“hash”</td>
+</tr>
+<tr>
+<td>REDIS_SET</td>
+<td>集合对象</td>
+<td>“set”</td>
+</tr>
+<tr>
+<td>REDIS_ZSET</td>
+<td>有序集合对象</td>
+<td>“zset”</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>对于 Redis 数据库保存的键值对来说， 键总是一个字符串对象， 而值则可以是字符串对象、列表对象、哈希对象、集合对象或者有序集合对象的其中一种， 因此：</p>
+<ul>
+<li>当我们称呼一个数据库键为“字符串键”时， 我们指的是“这个数据库键所对应的值为字符串对象”；</li>
+<li>当我们称呼一个键为“列表键”时， 我们指的是“这个数据库键所对应的值为列表对象”，诸如此类。</li>
+</ul>
+</li>
+<li><p>TYPE 命令的实现方式也与此类似， 当我们对一个数据库键执行 TYPE 命令时， 命令返回的结果为数据库键对应的值对象的类型， 而不是键对象的类型：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 键为字符串对象，值为列表对象</span></span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> RPUSH numbers 1 3 5</span></span><br><span class="line">(integer) 6</span><br><span class="line"><span class="meta">redis&gt;</span><span class="bash"> TYPE numbers</span></span><br><span class="line">list</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<p><strong>编码和底层实现</strong></p>
+<p>对象的 ptr 指针指向对象的底层实现数据结构， encoding 属性记录了对象所使用的编码， 也即是说这个对象使用了什么数据结构作为对象的底层实现。</p>
+<table>
+<thead>
+<tr>
+<th>编码常量</th>
+<th>编码所对应的底层数据结构</th>
+<th>OBJECT ENCODING 命令输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REDIS_ENCODING_INT</td>
+<td>long 类型的整数</td>
+<td>“int”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_EMBSTR</td>
+<td>embstr 编码的简单动态字符串</td>
+<td>“embstr”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_RAW</td>
+<td>简单动态字符串</td>
+<td>“raw”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_HT</td>
+<td>字典</td>
+<td>“hashtable”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_LINKEDLIST</td>
+<td>双端链表</td>
+<td>“linkedlist”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_ZIPLIST</td>
+<td>压缩列表</td>
+<td>“ziplist”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_INTSET</td>
+<td>整数集合</td>
+<td>“intset”</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_SKIPLIST</td>
+<td>跳跃表和字典</td>
+<td>“skiplist”</td>
+</tr>
+</tbody></table>
+<p>其中，每种type类型的对象都至少使用了两种不同的编码，使用 OBJECT ENCODING 命令可以查看一个数据库键的值对象的编码。</p>
+<p><img src="Redis/assets/image-20210822195733449.png" alt="image-20210822195733449"></p>
+<h3 id="2-7-2-对象编码转换条件"><a href="#2-7-2-对象编码转换条件" class="headerlink" title="2.7.2 对象编码转换条件"></a>2.7.2 对象编码转换条件</h3><h4 id="2-7-2-1-字符串对象"><a href="#2-7-2-1-字符串对象" class="headerlink" title="2.7.2.1 字符串对象"></a>2.7.2.1 字符串对象</h4><ul>
+<li>字符串对象的编码可以是 int 、embstr 或者raw。<ul>
+<li>如果一个字符串对象保存的是整数值， 并且这个整数值可以用 long 类型来表示， 那么字符串对象会将整数值保存在字符串对象结构的 ptr 属性里面（将 void* 转换成 long ）， 并将字符串对象的编码设置为 int 。</li>
+<li>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度小于等于 39 字节， 那么字符串对象将使用 embstr 编码的方式来保存这个字符串值。</li>
+<li>如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度大于 39 字节， 那么字符串对象将使用一个简单动态字符串（SDS）来保存这个字符串值， 并将对象的编码设置为 raw 。</li>
+</ul>
+</li>
+<li>最后要说的是， 可以用 long double 类型表示的浮点数在 Redis 中也是作为字符串值来保存的： 如果我们要保存一个浮点数到字符串对象里面， 那么程序会先将这个浮点数转换成字符串值， 然后再保存起转换所得的字符串值。在有需要的时候， 程序会将保存在字符串对象里面的字符串值转换回浮点数值， 执行某些操作， 然后再将执行操作所得的浮点数值转换回字符串值， 并继续保存在字符串对象里面。</li>
+</ul>
+<p>字符串对象保存各类型值的编码方式：</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>编码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>可以用 long 类型保存的整数。</td>
+<td>int</td>
+</tr>
+<tr>
+<td>可以用 long double 类型保存的浮点数。</td>
+<td>embstr 或者 raw</td>
+</tr>
+<tr>
+<td>字符串值， 或者因为长度太大而没办法用 long 类型表示的整数， 又或者因为长度太大而没办法用 long double 类型表示的浮点数。</td>
+<td>embstr 或者 raw</td>
+</tr>
+</tbody></table>
+<p><strong>编码的转换</strong></p>
+<ul>
+<li>int 编码的字符串对象和 embstr 编码的字符串对象在条件满足的情况下， 会被转换为 raw 编码的字符串对象。</li>
+<li>对于 int 编码的字符串对象来说， 如果我们向对象执行了一些命令， 使得这个对象保存的不再是整数值， 而是一个字符串值， 那么字符串对象的编码将从 int 变为 raw 。比如APPEND 命令</li>
+<li>另外， 因为 Redis 没有为 embstr 编码的字符串对象编写任何相应的修改程序 （只有 int 编码的字符串对象和 raw 编码的字符串对象有这些程序）， 所以 embstr 编码的字符串对象实际上是只读的： 当我们对 embstr 编码的字符串对象执行任何修改命令时， 程序会先将对象的编码从 embstr 转换成 raw ， 然后再执行修改命令； 因为这个原因， embstr 编码的字符串对象在执行修改命令之后， 总会变成一个 raw 编码的字符串对象。</li>
+</ul>
+<h4 id="2-7-2-2-列表对象"><a href="#2-7-2-2-列表对象" class="headerlink" title="2.7.2.2 列表对象"></a>2.7.2.2 列表对象</h4><ul>
+<li>列表对象的编码可以是 ziplist 或者 linkedlist 。</li>
+<li>ziplist 编码的列表对象使用<strong>压缩列表</strong>作为底层实现， 每个压缩列表节点（entry）保存了一个列表元素。</li>
+<li>另一方面， linkedlist 编码的列表对象使用<strong>双端链表</strong>作为底层实现， 每个双端链表节点（node）都保存了一个字符串对象， 而每个字符串对象都保存了一个列表元素。</li>
+</ul>
+<p><strong>编码转换</strong></p>
+<p>当列表对象可以同时满足以下两个条件时， 列表对象使用 ziplist 编码：</p>
+<ol>
+<li>列表对象保存的所有字符串元素的长度都小于 64 字节；</li>
+<li>列表对象保存的元素数量小于 512 个；</li>
+</ol>
+<p>不能满足这两个条件的列表对象需要使用 linkedlist 编码。</p>
+<ul>
+<li>对于使用 ziplist 编码的列表对象来说， 当使用 ziplist 编码所需的两个条件的任意一个不能被满足时， 对象的编码转换操作就会被执行： 原本保存在压缩列表里的所有列表元素都会被转移并保存到双端链表里面， 对象的编码也会从 ziplist 变为 linkedlist 。</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：以上两个条件的上限值是可以修改的， 具体请看配置文件中关于 list-max-ziplist-value 选项和 list-max-ziplist-entries 选项的说明。</p>
+</blockquote>
+<h4 id="2-7-2-3-哈希对象"><a href="#2-7-2-3-哈希对象" class="headerlink" title="2.7.2.3 哈希对象"></a>2.7.2.3 哈希对象</h4><ul>
+<li>哈希对象的编码可以是 <strong>ziplist</strong> 或者 <strong>hashtable</strong> 。</li>
+<li>ziplist 编码的哈希对象使用<strong>压缩列表</strong>作为底层实现， 每当有新的键值对要加入到哈希对象时， 程序会先将保存了键的压缩列表节点推入到压缩列表表尾， 然后再将保存了值的压缩列表节点推入到压缩列表表尾， 因此：<ul>
+<li>保存了同一键值对的两个节点总是紧挨在一起， 保存键的节点在前， 保存值的节点在后；</li>
+<li>先添加到哈希对象中的键值对会被放在压缩列表的表头方向， 而后来添加到哈希对象中的键值对会被放在压缩列表的表尾方向。</li>
+</ul>
+</li>
+<li>另一方面， hashtable 编码的哈希对象使用<strong>字典</strong>作为底层实现， 哈希对象中的每个键值对都使用一个字典键值对来保存：<ul>
+<li>字典的每个键都是一个字符串对象， 对象中保存了键值对的键；</li>
+<li>字典的每个值都是一个字符串对象， 对象中保存了键值对的值。</li>
+</ul>
+</li>
+</ul>
+<p><strong>编码转换</strong></p>
+<p>当哈希对象可以同时满足以下两个条件时， 哈希对象使用 ziplist 编码：</p>
+<ol>
+<li><p>哈希对象保存的所有键值对的键和值的字符串长度都小于 64 字节；</p>
+</li>
+<li><p>哈希对象保存的键值对数量小于 512 个。 </p>
+<blockquote>
+<p>Y：应该是键值对数量小于256？</p>
+</blockquote>
+</li>
+</ol>
+<p>不能满足这两个条件的哈希对象需要使用 hashtable 编码。</p>
+<ul>
+<li>对于使用 ziplist 编码的列表对象来说， 当使用 ziplist 编码所需的两个条件的任意一个不能被满足时， 对象的编码转换操作就会被执行： 原本保存在压缩列表里的所有键值对都会被转移并保存到字典里面， 对象的编码也会从 ziplist 变为 hashtable 。</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：这两个条件的上限值是可以修改的， 具体请看配置文件中关于 hash-max-ziplist-value 选项和 hash-max-ziplist-entries 选项的说明。</p>
+</blockquote>
+<h4 id="2-7-2-4-集合对象"><a href="#2-7-2-4-集合对象" class="headerlink" title="2.7.2.4 集合对象"></a>2.7.2.4 集合对象</h4><ul>
+<li>集合对象的编码可以是 <strong>intset</strong> 或者 <strong>hashtable</strong> 。</li>
+<li>intset 编码的集合对象使用<strong>整数集合</strong>作为底层实现， 集合对象包含的所有元素都被保存在整数集合里面。</li>
+<li>另一方面， hashtable 编码的集合对象使用<strong>字典</strong>作为底层实现， 字典的每个键都是一个字符串对象， 每个字符串对象包含了一个集合元素， 而字典的值则全部被设置为 NULL 。</li>
+</ul>
+<p><strong>编码的转换</strong></p>
+<p>当集合对象可以同时满足以下两个条件时， 对象使用 intset 编码：</p>
+<ol>
+<li>集合对象保存的所有元素都是整数值；</li>
+<li>集合对象保存的元素数量不超过 512 个；</li>
+</ol>
+<p>不能满足这两个条件的集合对象需要使用 hashtable 编码。</p>
+<ul>
+<li>对于使用 intset 编码的集合对象来说， 当使用 intset 编码所需的两个条件的任意一个不能被满足时， 对象的编码转换操作就会被执行： 原本保存在整数集合中的所有元素都会被转移并保存到字典里面， 并且对象的编码也会从 intset 变为 hashtable 。</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：第二个条件的上限值是可以修改的， 具体请看配置文件中关于 set-max-intset-entries 选项的说明。</p>
+</blockquote>
+<h4 id="2-7-2-5-有序集合对象"><a href="#2-7-2-5-有序集合对象" class="headerlink" title="2.7.2.5 有序集合对象"></a>2.7.2.5 有序集合对象</h4><ul>
+<li><p>有序集合的编码可以是 <strong>ziplist</strong> 或者 <strong>skiplist</strong> 。</p>
+</li>
+<li><p>ziplist 编码的有序集合对象使用<strong>压缩列表</strong>作为底层实现， 每个集合元素使用两个紧挨在一起的压缩列表节点来保存， 第一个节点保存元素的成员（member）， 而第二个元素则保存元素的分值（score）。</p>
+</li>
+<li><p>压缩列表内的集合元素按分值从小到大进行排序， 分值较小的元素被放置在靠近表头的方向， 而分值较大的元素则被放置在靠近表尾的方向。</p>
+</li>
+<li><p>skiplist 编码的有序集合对象使用 <strong>zset 结构</strong>作为底层实现，<strong>一个 zset 结构同时包含一个字典和一个跳跃表</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zset</span> &#123;</span></span><br><span class="line">    zskiplist *zsl;</span><br><span class="line">    dict *dict;     </span><br><span class="line">&#125; zset;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>zset 结构中的 zsl 跳跃表按分值从小到大保存了所有集合元素</strong>， 每个跳跃表节点都保存了一个集合元素： 跳跃表节点的 object 属性保存了元素的成员， 而跳跃表节点的 score 属性则保存了元素的分值。 通过这个跳跃表， 程序可以对有序集合进行范围型操作， 比如 ZRANK 、 ZRANGE 等命令就是基于跳跃表 API 来实现的。</li>
+<li><strong>zset 结构中的 dict 字典为有序集合创建了一个从成员到分值的映射</strong>， 字典中的每个键值对都保存了一个集合元素： 字典的键保存了元素的成员， 而字典的值则保存了元素的分值。 通过这个字典， 程序可以用 O(1) 复杂度查找给定成员的分值， ZSCORE 命令就是根据这一特性实现的， 而很多其他有序集合命令都在实现的内部用到了这一特性。</li>
+<li>值得一提的是， 虽然 zset 结构同时使用跳跃表和字典来保存有序集合元素， 但<strong>这两种数据结构都会通过指针来共享相同元素的成员和分值</strong>， 所以同时使用跳跃表和字典来保存集合元素不会产生任何重复成员或者分值， 也不会因此而浪费额外的内存。</li>
+</ul>
+</li>
+<li><p>有序集合每个元素的成员都是一个字符串对象， 而每个元素的分值都是一个 double 类型的浮点数。</p>
+</li>
+</ul>
+<p><strong>为什么有序集合需要同时使用跳跃表和字典来实现？</strong></p>
+<ul>
+<li>在理论上来说， 有序集合可以单独使用字典或者跳跃表的其中一种数据结构来实现， 但无论单独使用字典还是跳跃表， 在性能上对比起同时使用字典和跳跃表都会有所降低。</li>
+<li>举个例子， 如果我们只使用字典来实现有序集合， 那么虽然以 O(1) 复杂度查找成员的分值这一特性会被保留， 但是， 因为字典以无序的方式来保存集合元素， 所以每次在执行范围型操作 —— 比如 ZRANK 、 ZRANGE 等命令时， 程序都需要对字典保存的所有元素进行排序， 完成这种排序需要至少 O(N \log N) 时间复杂度， 以及额外的 O(N) 内存空间 （因为要创建一个数组来保存排序后的元素）。</li>
+<li>另一方面， 如果我们只使用跳跃表来实现有序集合， 那么跳跃表执行范围型操作的所有优点都会被保留， 但因为没有了字典， 所以根据成员查找分值这一操作的复杂度将从 O(1) 上升为 O(\log N) 。</li>
+<li>因为以上原因， 为了让有序集合的查找和范围型操作都尽可能快地执行， Redis 选择了同时使用字典和跳跃表两种数据结构来实现有序集合。</li>
+</ul>
+<p><strong>编码的转换</strong></p>
+<p>当有序集合对象可以同时满足以下两个条件时， 对象使用 ziplist 编码：</p>
+<ol>
+<li>有序集合保存的元素数量小于 128 个；</li>
+<li>有序集合保存的所有元素成员的长度都小于 64 字节；</li>
+</ol>
+<p>不能满足以上两个条件的有序集合对象将使用 skiplist 编码。</p>
+<ul>
+<li>对于使用 ziplist 编码的有序集合对象来说， 当使用 ziplist 编码所需的两个条件中的任意一个不能被满足时， 程序就会执行编码转换操作， 将原本储存在压缩列表里面的所有集合元素转移到 zset 结构里面， 并将对象的编码从 ziplist 改为 skiplist 。</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：以上两个条件的上限值是可以修改的， 具体请看配置文件中关于 zset-max-ziplist-entries 选项和 zset-max-ziplist-value 选项的说明。</p>
+</blockquote>
+<h2 id="2-8-类型检查与命令多态"><a href="#2-8-类型检查与命令多态" class="headerlink" title="2.8 类型检查与命令多态"></a>2.8 类型检查与命令多态</h2><p>略</p>
+<h2 id="2-9-内存回收"><a href="#2-9-内存回收" class="headerlink" title="2.9 内存回收"></a>2.9 内存回收</h2><p>略</p>
+<h2 id="2-10-对象共享"><a href="#2-10-对象共享" class="headerlink" title="2.10 对象共享"></a>2.10 对象共享</h2><ul>
+<li><p>在 Redis 中， 让多个键共享同一个值对象需要执行以下两个步骤：</p>
+<ol>
+<li>将数据库键的值指针指向一个现有的值对象；</li>
+<li>将被共享的值对象的引用计数增一。</li>
+</ol>
+</li>
+<li><p>目前来说， Redis 会在初始化服务器时， 创建一万个字符串对象， 这些对象包含了从 0 到 9999 的所有整数值， 当服务器需要用到值为 0 到 9999 的字符串对象时， 服务器就会使用这些共享对象， 而不是新创建对象。</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：创建共享字符串对象的数量可以通过修改 redis.h/REDIS_SHARED_INTEGERS 常量来修改。</p>
+</blockquote>
+<ul>
+<li>另外， 这些共享对象不单单只有字符串键可以使用， 那些在数据结构中嵌套了字符串对象的对象（linkedlist 编码的列表对象、 hashtable 编码的哈希对象、 hashtable 编码的集合对象、以及 zset 编码的有序集合对象）都可以使用这些共享对象。</li>
+</ul>
+<p><strong>为什么 Redis 不共享包含字符串的对象？</strong></p>
+<p>当服务器考虑将一个共享对象设置为键的值对象时， 程序需要先检查给定的共享对象和键想创建的目标对象是否完全相同， 只有在共享对象和目标对象完全相同的情况下， 程序才会将共享对象用作键的值对象， 而一个共享对象保存的值越复杂， 验证共享对象和目标对象是否相同所需的复杂度就会越高， 消耗的 CPU 时间也会越多：</p>
+<ul>
+<li>如果共享对象是保存整数值的字符串对象， 那么验证操作的复杂度为 O(1) ；</li>
+<li>如果共享对象是保存字符串值的字符串对象， 那么验证操作的复杂度为 O(N) ；</li>
+<li>如果共享对象是包含了多个值（或者对象的）对象， 比如列表对象或者哈希对象， 那么验证操作的复杂度将会是 O(N^2) 。</li>
+</ul>
+<p>因此， 尽管共享更复杂的对象可以节约更多的内存， 但受到 CPU 时间的限制， Redis 只对包含整数值的字符串对象进行共享。</p>
+<h2 id="2-11-对象的空转时长"><a href="#2-11-对象的空转时长" class="headerlink" title="2.11 对象的空转时长"></a>2.11 对象的空转时长</h2><ul>
+<li><strong>OBJECT IDLETIME</strong> 命令可以打印出给定键的空转时长， 这一空转时长就是通过将<strong>当前时间</strong>减去<strong>键的值对象的 lru 时间</strong>计算得出的.</li>
+</ul>
+<h1 id="3-Redis-内存管理"><a href="#3-Redis-内存管理" class="headerlink" title="3. Redis 内存管理"></a>3. Redis 内存管理</h1><h2 id="3-1-Redis的内存过期策略"><a href="#3-1-Redis的内存过期策略" class="headerlink" title="3.1 Redis的内存过期策略"></a>3.1 Redis的内存过期策略</h2><p>内存过期策略主要的作用就是，在缓存过期之后，能够及时的将失效的缓存从内存中删除，以减少内存的无效暂用，达到释放内存的目的。</p>
+<p>Redis内存过期策略分为三类，定时策略、惰性策略和定期策略。</p>
+<h2 id="3-1-1-定时策略"><a href="#3-1-1-定时策略" class="headerlink" title="3.1.1 定时策略"></a>3.1.1 定时策略</h2><p>含义：在设置key的过期时间的同时，为该key创建一个定时器，让定时器在key的过期时间来临时对key进行删除。</p>
+<p>优点：保证内存被尽快释放，减少无效的缓存暂用内存。</p>
+<p>缺点：若过期key很多，删除这些key会占用很多的CPU时间，在CPU时间紧张的情况下，CPU不能把所有的时间用来做要紧的事儿，还需要去花时间删除这些key。定时器的创建耗时，若为每一个设置过期时间的key创建一个定时器（将会有大量的定时器产生），性能影响严重。<strong>一般来说，是不会选择该策略模式</strong>。</p>
+<h2 id="3-1-2-惰性策略"><a href="#3-1-2-惰性策略" class="headerlink" title="3.1.2 惰性策略"></a>3.1.2 惰性策略</h2><p>含义：key过期的时候不删除，每次从数据库获取key的时候去检查是否过期，若过期，则删除，返回null。</p>
+<p>优点：删除操作只发生在从数据库取出key的时候发生，而且只删除当前key，所以对CPU时间的占用是比较少的，而且此时的删除是已经到了非做不可的地步（如果此时还不删除的话，我们就会获取到了已经过期的key了）。</p>
+<p>缺点：若大量的key在超出超时时间后，很久一段时间内，都没有被获取过，此时的无效缓存是永久暂用在内存中的，那么可能发生内存泄露（无用的垃圾占用了大量的内存）。</p>
+<h2 id="3-1-3-定期策略"><a href="#3-1-3-定期策略" class="headerlink" title="3.1.3 定期策略"></a>3.1.3 定期策略</h2><p>含义：每隔一段时间对设置了缓存时间的key进行检测，如果可以已经失效，则从内存中删除，如果未失效，则不作任何处理。</p>
+<p>优点：通过限制删除操作的时长和频率，来减少删除操作对CPU时间的占用（处理”定时删除”的缺点）， 定期删除过期key（处理”惰性删除”的缺点）。</p>
+<p>缺点:在内存友好方面，不如”定时删除”，因为是随机遍历一些key，因此存在部分key过期，但遍历key时，没有被遍历到，过期的key仍在内存中。在CPU时间友好方面，不如”惰性删除”，定期删除也会暂用CPU性能消耗。</p>
+<p>难点:合理设置删除操作的执行时长（每次删除执行多长时间）和执行频率（每隔多长时间做一次删除）（这个要根据服务器运行情况来定了）</p>
+<h2 id="3-1-4-策略注意事项"><a href="#3-1-4-策略注意事项" class="headerlink" title="3.1.4 策略注意事项"></a>3.1.4 策略注意事项</h2><h3 id="过期策略对持久化存储的影响"><a href="#过期策略对持久化存储的影响" class="headerlink" title="过期策略对持久化存储的影响"></a><strong>过期策略对持久化存储的影响</strong></h3><p>持久化存储，指的是将内存的缓存永久存在磁盘中。也就是说我们的AOF和RDB持久化存储方式。因为该两种方式，将内存中的数据写入磁盘，这时候就需要考虑到我们过期的缓存是否会被写入到磁盘中？如果写入磁盘又是怎么处理的？</p>
+<h3 id="RDB持久化存储方式"><a href="#RDB持久化存储方式" class="headerlink" title="RDB持久化存储方式"></a><strong>RDB持久化存储方式</strong></h3><p>持久化key之前，会检查是否过期，过期的key不进入RDB文件。</p>
+<p>数据载入数据库之前，会对key先进行过期检查，如果过期，不导入数据库（主库情况）。</p>
+<h3 id="AOF持久化存储方式"><a href="#AOF持久化存储方式" class="headerlink" title="AOF持久化存储方式"></a><strong>AOF持久化存储方式</strong></h3><p>当key过期后，还没有被删除，此时进行执行持久化操作（该key是不会进入aof文件的，因为没有发生修改命令）。</p>
+<p>当key过期后，在发生删除操作时，程序会向aof文件追加一条del命令（在将来的以aof文件恢复数据的时候该过期的键就会被删掉）。</p>
+<blockquote>
+<p>因为AOF方式，向存储文件追加的是Redis的操作命令，而不是具体的数据，然而RDB确是存储的安全的二进制内容。</p>
+</blockquote>
+<p>重写时，会先判断key是否过期，已过期的key不会重写到aof文件。</p>
+<blockquote>
+<p>即使在重写时，不验证是否过期，然而追加了del命令，测试无效的key同样会被删除。判断的情况是为了防止没有加入del命令的key。</p>
+</blockquote>
+<h2 id="3-2-Redis内存淘汰机制"><a href="#3-2-Redis内存淘汰机制" class="headerlink" title="3.2 Redis内存淘汰机制"></a>3.2 Redis内存淘汰机制</h2><p>内存淘汰机制针对是<strong>内存不足</strong>的情况下的一种Redis处理机制。例如，当前的Redis存储已经超过内存限制了，然而我们的业务还在继续往Redis里面追加缓存内容，这时候Redis的淘汰机制就起到作用了。</p>
+<h3 id="3-2-1-常见的缓存算法"><a href="#3-2-1-常见的缓存算法" class="headerlink" title="3.2.1 常见的缓存算法"></a>3.2.1 常见的缓存算法</h3><ul>
+<li>LRU (Least recently used) 最近最少使用，如果数据最近被访问过，那么将来被访问的几率也更高。</li>
+<li>LFU (Least frequently used) 最不经常使用，如果一个数据在最近一段时间内使用次数很少，那么在将来一段时间内被使用的可能性也很小。</li>
+<li>FIFO (Fist in first out) 先进先出，如果一个数据最先进入缓存中，则应该最早淘汰掉。</li>
+</ul>
+<h3 id="3-2-2-淘汰机制分类"><a href="#3-2-2-淘汰机制分类" class="headerlink" title="3.2.2 淘汰机制分类"></a>3.2.2 淘汰机制分类</h3><p>根据redis.conf的配置文件中，我们可以得出，主要分为如下几种淘汰机制。</p>
+<ul>
+<li>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，使用LRU算法删除key。</li>
+</ul>
+<ul>
+<li><p><strong>allkeys-lru</strong>：当内存不足以容纳新写入数据时，在键空间中，使用LRU算法删除key（这个是最常用的）。</p>
+</li>
+<li><p>volatile-lfu：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，使用LFU算法删除key。</p>
+</li>
+</ul>
+<ul>
+<li>allkeys-lfu：当内存不足以容纳新写入数据时，在键空间中，使用LFU算法删除key。</li>
+</ul>
+<ul>
+<li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机删除key。</li>
+</ul>
+<ul>
+<li>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机删除key。</li>
+</ul>
+<ul>
+<li>volatile-ttl：当内存不足以容纳新写入数据时，优先删除离过期时间最近的key（minor TTL）。</li>
+</ul>
+<ul>
+<li>noeviction：当内存不足以容纳新写入数据时，不删除任何数据，新写入操作会报错。</li>
+</ul>
+<h1 id="4-Redis-集群模式"><a href="#4-Redis-集群模式" class="headerlink" title="4. Redis 集群模式"></a>4. Redis 集群模式</h1><h2 id="4-1-主从同步-复制"><a href="#4-1-主从同步-复制" class="headerlink" title="4.1 主从同步/复制"></a>4.1 主从同步/复制</h2><p><img src="Redis/assets/1350922-20191006113347736-1579349638.png" alt="img"></p>
+<p>　为了避免单点故障，通常的做法是将数据库复制多个副本以部署在不同的服务器上，这样即使有一台服务器出现故障，其他服务器依然可以继续提供服务。为此， <strong>Redis 提供了复制（replication）功能，可以实现当一台数据库中的数据更新后，自动将更新的数据同步到其他数据库上</strong>。　　</p>
+<p>​    在复制的概念中，数据库分为两类，一类是主数据库（master），另一类是从数据库(slave）。<strong>主数据库可以进行读写操作</strong>，当写操作导致数据变化时会自动将数据同步给从数据库。而<strong>从数据库一般是只读的，并接受主数据库同步过来的数据</strong>。一个主数据库可以拥有多个从数据库，而一个从数据库只能拥有一个主数据库。</p>
+<p><strong>主从数据库的配置：</strong></p>
+<p>　　<strong>主数据库不用配置</strong>，从数据库的配置文件（redis.conf）中可以配置主数据库的信息，也可以在启动时，使用 redis-server –port 6380 –slaveof 127.0.0.1 6379 命令指明主数据库的 IP 和端口。从数据库一般是只读，可以改为可写，但写入的数据很容易被主同步没，所以还是只读就可以。也可以在运行时使用 slaveof ip port 命令，停止原来的主，切换成刚刚设置的主 slaveof no one会把自己变成主。</p>
+<p><strong>主从复制原理：</strong></p>
+<p><img src="Redis/assets/1350922-20191006113541904-1736285180.png" alt="img"></p>
+<ul>
+<li>从数据库连接主数据库，发送SYNC命令； </li>
+<li>主数据库接收到SYNC命令后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令； </li>
+<li>主数据库BGSAVE执行完后，向所有从数据库发送快照文件，并在发送期间继续记录被执行的写命令； </li>
+<li>从数据库收到快照文件后<strong>丢弃所有旧数据</strong>，载入收到的快照； </li>
+<li>主数据库快照发送完毕后开始向从数据库发送缓冲区中的写命令； </li>
+<li>从数据库完成对快照的载入，开始接收命令请求，并执行来自主数据库缓冲区的写命令；（<strong>从数据库初始化完成</strong>）</li>
+<li>主数据库每执行一个写命令就会向从数据库发送相同的写命令，从数据库接收并执行收到的写命令（<strong>从数据库初始化完成后的操作</strong>）</li>
+<li>出现断开重连后，2.8之后的版本会将断线期间的命令传给从数据库，增量复制。</li>
+<li>主从刚刚连接的时候，进行全量同步；全同步结束后，进行增量同步。当然，如果有需要，slave 在任何时候都可以发起全量同步。Redis 的策略是，无论如何，首先会尝试进行增量同步，如不成功，要求从机进行全量同步。</li>
+</ul>
+<p><strong>优点：</strong></p>
+<ul>
+<li>支持主从复制，主机会自动将数据同步到从机，可以进行读写分离；</li>
+<li>为了分载Master的读操作压力，Slave服务器可以为客户端提供只读操作的服务，写服务仍然必须由Master来完成；</li>
+<li>Slave同样可以接受其它Slaves的连接和同步请求，这样可以有效的分载Master的同步压力；</li>
+<li>Master Server是以非阻塞的方式为Slaves提供服务。所以在Master-Slave同步期间，客户端仍然可以提交查询或修改请求；</li>
+<li>Slave Server同样是以非阻塞的方式完成数据同步。在同步期间，如果有客户端提交查询请求，Redis则返回同步之前的数据；</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>Redis不具备自动容错和恢复功能，主机从机的宕机都会导致前端部分读写请求失败，需要等待机器重启或者手动切换前端的IP才能恢复；</li>
+<li>主机宕机，宕机前有部分数据未能及时同步到从机，切换IP后还会引入数据不一致的问题，降低了系统的可用性；</li>
+<li>如果多个Slave断线了，需要重启的时候，尽量不要在同一时间段进行重启。因为只要Slave启动，就会发送sync请求和主机全量同步，当多个 Slave 重启的时候，可能会导致 Master IO剧增从而宕机。</li>
+<li>Redis较难支持在线扩容，在集群容量达到上限时在线扩容会变得很复杂；</li>
+</ul>
+<h2 id="4-2-哨兵模式-sentinel"><a href="#4-2-哨兵模式-sentinel" class="headerlink" title="4.2 哨兵模式 sentinel"></a>4.2 哨兵模式 sentinel</h2><p>​    第一种主从同步/复制的模式，当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑哨兵模式。</p>
+<p>　哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，<strong>哨兵是一个独立的进程，作为进程，它会独立运行。</strong>其原理是哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例。</p>
+<img src="Redis/assets/1350922-20191006121120390-676037470.png" alt="img" style="zoom:67%;" />
+
+<p><strong>哨兵模式的作用：</strong></p>
+<ul>
+<li>通过发送命令，让Redis服务器返回监控其运行状态，包括主服务器和从服务器；</li>
+<li>当哨兵监测到master宕机，会自动将slave切换成master，然后通过<strong>发布订阅模式</strong>通知其他的从服务器，修改配置文件，让它们切换主机。</li>
+</ul>
+<p>然而一个哨兵进程对Redis服务器进行监控，也可能会出现问题，为此，我们可以使用多个哨兵进行监控。各个哨兵之间还会进行监控，这样就形成了<strong>多哨兵模式</strong>。</p>
+<p><img src="Redis/assets/1350922-20191006122611921-809764078.png" alt="img"></p>
+<p><strong>故障切换的过程：</strong></p>
+<p>　　假设主服务器宕机，哨兵1先检测到这个结果，系统并不会马上进行 failover 过程，仅仅是哨兵1主观的认为主服务器不可用，这个现象成为<strong>主观下线</strong>。当后面的哨兵也检测到主服务器不可用，并且数量达到一定值时，那么哨兵之间就会进行一次投票，投票的结果由一个哨兵发起，进行 failover 操作。切换成功后，就会通过发布订阅模式，让各个哨兵把自己监控的从服务器实现切换主机，这个过程称为<strong>客观下线</strong>。这样对于客户端而言，一切都是透明的。</p>
+<p><strong>哨兵模式的配置：</strong></p>
+<p>配置一主二从和三个哨兵的 Redis 服务器来演示这个过程</p>
+<p><img src="Redis/assets/1350922-20191006122741113-1584577962.png" alt="img"></p>
+<p><strong>主从服务器配置</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使得Redis服务器可以跨网络访问</span></span><br><span class="line"><span class="attr">bind</span> <span class="string">0.0.0.0</span></span><br><span class="line"><span class="comment"># 设置密码</span></span><br><span class="line"><span class="attr">requirepass</span> <span class="string">&quot;123456&quot;</span></span><br><span class="line"><span class="comment"># 以下有关slaveof的配置只是配置从服务器，主服务器不需要配置</span></span><br><span class="line"><span class="comment"># 指定主服务器</span></span><br><span class="line"><span class="attr">slaveof</span> <span class="string">192.168.11.128 6379</span></span><br><span class="line"><span class="comment"># 主服务器密码</span></span><br><span class="line"><span class="attr">masterauth</span> <span class="string">123456</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>哨兵配置</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 禁止保护模式</span></span><br><span class="line"><span class="meta">protected-mode</span> <span class="string">no</span></span><br><span class="line"><span class="comment"># 配置监听的主服务器，这里sentinel monitor代表监控，mymaster代表服务器的名称，可以自定义，192.168.11.128代表监控的主服务器，6379代表端口，2代表只有两个或两个以上的哨兵认为主服务器不可用的时候，才会进行failover操作。</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">monitor mymaster 192.168.11.128 6379 2</span></span><br><span class="line"><span class="comment"># sentinel author-pass定义服务的密码，mymaster是服务名称，123456是Redis服务器密码</span></span><br><span class="line"><span class="comment"># sentinel auth-pass &lt;master-name&gt; &lt;password&gt;</span></span><br><span class="line"><span class="attr">sentinel</span> <span class="string">auth-pass mymaster 123456</span></span><br></pre></td></tr></table></figure>
+
+<p>配置3个哨兵，每个哨兵的配置都是一样的。在Redis安装目录下有一个sentinel.conf文件，copy一份进行修改。</p>
+<p><strong>启动</strong></p>
+<p>注意启动的顺序。首先是主机（192.168.11.128）的 Redis 服务进程，然后启动从机的 Redis 服务进程，最后启动3个哨兵的服务进程。</p>
+<p><strong>哨兵模式的工作方式：</strong></p>
+<ul>
+<li>每个Sentinel（哨兵）进程以每秒钟一次的频率向整个集群中的Master主服务器，Slave从服务器以及其他Sentinel（哨兵）进程发送一个 PING 命令。</li>
+<li>如果一个实例（instance）距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值， 则这个实例会被 Sentinel（哨兵）进程标记为主观下线（SDOWN）</li>
+<li>如果一个Master主服务器被标记为主观下线（SDOWN），则正在监视这个Master主服务器的所有 Sentinel（哨兵）进程要以每秒一次的频率确认Master主服务器的确进入了主观下线状态</li>
+<li>当有足够数量的 Sentinel（哨兵）进程（大于等于配置文件指定的值）在指定的时间范围内确认Master主服务器进入了主观下线状态（SDOWN）， 则Master主服务器会被标记为客观下线（ODOWN）</li>
+<li>在一般情况下， 每个 Sentinel（哨兵）进程会以每 10 秒一次的频率向集群中的所有Master主服务器、Slave从服务器发送 INFO 命令。</li>
+<li>当Master主服务器被 Sentinel（哨兵）进程标记为客观下线（ODOWN）时，Sentinel（哨兵）进程向下线的 Master主服务器的所有 Slave从服务器发送 INFO 命令的频率会从 10 秒一次改为每秒一次。</li>
+<li>若没有足够数量的 Sentinel（哨兵）进程同意 Master主服务器下线， Master主服务器的客观下线状态就会被移除。若 Master主服务器重新向 Sentinel（哨兵）进程发送 PING 命令返回有效回复，Master主服务器的主观下线状态就会被移除。</li>
+</ul>
+<p><strong>优点：</strong></p>
+<ul>
+<li>哨兵模式是基于主从模式的，所有主从的优点，哨兵模式都具有。</li>
+<li>主从可以自动切换，系统更健壮，可用性更高。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>Redis较难支持在线扩容，在集群容量达到上限时在线扩容会变得很复杂。</li>
+</ul>
+<h2 id="4-3-Cluster集群"><a href="#4-3-Cluster集群" class="headerlink" title="4.3 Cluster集群"></a>4.3 Cluster集群</h2><p>Redis 的哨兵模式基本已经可以实现高可用，读写分离 ，但是在这种模式下每台 Redis 服务器都存储相同的数据，很浪费内存，所以在redis3.0上加入了 Cluster 集群模式，实现了 <strong>Redis 的分布式存储</strong>，也就是说每台 Redis 节点上存储不同的内容。</p>
+<img src="Redis/assets/1350922-20191006124637992-2055348918.png" alt="img" style="zoom:50%;" />
+
+<p><strong>集群的配置</strong></p>
+<p>根据官方推荐，集群部署至少要 3 台以上的master节点。</p>
+<p><strong>集群的特点</strong></p>
+<ul>
+<li><strong>所有的redis节点彼此互联</strong>(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。</li>
+<li>节点的fail是通过集群中<strong>超过半数</strong>的节点检测失效时才生效。</li>
+<li>客户端与 Redis 节点直连,不需要中间代理层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。</li>
+</ul>
+<h3 id="4-3-1-Redis-Cluster-数据分片"><a href="#4-3-1-Redis-Cluster-数据分片" class="headerlink" title="4.3.1 Redis Cluster 数据分片"></a>4.3.1 Redis Cluster 数据分片</h3><p>Redis Cluster不使用一致的哈希，而是一种不同形式的分片，其中每个键都是我们称为哈希槽（hash slot）的概念的一部分。</p>
+<p>在Redis Cluster中有16384个哈希槽，为了计算给定key的哈希槽，我们只需将key的CRC16取16384模。</p>
+<p>Redis集群中的每个节点都负责一个哈希槽的子集，例如，你可能有一个有3个节点的集群，其中:</p>
+<ul>
+<li>Node A contains hash slots from 0 to 5500.</li>
+<li>Node B contains hash slots from 5501 to 11000.</li>
+<li>Node C contains hash slots from 11001 to 16383.</li>
+</ul>
+<p>这允许在集群中轻松添加和删除节点。例如，如果我想添加一个新节点 D，我需要将一些哈希槽从节点 A、B、C 移动到 D。同样，如果我想从集群中删除节点 A，我可以移动 A 提供的哈希槽到 B 和 C。当节点 A 为空时，我可以将其从集群中完全删除。</p>
+<p>由于将哈希槽从一个节点移动到另一个节点不需要停止操作，因此添加和删除节点或更改节点持有的哈希槽百分比不需要任何停机时间。</p>
+<p>只要一个命令执行(或者整个事务，或者Lua脚本执行)中涉及的所有键都属于同一个散列槽，Redis集群就支持多个键操作。用户可以使用一个称为散列标签（hash tag）的概念来强制多个键成为同一个散列槽的一部分。</p>
+<p>Redis Cluster 规范中记录了散列标签，但要点是如果键中的 {} 括号之间有一个子字符串，则只有字符串内的内容会被哈希，因此例如<code>this&#123;foo&#125;key</code>和<code>another&#123;foo&#125;key</code> 保证在同一个哈希槽中, 并且可以在具有多个键作为参数的命令中一起使用。</p>
+<h3 id="4-3-2-Redis-Cluster-主从模式"><a href="#4-3-2-Redis-Cluster-主从模式" class="headerlink" title="4.3.2 Redis Cluster 主从模式"></a>4.3.2 Redis Cluster 主从模式</h3><p>为了在主节点子集出现故障或无法与大多数节点通信时保持可用，Redis 集群使用主从模型，其中每个哈希槽具有从 1（主节点本身）到 N 个副本（N -1 个额外的从节点）。</p>
+<p>在我们包含节点 A、B、C 的示例集群中，如果节点 B 发生故障，集群将无法继续，因为我们不再有办法为 5501-11000 范围内的哈希槽提供服务。</p>
+<p>然而，当集群创建时（或稍后），我们为每个主节点添加一个从节点，这样最终的集群由主节点 A、B、C 和从节点 A1、B1、C1 组成. 这样，如果节点 B 出现故障，系统就能够继续运行。</p>
+<p>节点 B1 复制 B，并且 B 失败，集群会将节点 B1 提升为新的 master 并继续正常运行。</p>
+<p>但是需要注意的是，如果节点 B 和 B1 同时发生故障，Redis Cluster 将无法继续运行。</p>
+<h3 id="4-3-3-Redis-集群一致性保证"><a href="#4-3-3-Redis-集群一致性保证" class="headerlink" title="4.3.3 Redis 集群一致性保证"></a>4.3.3 Redis 集群一致性保证</h3><p>Redis Cluster <strong>无法保证强一致性</strong>。实际上，这意味着在某些情况下，Redis Cluster 可能会丢失系统已向客户端确认的写入。</p>
+<p>Redis Cluster 会丢失写入的第一个原因是因为它使用<strong>异步复制</strong>。这意味着在写入期间会发生以下情况：</p>
+<ul>
+<li>您的客户端写入主 B。</li>
+<li>主 B 向您的客户端回复 OK。</li>
+<li>主设备 B 将写入传播到其从设备 B1、B2 和 B3。</li>
+</ul>
+<p>如您所见，B 在回复客户端之前不会等待来自 B1、B2、B3 的确认，因为这对 Redis 来说是一个令人望而却步的延迟惩罚，因此如果您的客户端写入某些内容，B 会确认写入，但若在将写入发送到其从站之前崩溃，其中一个从站（未收到写入）提升为主站，将永远失去该写入。</p>
+<p>这与大多数配置为每秒将数据刷新到磁盘的数据库<strong>发生的情况非常相似</strong>，因此您已经能够推理出这种情况，因为过去使用不涉及分布式系统的传统数据库系统的经验。同样，您可以通过强制数据库在回复客户端之前将数据刷新到磁盘来提高一致性，但这通常会导致性能低得令人望而却步。在 Redis Cluster 的情况下，这相当于同步复制。</p>
+<p>基本上，需要在性能和一致性之间进行权衡。</p>
+<p>Redis 集群<strong>在绝对需要时支持同步写入</strong>，通过<a target="_blank" rel="noopener" href="https://redis.io/commands/wait">WAIT</a>命令实现。这使得丢失写入的可能性大大降低。但是，请注意，<strong>即使使用同步复制，Redis Cluster 也没有实现强一致性：在更复杂的故障场景下，始终有可能将无法接收写入的从站选为主站。</strong></p>
+<p>还有一个值得注意的场景是 Redis 集群将丢失写入，这种情况发生在网络分区期间，客户端与少数实例（至少包括一个主实例）隔离。</p>
+<p>以我们的6个节点集群为例，由A、B、C、A1、B1、C1组成，有3个master和3个slave。还有一个客户端，我们将其称为 Z1。</p>
+<p>分区发生后，可能在分区的一侧有 A、C、A1、B1、C1，而在另一侧有 B 和 Z1。</p>
+<p>Z1 仍然能够写入 B，B 将接受其写入。如果分区在很短的时间内恢复，集群将继续正常运行。但是，如果分区持续足够的时间让 B1 在分区的多数侧提升为主节点，则 Z1 同时发送给 B 的写入将丢失。</p>
+<p>请注意，Z1 能够发送到 B 的写入量有一个<strong>最大窗口</strong>：如果分区的多数侧已经有足够的时间来选举一个从属作为主，那么少数侧的每个主节点都将停止接受写入。</p>
+<p>这个时间量是 Redis Cluster 的一个非常重要的配置指令，称为<strong>节点超时</strong>。</p>
+<p>节点超时后，主节点被视为发生故障，并且可以由其副本之一替换。类似地，在节点超时后，主节点无法感知大多数其他主节点，它会进入错误状态并停止接受写入。</p>
+<h1 id="5-分区"><a href="#5-分区" class="headerlink" title="5. 分区"></a>5. 分区</h1><p>Redis 中的分区有两个主要<strong>目标</strong>：</p>
+<ul>
+<li>它允许使用多台计算机内存的总和来创建更大的数据库。如果不进行分区，您将受到单个计算机可以支持的内存量的限制。</li>
+<li>它允许将计算能力扩展到多核和多台计算机，并将网络带宽扩展到多台计算机和网络适配器。</li>
+</ul>
+<h2 id="5-1-分区基础"><a href="#5-1-分区基础" class="headerlink" title="5.1 分区基础"></a>5.1 分区基础</h2><p>有不同的划分标准。想象一下，我们有四个 Redis 实例<strong>R0</strong>、<strong>R1</strong>、<strong>R2</strong>、<strong>R3</strong>和许多代表用户的键，如<code>user:1</code>、<code>user:2</code>、 … 等等，我们可以找到不同的方法来选择在哪个实例中存储给定的键。换句话说，有<em>不同的系统可以</em>将给定的键<em>映射</em>到给定的 Redis 服务器。</p>
+<ul>
+<li><strong>range partitioning</strong>：它是通过将对象范围映射到特定 Redis 实例来实现的。<ul>
+<li>该系统有效并在实际中使用，但是，它的缺点是需要一个将范围映射到实例的表。这个表需要管理，每种对象都需要一个表，因此Redis中的范围分区通常是不可取的，因为它比其他替代分区方法效率低得多。</li>
+</ul>
+</li>
+<li><strong>hash partitioning</strong>：该方案适用于任何键，不需要所有键都以这样的格式<code>object_name:&lt;id&gt;</code>，并且非常简单。<ul>
+<li>获取键名并使用散列函数（例如，<code>crc32</code>散列函数）将其转换为数字。例如，如果键是<code>foobar</code>，<code>crc32(foobar)</code>将输出类似<code>93024922</code>.</li>
+<li>对这个数字使用模运算，将它转换成一个 0 到 3 之间的数字，这样这个数字就可以映射到我的四个 Redis 实例之一。<code>93024922 modulo 4</code>equals <code>2</code>，所以我知道我的key<code>foobar</code>应该存储到<strong>R2</strong>实例中。<em>注意：模运算返回除法运算的余数，在许多编程语言中使用<code>%</code>运算符实现。</em></li>
+</ul>
+</li>
+</ul>
+<p>还有许多其他方法可以执行分区，但通过这两个示例，您应该了解了要点。哈希分区的一种高级形式被称为一致哈希，有少量Redis客户端和代理实现。</p>
+<h2 id="5-2-分区的不同实现"><a href="#5-2-分区的不同实现" class="headerlink" title="5.2 分区的不同实现"></a>5.2 分区的不同实现</h2><p>分区可以由软件栈的不同部分（环节）负责。</p>
+<ul>
+<li><strong>客户端分区</strong>意味着客户端直接选择正确的节点来写入或读取给定的键。许多 Redis 客户端实现了客户端分区。</li>
+<li><strong>代理辅助分区</strong>意味着我们的客户端将请求发送到能够使用 Redis 协议的代理，而不是直接将请求发送到正确的 Redis 实例。代理将确保根据配置的分区模式将我们的请求<strong>转发</strong>到正确的 Redis 实例，并将回复发送回客户端。Redis 和 Memcached 代理<a target="_blank" rel="noopener" href="https://github.com/twitter/twemproxy">Twemproxy</a>实现了代理辅助分区。</li>
+<li><strong>查询路由</strong>意味着您可以将查询发送到随机实例，该实例将确保将您的查询转发到正确的节点。Redis Cluster 在客户端的帮助下实现了一种混合形式的查询路由（请求不是直接从 Redis 实例转发到另一个实例，而是客户端被<em><strong>重定向</strong></em>到正确的节点）。</li>
+</ul>
+<h2 id="5-3-分区的缺点"><a href="#5-3-分区的缺点" class="headerlink" title="5.3 分区的缺点"></a>5.3 分区的缺点</h2><p>Redis 的一些特性在分区时不能很好地发挥作用：</p>
+<ul>
+<li>通常不支持涉及多个键的操作。例如，如果两个集合存储在映射到不同 Redis 实例的键中，则不能执行它们之间的交集（实际上有方法可以做到这一点，但不是直接的）。</li>
+<li>不能使用涉及多个键的Redis事务。</li>
+<li>分区粒度是关键，因此不可能像非常大的排序集那样使用单个巨大的键对数据集进行分片。</li>
+<li>使用分区时，数据处理更加复杂，例如您必须处理多个 RDB / AOF 文件，并且要备份您的数据，您需要聚合来自多个实例和主机的持久性文件。</li>
+<li>添加和删除容量可能很复杂。例如，Redis Cluster 支持大部分透明的数据重新平衡，能够在运行时添加和删除节点，但其他系统（如客户端分区和代理）不支持此功能。然而，一种称为<em>预分片</em>的技术在这方面<em>有所</em>帮助。</li>
+</ul>
+<h2 id="5-4-数据存储还是缓存？"><a href="#5-4-数据存储还是缓存？" class="headerlink" title="5.4 数据存储还是缓存？"></a>5.4 数据存储还是缓存？</h2><p>尽管 Redis 中的分区在概念上是相同的，无论是将 Redis 用作数据存储还是缓存，但将其用作数据存储时存在重大限制。当 Redis 用作数据存储时，给定的键必须始终映射到同一个 Redis 实例。当Redis用作缓存时，如果给定节点不可用，使用不同的节点也不是大问题，改变key-instance映射，因为我们希望提高系统的<em>可用性</em>（即系统回复我们的查询）。</p>
+<p>如果给定键的首选节点不可用，则一致的散列实现通常能够切换到其他节点。同样，如果添加新节点，部分新key将开始存储在新节点上。</p>
+<p>这里的主要概念如下：</p>
+<ul>
+<li>如果将 Redis 用作缓存<strong>，则</strong>使用一致散列<strong>扩展和缩减</strong>是很容易的。</li>
+<li>如果Redis用作存储，则使用<strong>固定的key-to-nodes映射，因此节点数必须固定且不能变化</strong>。否则，需要一个能够在添加或删除节点时在节点之间重新平衡键的系统，目前只有 Redis Cluster 能够做到这一点 - Redis Cluster<a target="_blank" rel="noopener" href="https://groups.google.com/d/msg/redis-db/dO0bFyD_THQ/Uoo2GjIx6qgJ">已于 2015 年 4 月 1 日全面</a>可用且可用于生产。</li>
+</ul>
+<blockquote>
+<p>Y：目前Redis的主要用途依旧是缓存而不是存储。</p>
+</blockquote>
+<h2 id="5-5-预分片"><a href="#5-5-预分片" class="headerlink" title="5.5 预分片"></a>5.5 预分片</h2><p>由于 Redis 占用空间极小且轻量级（一个备用实例使用 1 MB 内存），因此解决此问题的一个简单方法是从一开始就从大量实例开始。即使您只从一台服务器开始，您也可以决定从一开始就生活在分布式世界中，并使用分区在您的单个服务器上运行多个 Redis 实例。</p>
+<h1 id="6-Redis-持久化策略"><a href="#6-Redis-持久化策略" class="headerlink" title="6. Redis 持久化策略"></a>6. Redis 持久化策略</h1><p><strong>持久化概念</strong></p>
+<p>Redis支持 将内存中的数据持久化到磁盘中,在下次启动redis时可以将磁盘中的数据加载到内存中。</p>
+<p><strong>持久化通用的两种方式</strong></p>
+<ul>
+<li>快照(某一时刻对数据的备份)<br>例如：mmysql dump、redis RDB</li>
+<li>记录日志()<br>例如：Mysql binlog、Hbase Hlog、redis AOF</li>
+</ul>
+<h2 id="6-1-Redis持久化之-RDB-Redis-database"><a href="#6-1-Redis持久化之-RDB-Redis-database" class="headerlink" title="6.1 Redis持久化之 RDB(Redis database)"></a>6.1 Redis持久化之 RDB(Redis database)</h2><p><strong>RDB概念：</strong></p>
+<p>Redis data  =&gt; data dump to disk =&gt; dump file （rdb文件）</p>
+<p><strong>触发机制-主要三种方式：</strong></p>
+<ul>
+<li>save：同步，阻塞</li>
+<li>bgsave：异步，非阻塞（阻塞仅仅会发生在fork出子进程）</li>
+<li>自动(符合配置文件中 save满足条件)</li>
+</ul>
+<h2 id="6-2-Redis持久化之AOF-Append-only-file"><a href="#6-2-Redis持久化之AOF-Append-only-file" class="headerlink" title="6.2 Redis持久化之AOF(Append-only file)"></a>6.2 Redis持久化之AOF(Append-only file)</h2><p>client每次请求redis，都会将写请求的命令保存到文件中。</p>
+<p><img src="Redis/assets/webp-20210822233424914" alt="img"></p>
+<p><strong>AOF三种策略</strong></p>
+<ul>
+<li>always：只要缓冲区有数据 立马写入文件中<ul>
+<li>不丢失数据，磁盘开销较大,一般sata磁盘一秒只有几百TPS。</li>
+</ul>
+</li>
+<li><strong>everysec</strong>：每隔一秒将数据从缓冲区写入文件中<ul>
+<li>每秒一次fsync只丢失1秒数据。</li>
+</ul>
+</li>
+<li>no：写文件的操作交由操作系统控制<ul>
+<li>交由操作系统fsync,不用管，也不可控。</li>
+</ul>
+</li>
+</ul>
+<h3 id="AOF重写"><a href="#AOF重写" class="headerlink" title="AOF重写"></a>AOF重写</h3><p><strong>引入原因：</strong></p>
+<p>随着数据的不断写入,会造成AOF文件不断增大,重复的命令会额外占用磁盘空间,而且增加redis重启速度。</p>
+<p><strong>AOF重写定义：</strong></p>
+<p><img src="Redis/assets/webp-20210822234038823" alt="img"></p>
+<p>AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的数据进行分析实现的。</p>
+<p><strong>AOF重写作用：</strong></p>
+<ol>
+<li>减少磁盘占用量</li>
+<li>加速启动速度</li>
+</ol>
+<p><strong>AOF重写触发机制</strong></p>
+<ol>
+<li>bgrewriteaof命令</li>
+<li>AOF重写配置（同时满足配置文件中auto-aof-rewrite-percentage、auto-aof-rewrite-min-size两个配置）</li>
+</ol>
+<p><strong>AOF重写流程：</strong></p>
+<p><img src="Redis/assets/webp-20210822234537782" alt="img"></p>
+<blockquote>
+<p>问题：<br>    aof_rewrite是在子进程执行，子进程带有主进程数据副本,不会阻塞客户端请求，子进程在AOF重写期间,主进程依然需要会记录数据变化日志，就会出现当前数据与AOF重写之后的数据不一致。<br>解决方案：<br>    redis增加了一个aof_rewrite_buf(aof重写缓冲区),当主进程fork出子进程后开始启用,此时主进程需要将日志同时记录到aof_buf(aof缓冲区)与aof_ewrite_aof(aof重写缓冲区),当子进程重写完数据后给主进程发送信号,此时 主进程通过信号处理函数将aof_rewrite_buf数据追加到新aof文件后，替换旧aof文件。</p>
+</blockquote>
+<h2 id="6-3-混合持久化"><a href="#6-3-混合持久化" class="headerlink" title="6.3 混合持久化"></a>6.3 混合持久化</h2><p>重启 Redis 时，我们很少使用 rdb 来恢复内存状态，因为会丢失大量数据。我们通常使用 AOF 日志重放，但是重放 AOF 日志性能相对 rdb 来说要慢很多，这样在 Redis 实例很大的情况下，启动需要花费很长的时间。 Redis 4.0 为了解决这个问题，带来了一个新的持久化选项——混合持久化。AOF在重写(aof文件里可能有太多没用指令，所以aof会定期根据内存的最新数据生成aof文件)时将重写这一刻之前的内存rdb快照文件的内容和增量的 AOF修改内存数据的命令日志文件存在一起，都写入新的aof文件，新的文件一开始不叫appendonly.aof，等到重写完新的AOF文件才会进行改名，原子的覆盖原有的AOF文件，完成新旧两个AOF文件的替换；<br> AOF根据配置规则在后台自动重写，也可以人为执行命令bgrewriteaof重写AOF。 于是在 Redis 重启的时候，可以先加载 rdb 的内容，然后再重放增量 AOF 日志就可以完全替代之前的 AOF 全量文件重放，重启效率因此大幅得到提升。</p>
+<hr>
+<blockquote>
+<p>内容来源：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/data-types-intro">An introduction to Redis data types and abstractions</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/haoprogrammer/p/11065461.html">Redis(一)、Redis五种数据结构</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xuxh120/archive/2021/02/14/14400980.html">Redis五大类型及底层实现原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013709270/article/details/53470428">跳跃表的原理及实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hunternet/p/11248192.html">Redis数据结构——跳跃表</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yangming1996/p/11709051.html">Redis 的底层数据结构（整数集合）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/60c9b231f62a">Redis中压缩列表的实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/152284892">Redis的过期策略和内存淘汰策略最全总结与分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/a3192048/article/details/82291222">LRU和LFU的区别</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/L-Test/p/11626124.html">Redis ==&gt; 集群的三种模式</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/cluster-tutorial">Redis cluster tutorial</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/partitioning"> Partitioning: how to split data among multiple Redis instances.</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ae47d69f92eb">3.redis持久化策略</a></li>
+</ol>
+</blockquote>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Redis/">Redis</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2021/08/19/IO-Model/">
+        <span class="next-text nav-default">IO 模型</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2021
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

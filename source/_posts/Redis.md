@@ -1776,6 +1776,374 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 重启 Redis 时，我们很少使用 rdb 来恢复内存状态，因为会丢失大量数据。我们通常使用 AOF 日志重放，但是重放 AOF 日志性能相对 rdb 来说要慢很多，这样在 Redis 实例很大的情况下，启动需要花费很长的时间。 Redis 4.0 为了解决这个问题，带来了一个新的持久化选项——混合持久化。AOF在重写(aof文件里可能有太多没用指令，所以aof会定期根据内存的最新数据生成aof文件)时将重写这一刻之前的内存rdb快照文件的内容和增量的 AOF修改内存数据的命令日志文件存在一起，都写入新的aof文件，新的文件一开始不叫appendonly.aof，等到重写完新的AOF文件才会进行改名，原子的覆盖原有的AOF文件，完成新旧两个AOF文件的替换；
  AOF根据配置规则在后台自动重写，也可以人为执行命令bgrewriteaof重写AOF。 于是在 Redis 重启的时候，可以先加载 rdb 的内容，然后再重放增量 AOF 日志就可以完全替代之前的 AOF 全量文件重放，重启效率因此大幅得到提升。
 
+# 7. Redis 的应用
+
+## 7.1 缓存的雪崩、击穿、穿透
+
+- 缓存雪崩：当某一个时刻出现大规模的缓存失效的情况，那么就会导致大量的请求直接打在数据库上面，导致数据库压力巨大，如果在高并发的情况下，可能瞬间就会导致数据库宕机。这时候如果运维马上又重启数据库，马上又会有新的流量把数据库打死。这就是缓存雪崩。
+
+  ![图片](Redis/assets/640)
+
+  - 解决方法
+
+    1. 不同的key,可以设置不同的过期时间，让缓存失效的时间点不一致，尽量达到平均分布。
+
+       > Y：随机值可在【最小失效时间，原缓存时长定值】之间生成，如此将其缓存时间分散开。
+
+    2. 使用熔断机制。当流量到达一定的阈值时，就直接返回“系统拥挤”之类的提示，防止过多的请求打在数据库上。至少能保证一部分用户是可以正常使用，其他用户多刷新几次也能得到结果。
+
+    3. 使用互斥锁
+
+       在缓存失效后，通过加锁或者队列来控制读和写数据库的线程数量。比如：对某个key只允许一个线程查询数据和写缓存，其他线程等待。单机的话，可以使用synchronized或者lock来解决，如果是分布式环境，可以是用redis的setnx命令来解决。
+
+    4. 提高数据库的容灾能力，可以使用分库分表，读写分离的策略。
+
+    5. 为了防止Redis宕机导致缓存雪崩的问题，可以搭建Redis集群，提高Redis的容灾性。
+
+    6. 永远不过期。
+
+- 缓存击穿：存在热点key，当热点key失效瞬间，大量原本对应该热点的请求因缓存失效而去查数据库，给数据库带来巨大压力。
+
+  - 解决方法：
+    1. 使用互斥锁。同雪崩情况。
+    2. 如果业务允许的话，对于热点的key可以设置永不过期的key。
+
+- 缓存穿透：大量未命中key的请求。
+
+  - 原因：1.业务自身代码或数据出现问题；2.一些恶意攻击、爬虫造成大量空的命中，此时会对数据库造成很大压力。
+  - 解决方法
+    1. 基于布隆过滤器过滤请求。见7.2
+    2. 如果一个查询返回的数据为空，不管是数据不存在还是系统故障，我们仍然把这个结果进行缓存，但是它的过期时间会很短
+       最长不超过5分钟。假如传进来的这个不存在的Key值每次都是随机的，那存进Redis也没有意义。
+
+- 上述两种方法都存在
+
+## 7.2 布隆过滤器
+
+布隆过滤器(BloomFilter)是由一个叫“布隆”的前辈在1970年提出的，它是一个很长的二进制向量，主要**用于判断一个元素是否在一个集合中**。
+
+### 原理
+
+在介绍原理之前，要先讲一下**Hash函数**的概念。
+
+我们在Java中的HashMap，HashSet其实也接触过hashcode()这个函数，哈希函数是可以将任意大小的输入数据转换成特定大小的输出数据的函数，转换后的数据称为**哈希值**。
+
+哈希函数有以下特点：
+
+- 如果根据同一个哈希函数得到的哈希值不同，那么这两个哈希值的原始输入值肯定不同。
+- 如果根据同一个哈希函数得到的两个哈希值相等，两个哈希值的原始输入值有可能相等，有可能不相等。
+
+布隆过滤器是由一个很长的二进制向量和一系列的哈希函数组成。那么布隆过滤器是怎么判断一个元素是否在一个集合中的呢？
+
+假设布隆过滤器的底层存储结构是一个长度为16的位数组，初始状态时，它的所有位置都设置为0。
+
+![img](Redis/assets/v2-44745af66b87d954e59ee956bc6fcde8_720w.jpg)
+
+当有变量添加到布隆过滤器中，通过K个映射函数将变量映射到位数组的K个点，并把这K个点的值设置为1(假设有三个映射函数)。
+
+![img](Redis/assets/v2-d39c084b459972a1bfd7864bc6ff9921_720w.jpg)
+
+查询某个变量是否存在的时候，我们只需要通过同样的K个映射函数，找到对应的K个点，判断K个点上的值是否全都是1，**如果全都是1则表示很可能存在**，如果**K个点上有任何一个是0则表示一定不存在**。
+
+### 特性
+
+第一个问题，为什么说全都是1的情况是很可能存在，而不是一定存在呢？
+
+还记得前面说的哈希函数的特点，根据同一个哈希函数得到相同的哈希值，输入值不一定相等。类似于Java中两个对象的hashcode相等，但是不一定相等的道理。说白了，映射函数得到位数组上映射点全都是1，不一定是要查询的这个变量之前存进来时设置的，也有可能是其他变量映射的点。
+
+所以这里引出了布隆过滤器的其中一个特点，**存在一定的误判**。
+
+第二个问题，布隆过滤器能不能删除元素呢？
+
+答案是不能的。因为在位数组上的同一个点有可能有多个输入值映射，如果删除了会影响布隆过滤器里其他元素的判断结果。
+
+![img](Redis/assets/v2-38456fee3c0bd46d38d9fd8ce984faa8_720w.jpg)
+
+如上图，如果删除obj1，把4,7,15置为0，那么判断obj2是否存在时就会导致因为映射点7是0，结果判断obj2是不存在的，结果出错。
+
+这是第二个特点，**不能删除布隆过滤器里的元素。**
+
+### 优缺点
+
+**优点：**
+
+- 在空间和时间方面，都有着巨大的优势。因为不是存完整的数据，是一个二进制向量，能节省大量的内存空间，时间复杂度方面，是根据映射函数查询，假设有K个映射函数，那么时间复杂度就是O(K)。
+- 因为存的不是元素本身，而是二进制向量，所以在一些对**保密性**要求严格的场景有一定优势。
+
+**缺点：**
+
+- **存在一定的误判。**存进布隆过滤器里的元素越多，误判率越高。
+- **不能删除布隆过滤器里的元素。**随着使用的时间越来越长，因为不能删除，存进里面的元素越来越多，占用内存越来越多，误判率越来越高，最后不得不重置。
+
+### 应用于缓存穿透
+
+**用于缓解缓存穿透。**
+
+​	缓存穿透的问题主要是因为传进来的key在Redis中是不存在的，那么就会直接打在DB上，造成DB压力增大。
+
+![img](Redis/assets/v2-ba08c0076931750ec07a0a3411ec3cb9_720w.jpg)
+
+针对这种情况，可以在Redis前加上布隆过滤器，预先把数据库中的数据加入到布隆过滤器中，因为布隆过滤器的底层数据结构是一个二进制向量，所以占用的空间并不是很大。**在查询Redis之前先通过布隆过滤器判断是否存在，如果不存在就直接返回，如果存在的话，按照原来的流程还是查询Redis，Redis不存在则查询DB**。
+
+> Y：预存到布隆过滤器的数据可以基于数据库中数据如id，也可以基于Redis的key，视具体需求而定。一定要注意布隆过滤器不可删除元素。
+
+这里主要利用的是**布隆过滤器判断结果是不存在的话就一定不存在**这一个特点，但是由于布隆过滤器有一定的误判，所以并不能说完全解决缓存穿透，但是能很大程度缓解缓存穿透的问题。
+
+![img](Redis/assets/v2-ce8779e9d5a90b55719de6b3a25e2d35_720w.jpg)
+
+### 布隆过滤器插件
+
+在Redis4.0后，官方提供了布隆过滤器的插件功能，布隆过滤器可以作为一个插件加载到Redis服务器直接使用。
+
+代码示例：
+
+```xml
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson-spring-boot-starter</artifactId>
+    <version>3.15.0</version>
+</dependency>
+```
+
+```java
+public static void main(String[] args) throws Exception {
+    Config config = new Config();
+    config.useSingleServer().setAddress("redis://192.168.0.109:6379");
+    RedissonClient client = Redisson.create(config);
+
+    RBloomFilter<String> bloomFilter = client.getBloomFilter("user");
+    //尝试初始化，预计元素55000000，期望误判率0.03
+    bloomFilter.tryInit(55000000L, 0.03);
+    //添加元素到布隆过滤器中
+    bloomFilter.add("tom");
+    bloomFilter.add("mike");
+    bloomFilter.add("rose");
+    bloomFilter.add("blue");
+    System.out.println("布隆过滤器元素总数为：" + bloomFilter.count());//布隆过滤器元素总数为：4
+    System.out.println("是否包含tom：" + bloomFilter.contains("tom"));//是否包含tom：true
+    System.out.println("是否包含lei：" + bloomFilter.contains("lei"));//是否包含lei：false
+    client.shutdown();
+}
+```
+
+## 7.3 Redis 分布式锁
+
+[官网描述](https://redis.io/topics/distlock)
+
+### 7.3.1 安全（Safety）和活力（Liveness）保证
+
+我们将用三个属性对我们的设计进行建模，在我们看来，这三个属性是有效使用分布式锁所需的最小保证。
+
+1. Safety 属性:互斥。在任何给定时刻，只有一个客户端可以持有锁。
+2. Liveness 属性A:无死锁。最终总是可以获得锁，即使锁定资源的客户端崩溃或被分区。
+3. Liveness 特性B:容错性。只要大多数Redis节点都在运行，客户端就可以获取和释放锁。
+
+### 7.3.2 初步实现思路
+
+Redis实现分布式锁主要利用Redis的`setnx`命令。`setnx`是`SET if not exists`(如果不存在，则 SET)的简写。
+
+```shell
+127.0.0.1:6379> setnx lock value1 #在键lock不存在的情况下，将键key的值设置为value1
+(integer) 1
+127.0.0.1:6379> setnx lock value2 #试图覆盖lock的值，返回0表示失败
+(integer) 0
+127.0.0.1:6379> get lock #获取lock的值，验证没有被覆盖
+"value1"
+127.0.0.1:6379> del lock #删除lock的值，删除成功
+(integer) 1
+127.0.0.1:6379> setnx lock value2 #再使用setnx命令设置，返回0表示成功
+(integer) 1
+127.0.0.1:6379> get lock #获取lock的值，验证设置成功
+"value2"
+```
+
+上面这几个命令就是最基本的用来完成分布式锁的命令。
+
+加锁：使用`setnx key value`命令，如果key不存在，设置value(加锁成功)。如果已经存在lock(也就是有客户端持有锁了)，则设置失败(加锁失败)。
+
+解锁：使用`del`命令，通过删除键值释放锁。释放锁之后，其他客户端可以通过`setnx`命令进行加锁。
+
+key的值可以根据业务设置，比如是用户中心使用的，可以命令为`USER_REDIS_LOCK`，value可以使用uuid保证唯一，用于标识加锁的客户端。保证加锁和解锁都是同一个客户端。
+
+那么接下来就可以写一段很简单的加锁代码：
+
+```java
+private static Jedis jedis = new Jedis("127.0.0.1");
+
+private static final Long SUCCESS = 1L;
+
+/**
+  * 加锁
+  */
+public boolean tryLock(String key, String requestId) {
+    //使用setnx命令。
+    //不存在则保存返回1，加锁成功。如果已经存在则返回0，加锁失败。
+    return SUCCESS.equals(jedis.setnx(key, requestId));
+}
+
+//删除key的lua脚本，先比较requestId是否相等，相等则删除
+private static final String DEL_SCRIPT = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+
+/**
+  * 解锁
+  */
+public boolean unLock(String key, String requestId) {
+    //删除成功表示解锁成功
+    Long result = (Long) jedis.eval(DEL_SCRIPT, Collections.singletonList(key), Collections.singletonList(requestId));
+    return SUCCESS.equals(result);
+}
+```
+
+![图片](Redis/assets/640-20210825225135893)
+
+这仅仅满足上述的第一个条件和第三个条件，保证上锁和解锁都是同一个客户端，也保证只有一个客户端持有锁。
+
+但是第二点没法保证，因为如果一个客户端持有锁的期间突然崩溃了，就会导致无法解锁，最后导致出现死锁的现象。
+
+![图片](Redis/assets/640-20210825225709149)
+
+所以要有个超时的机制，在设置key的值时，需要加上有效时间，如果有效时间过期了，就会自动失效，就不会出现死锁。然后加锁的代码就会变成这样。
+
+```java
+public boolean tryLock(String key, String requestId, int expireTime) {
+    //使用jedis的api，保证原子性
+    //NX 不存在则操作 EX 设置有效期，单位是秒
+    String result = jedis.set(key, requestId, "NX", "EX", expireTime);
+    //返回OK则表示加锁成功
+    return "OK".equals(result);
+}
+```
+
+![图片](Redis/assets/640-20210825225825756)
+
+
+
+### 7.3.3 问题1：有效时间设置多长
+
+1. **根据经验预测**
+
+2. **锁续期**
+
+   在Redisson框架实现分布式锁的思路，就使用watchDog机制实现锁的续期。当加锁成功后，同时开启守护线程，默认有效期是30秒，每隔10秒就会给锁续期到30秒，只要持有锁的客户端没有宕机，就能保证一直持有锁，直到业务代码执行完毕由客户端自己解锁，如果宕机了自然就在有效期失效后自动解锁。
+
+![图片](Redis/assets/640-20210825230049945)
+
+### 7.3.4 问题2：可重入锁的实现思路
+
+在Redisson实现可重入锁的思路，**使用Redis的hash存储可重入次数**，当加锁成功后，使用`hset`命令，value(重入次数)则是1。
+
+```java
+"if (redis.call('exists', KEYS[1]) == 0) then " +
+"redis.call('hset', KEYS[1], ARGV[2], 1); " +
+"redis.call('pexpire', KEYS[1], ARGV[1]); " +
+"return nil; " +
+"end; "
+```
+
+如果同一个客户端再次加锁成功，则使用`hincrby`自增加一。
+
+```java
+"if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then " +
+"redis.call('hincrby', KEYS[1], ARGV[2], 1); " +
+"redis.call('pexpire', KEYS[1], ARGV[1]); " +
+"return nil; " +
+"end; " +
+"return redis.call('pttl', KEYS[1]);"
+```
+
+![图片](Redis/assets/640-20210825230413827)
+
+解锁时，先判断可重复次数是否大于0，大于0则减一，否则删除键值，释放锁资源。
+
+```java
+protected RFuture<Boolean> unlockInnerAsync(long threadId) {
+    return commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, RedisCommands.EVAL_BOOLEAN,
+"if (redis.call('hexists', KEYS[1], ARGV[3]) == 0) then " +
+"return nil;" +
+"end; " +
+"local counter = redis.call('hincrby', KEYS[1], ARGV[3], -1); " +
+"if (counter > 0) then " +
+"redis.call('pexpire', KEYS[1], ARGV[2]); " +
+"return 0; " +
+"else " +
+"redis.call('del', KEYS[1]); " +
+"redis.call('publish', KEYS[2], ARGV[1]); " +
+"return 1; "+
+"end; " +
+"return nil;",
+Arrays.<Object>asList(getName(), getChannelName()), LockPubSub.UNLOCK_MESSAGE, internalLockLeaseTime, getLockName(threadId));
+}
+```
+
+![图片](Redis/assets/640-20210825230450124)
+
+为了保证操作原子性，加锁和解锁操作都是使用lua脚本执行。
+
+### 7.3.5 问题3：加锁失败情况处理
+
+上面的加锁方法是加锁后立即返回加锁结果，如果加锁失败的情况下，总不可能一直轮询尝试加锁，直到加锁成功为止，这样太过耗费性能。所以需要**利用发布订阅的机制进行优化**。
+
+**步骤如下：**
+
+1. 当加锁失败后，订阅锁释放的消息，自身进入阻塞状态；
+2. 当持有锁的客户端释放锁的时候，发布锁释放的消息；
+3. 当进入阻塞等待的其他客户端收到锁释放的消息后，解除阻塞等待状态，再次尝试加锁。
+
+![图片](Redis/assets/640-20210825231200881)
+
+### 7.3.7 Redis分布式锁Java实现-Redisson
+
+> [Redisson](https://github.com/redisson/redisson/)是架设在Redis基础上的一个Java驻内存数据网格（In-Memory Data Grid）。充分的利用了Redis键值数据库提供的一系列优势，基于Java实用工具包中常用接口，为使用者提供了一系列具有分布式特性的常用工具类。使得原本作为协调单机多线程并发程序的工具包获得了协调分布式多机多线程并发系统的能力，大大降低了设计和研发大规模分布式系统的难度。同时结合各富特色的分布式服务，更进一步简化了分布式环境中程序相互之间的协作。
+
+它里面也实现了分布式锁，而且包含多种类型的锁，更多请参阅[分布式锁和同步器](https://github.com/redisson/redisson/wiki/8.-分布式锁和同步器)。
+
+**使用Redisson中的可重入锁示例：**
+
+```xml
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson</artifactId>
+    <version>3.10.1</version>
+</dependency>
+或
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson-spring-boot-starter</artifactId>
+    <version>3.15.0</version>
+</dependency>
+```
+
+```java
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
+public static void main(String[] args) {
+
+    Config config = new Config();
+    config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+    config.useSingleServer().setPassword("redis1234");
+    
+    final RedissonClient client = Redisson.create(config);  
+    /*
+      返回一个RedissonLock实例。
+      RedissonLock 是 java.util.concurrent.locks.Lock 的分布式实现，实现可重入锁。 如果客户端断开连接，锁定将自动解除。
+      实现非公平锁定，因此不保证获取顺序。
+      */
+    RLock lock = client.getLock("lock1");
+    try{
+      	// 获得锁。如果锁不可用，则当前线程将被禁用以用于线程调度目的并处于休眠状态，直到获得锁。
+        lock.lock();
+    }finally{
+      	// 释放锁。
+        lock.unlock();
+    }
+}
+```
+
+
+
 ------
 
 > 内容来源：
@@ -1793,4 +2161,10 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 > 11. [Redis cluster tutorial](https://redis.io/topics/cluster-tutorial)
 > 12. [ Partitioning: how to split data among multiple Redis instances.](https://redis.io/topics/partitioning)
 > 13. [3.redis持久化策略](https://www.jianshu.com/p/ae47d69f92eb)
+> 14. [什么是布隆过滤器？](https://zhuanlan.zhihu.com/p/348332384)
+> 15. [Redis-缓存雪崩、缓存击穿、缓存穿透](https://mp.weixin.qq.com/s/vjof5CdJaRuoPMf6J5sMdA)
+> 16. [【redis】redis的雪崩和穿透](https://blog.csdn.net/lzj3462144/article/details/78323589)
+> 17. [Redis如何实现分布式锁？](https://mp.weixin.qq.com/s/FPt5rJIpHAe0psFo6inxUg)
+> 18. [分布式锁之Redis实现](https://www.jianshu.com/p/47fd7f86c848)
+> 19. [Distributed locks with Redis](https://redis.io/topics/distlock)
 

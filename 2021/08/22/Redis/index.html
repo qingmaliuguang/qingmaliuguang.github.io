@@ -72,8 +72,21 @@
 <meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822233424914">
 <meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822234038823">
 <meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/webp-20210822234537782">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/v2-44745af66b87d954e59ee956bc6fcde8_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/v2-d39c084b459972a1bfd7864bc6ff9921_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/v2-38456fee3c0bd46d38d9fd8ce984faa8_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/v2-ba08c0076931750ec07a0a3411ec3cb9_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/v2-ce8779e9d5a90b55719de6b3a25e2d35_720w.jpg">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825225135893">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825225709149">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825225825756">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825230049945">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825230413827">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825230450124">
+<meta property="og:image" content="http://blog.coder.love/2021/08/22/Redis/Redis/assets/640-20210825231200881">
 <meta property="article:published_time" content="2021-08-22T01:44:22.000Z">
-<meta property="article:modified_time" content="2021-08-22T15:59:46.881Z">
+<meta property="article:modified_time" content="2021-08-25T16:28:19.690Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary">
@@ -1273,6 +1286,165 @@
 <p>问题：<br>    aof_rewrite是在子进程执行，子进程带有主进程数据副本,不会阻塞客户端请求，子进程在AOF重写期间,主进程依然需要会记录数据变化日志，就会出现当前数据与AOF重写之后的数据不一致。<br>解决方案：<br>    redis增加了一个aof_rewrite_buf(aof重写缓冲区),当主进程fork出子进程后开始启用,此时主进程需要将日志同时记录到aof_buf(aof缓冲区)与aof_ewrite_aof(aof重写缓冲区),当子进程重写完数据后给主进程发送信号,此时 主进程通过信号处理函数将aof_rewrite_buf数据追加到新aof文件后，替换旧aof文件。</p>
 </blockquote>
 <h2 id="6-3-混合持久化"><a href="#6-3-混合持久化" class="headerlink" title="6.3 混合持久化"></a>6.3 混合持久化</h2><p>重启 Redis 时，我们很少使用 rdb 来恢复内存状态，因为会丢失大量数据。我们通常使用 AOF 日志重放，但是重放 AOF 日志性能相对 rdb 来说要慢很多，这样在 Redis 实例很大的情况下，启动需要花费很长的时间。 Redis 4.0 为了解决这个问题，带来了一个新的持久化选项——混合持久化。AOF在重写(aof文件里可能有太多没用指令，所以aof会定期根据内存的最新数据生成aof文件)时将重写这一刻之前的内存rdb快照文件的内容和增量的 AOF修改内存数据的命令日志文件存在一起，都写入新的aof文件，新的文件一开始不叫appendonly.aof，等到重写完新的AOF文件才会进行改名，原子的覆盖原有的AOF文件，完成新旧两个AOF文件的替换；<br> AOF根据配置规则在后台自动重写，也可以人为执行命令bgrewriteaof重写AOF。 于是在 Redis 重启的时候，可以先加载 rdb 的内容，然后再重放增量 AOF 日志就可以完全替代之前的 AOF 全量文件重放，重启效率因此大幅得到提升。</p>
+<h1 id="7-Redis-的应用"><a href="#7-Redis-的应用" class="headerlink" title="7. Redis 的应用"></a>7. Redis 的应用</h1><h2 id="7-1-缓存的雪崩、击穿、穿透"><a href="#7-1-缓存的雪崩、击穿、穿透" class="headerlink" title="7.1 缓存的雪崩、击穿、穿透"></a>7.1 缓存的雪崩、击穿、穿透</h2><ul>
+<li><p>缓存雪崩：当某一个时刻出现大规模的缓存失效的情况，那么就会导致大量的请求直接打在数据库上面，导致数据库压力巨大，如果在高并发的情况下，可能瞬间就会导致数据库宕机。这时候如果运维马上又重启数据库，马上又会有新的流量把数据库打死。这就是缓存雪崩。</p>
+<p><img src="Redis/assets/640" alt="图片"></p>
+<ul>
+<li><p>解决方法</p>
+<ol>
+<li><p>不同的key,可以设置不同的过期时间，让缓存失效的时间点不一致，尽量达到平均分布。</p>
+<blockquote>
+<p>Y：随机值可在【最小失效时间，原缓存时长定值】之间生成，如此将其缓存时间分散开。</p>
+</blockquote>
+</li>
+<li><p>使用熔断机制。当流量到达一定的阈值时，就直接返回“系统拥挤”之类的提示，防止过多的请求打在数据库上。至少能保证一部分用户是可以正常使用，其他用户多刷新几次也能得到结果。</p>
+</li>
+<li><p>使用互斥锁</p>
+<p>在缓存失效后，通过加锁或者队列来控制读和写数据库的线程数量。比如：对某个key只允许一个线程查询数据和写缓存，其他线程等待。单机的话，可以使用synchronized或者lock来解决，如果是分布式环境，可以是用redis的setnx命令来解决。</p>
+</li>
+<li><p>提高数据库的容灾能力，可以使用分库分表，读写分离的策略。</p>
+</li>
+<li><p>为了防止Redis宕机导致缓存雪崩的问题，可以搭建Redis集群，提高Redis的容灾性。</p>
+</li>
+<li><p>永远不过期。</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>缓存击穿：存在热点key，当热点key失效瞬间，大量原本对应该热点的请求因缓存失效而去查数据库，给数据库带来巨大压力。</p>
+<ul>
+<li>解决方法：<ol>
+<li>使用互斥锁。同雪崩情况。</li>
+<li>如果业务允许的话，对于热点的key可以设置永不过期的key。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>缓存穿透：大量未命中key的请求。</p>
+<ul>
+<li>原因：1.业务自身代码或数据出现问题；2.一些恶意攻击、爬虫造成大量空的命中，此时会对数据库造成很大压力。</li>
+<li>解决方法<ol>
+<li>基于布隆过滤器过滤请求。见7.2</li>
+<li>如果一个查询返回的数据为空，不管是数据不存在还是系统故障，我们仍然把这个结果进行缓存，但是它的过期时间会很短<br>最长不超过5分钟。假如传进来的这个不存在的Key值每次都是随机的，那存进Redis也没有意义。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>上述两种方法都存在</p>
+</li>
+</ul>
+<h2 id="7-2-布隆过滤器"><a href="#7-2-布隆过滤器" class="headerlink" title="7.2 布隆过滤器"></a>7.2 布隆过滤器</h2><p>布隆过滤器(BloomFilter)是由一个叫“布隆”的前辈在1970年提出的，它是一个很长的二进制向量，主要<strong>用于判断一个元素是否在一个集合中</strong>。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>在介绍原理之前，要先讲一下<strong>Hash函数</strong>的概念。</p>
+<p>我们在Java中的HashMap，HashSet其实也接触过hashcode()这个函数，哈希函数是可以将任意大小的输入数据转换成特定大小的输出数据的函数，转换后的数据称为<strong>哈希值</strong>。</p>
+<p>哈希函数有以下特点：</p>
+<ul>
+<li>如果根据同一个哈希函数得到的哈希值不同，那么这两个哈希值的原始输入值肯定不同。</li>
+<li>如果根据同一个哈希函数得到的两个哈希值相等，两个哈希值的原始输入值有可能相等，有可能不相等。</li>
+</ul>
+<p>布隆过滤器是由一个很长的二进制向量和一系列的哈希函数组成。那么布隆过滤器是怎么判断一个元素是否在一个集合中的呢？</p>
+<p>假设布隆过滤器的底层存储结构是一个长度为16的位数组，初始状态时，它的所有位置都设置为0。</p>
+<p><img src="Redis/assets/v2-44745af66b87d954e59ee956bc6fcde8_720w.jpg" alt="img"></p>
+<p>当有变量添加到布隆过滤器中，通过K个映射函数将变量映射到位数组的K个点，并把这K个点的值设置为1(假设有三个映射函数)。</p>
+<p><img src="Redis/assets/v2-d39c084b459972a1bfd7864bc6ff9921_720w.jpg" alt="img"></p>
+<p>查询某个变量是否存在的时候，我们只需要通过同样的K个映射函数，找到对应的K个点，判断K个点上的值是否全都是1，<strong>如果全都是1则表示很可能存在</strong>，如果<strong>K个点上有任何一个是0则表示一定不存在</strong>。</p>
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><p>第一个问题，为什么说全都是1的情况是很可能存在，而不是一定存在呢？</p>
+<p>还记得前面说的哈希函数的特点，根据同一个哈希函数得到相同的哈希值，输入值不一定相等。类似于Java中两个对象的hashcode相等，但是不一定相等的道理。说白了，映射函数得到位数组上映射点全都是1，不一定是要查询的这个变量之前存进来时设置的，也有可能是其他变量映射的点。</p>
+<p>所以这里引出了布隆过滤器的其中一个特点，<strong>存在一定的误判</strong>。</p>
+<p>第二个问题，布隆过滤器能不能删除元素呢？</p>
+<p>答案是不能的。因为在位数组上的同一个点有可能有多个输入值映射，如果删除了会影响布隆过滤器里其他元素的判断结果。</p>
+<p><img src="Redis/assets/v2-38456fee3c0bd46d38d9fd8ce984faa8_720w.jpg" alt="img"></p>
+<p>如上图，如果删除obj1，把4,7,15置为0，那么判断obj2是否存在时就会导致因为映射点7是0，结果判断obj2是不存在的，结果出错。</p>
+<p>这是第二个特点，<strong>不能删除布隆过滤器里的元素。</strong></p>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p><strong>优点：</strong></p>
+<ul>
+<li>在空间和时间方面，都有着巨大的优势。因为不是存完整的数据，是一个二进制向量，能节省大量的内存空间，时间复杂度方面，是根据映射函数查询，假设有K个映射函数，那么时间复杂度就是O(K)。</li>
+<li>因为存的不是元素本身，而是二进制向量，所以在一些对<strong>保密性</strong>要求严格的场景有一定优势。</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li><strong>存在一定的误判。</strong>存进布隆过滤器里的元素越多，误判率越高。</li>
+<li><strong>不能删除布隆过滤器里的元素。</strong>随着使用的时间越来越长，因为不能删除，存进里面的元素越来越多，占用内存越来越多，误判率越来越高，最后不得不重置。</li>
+</ul>
+<h3 id="应用于缓存穿透"><a href="#应用于缓存穿透" class="headerlink" title="应用于缓存穿透"></a>应用于缓存穿透</h3><p><strong>用于缓解缓存穿透。</strong></p>
+<p>​    缓存穿透的问题主要是因为传进来的key在Redis中是不存在的，那么就会直接打在DB上，造成DB压力增大。</p>
+<p><img src="Redis/assets/v2-ba08c0076931750ec07a0a3411ec3cb9_720w.jpg" alt="img"></p>
+<p>针对这种情况，可以在Redis前加上布隆过滤器，预先把数据库中的数据加入到布隆过滤器中，因为布隆过滤器的底层数据结构是一个二进制向量，所以占用的空间并不是很大。<strong>在查询Redis之前先通过布隆过滤器判断是否存在，如果不存在就直接返回，如果存在的话，按照原来的流程还是查询Redis，Redis不存在则查询DB</strong>。</p>
+<blockquote>
+<p>Y：预存到布隆过滤器的数据可以基于数据库中数据如id，也可以基于Redis的key，视具体需求而定。一定要注意布隆过滤器不可删除元素。</p>
+</blockquote>
+<p>这里主要利用的是<strong>布隆过滤器判断结果是不存在的话就一定不存在</strong>这一个特点，但是由于布隆过滤器有一定的误判，所以并不能说完全解决缓存穿透，但是能很大程度缓解缓存穿透的问题。</p>
+<p><img src="Redis/assets/v2-ce8779e9d5a90b55719de6b3a25e2d35_720w.jpg" alt="img"></p>
+<h3 id="布隆过滤器插件"><a href="#布隆过滤器插件" class="headerlink" title="布隆过滤器插件"></a>布隆过滤器插件</h3><p>在Redis4.0后，官方提供了布隆过滤器的插件功能，布隆过滤器可以作为一个插件加载到Redis服务器直接使用。</p>
+<p>代码示例：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    Config config = <span class="keyword">new</span> Config();</span><br><span class="line">    config.useSingleServer().setAddress(<span class="string">&quot;redis://192.168.0.109:6379&quot;</span>);</span><br><span class="line">    RedissonClient client = Redisson.create(config);</span><br><span class="line"></span><br><span class="line">    RBloomFilter&lt;String&gt; bloomFilter = client.getBloomFilter(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">    <span class="comment">//尝试初始化，预计元素55000000，期望误判率0.03</span></span><br><span class="line">    bloomFilter.tryInit(<span class="number">55000000L</span>, <span class="number">0.03</span>);</span><br><span class="line">    <span class="comment">//添加元素到布隆过滤器中</span></span><br><span class="line">    bloomFilter.add(<span class="string">&quot;tom&quot;</span>);</span><br><span class="line">    bloomFilter.add(<span class="string">&quot;mike&quot;</span>);</span><br><span class="line">    bloomFilter.add(<span class="string">&quot;rose&quot;</span>);</span><br><span class="line">    bloomFilter.add(<span class="string">&quot;blue&quot;</span>);</span><br><span class="line">    System.out.println(<span class="string">&quot;布隆过滤器元素总数为：&quot;</span> + bloomFilter.count());<span class="comment">//布隆过滤器元素总数为：4</span></span><br><span class="line">    System.out.println(<span class="string">&quot;是否包含tom：&quot;</span> + bloomFilter.contains(<span class="string">&quot;tom&quot;</span>));<span class="comment">//是否包含tom：true</span></span><br><span class="line">    System.out.println(<span class="string">&quot;是否包含lei：&quot;</span> + bloomFilter.contains(<span class="string">&quot;lei&quot;</span>));<span class="comment">//是否包含lei：false</span></span><br><span class="line">    client.shutdown();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-3-Redis-分布式锁"><a href="#7-3-Redis-分布式锁" class="headerlink" title="7.3 Redis 分布式锁"></a>7.3 Redis 分布式锁</h2><p><a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">官网描述</a></p>
+<h3 id="7-3-1-安全（Safety）和活力（Liveness）保证"><a href="#7-3-1-安全（Safety）和活力（Liveness）保证" class="headerlink" title="7.3.1 安全（Safety）和活力（Liveness）保证"></a>7.3.1 安全（Safety）和活力（Liveness）保证</h3><p>我们将用三个属性对我们的设计进行建模，在我们看来，这三个属性是有效使用分布式锁所需的最小保证。</p>
+<ol>
+<li>Safety 属性:互斥。在任何给定时刻，只有一个客户端可以持有锁。</li>
+<li>Liveness 属性A:无死锁。最终总是可以获得锁，即使锁定资源的客户端崩溃或被分区。</li>
+<li>Liveness 特性B:容错性。只要大多数Redis节点都在运行，客户端就可以获取和释放锁。</li>
+</ol>
+<h3 id="7-3-2-初步实现思路"><a href="#7-3-2-初步实现思路" class="headerlink" title="7.3.2 初步实现思路"></a>7.3.2 初步实现思路</h3><p>Redis实现分布式锁主要利用Redis的<code>setnx</code>命令。<code>setnx</code>是<code>SET if not exists</code>(如果不存在，则 SET)的简写。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setnx lock value1 #在键lock不存在的情况下，将键key的值设置为value1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx lock value2 #试图覆盖lock的值，返回0表示失败</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get lock #获取lock的值，验证没有被覆盖</span><br><span class="line">&quot;value1&quot;</span><br><span class="line">127.0.0.1:6379&gt; del lock #删除lock的值，删除成功</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; setnx lock value2 #再使用setnx命令设置，返回0表示成功</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get lock #获取lock的值，验证设置成功</span><br><span class="line">&quot;value2&quot;</span><br></pre></td></tr></table></figure>
+
+<p>上面这几个命令就是最基本的用来完成分布式锁的命令。</p>
+<p>加锁：使用<code>setnx key value</code>命令，如果key不存在，设置value(加锁成功)。如果已经存在lock(也就是有客户端持有锁了)，则设置失败(加锁失败)。</p>
+<p>解锁：使用<code>del</code>命令，通过删除键值释放锁。释放锁之后，其他客户端可以通过<code>setnx</code>命令进行加锁。</p>
+<p>key的值可以根据业务设置，比如是用户中心使用的，可以命令为<code>USER_REDIS_LOCK</code>，value可以使用uuid保证唯一，用于标识加锁的客户端。保证加锁和解锁都是同一个客户端。</p>
+<p>那么接下来就可以写一段很简单的加锁代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Jedis jedis = <span class="keyword">new</span> Jedis(<span class="string">&quot;127.0.0.1&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Long SUCCESS = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 加锁</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(String key, String requestId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//使用setnx命令。</span></span><br><span class="line">    <span class="comment">//不存在则保存返回1，加锁成功。如果已经存在则返回0，加锁失败。</span></span><br><span class="line">    <span class="keyword">return</span> SUCCESS.equals(jedis.setnx(key, requestId));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//删除key的lua脚本，先比较requestId是否相等，相等则删除</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEL_SCRIPT = <span class="string">&quot;if redis.call(&#x27;get&#x27;, KEYS[1]) == ARGV[1] then return redis.call(&#x27;del&#x27;, KEYS[1]) else return 0 end&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 解锁</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">unLock</span><span class="params">(String key, String requestId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//删除成功表示解锁成功</span></span><br><span class="line">    Long result = (Long) jedis.eval(DEL_SCRIPT, Collections.singletonList(key), Collections.singletonList(requestId));</span><br><span class="line">    <span class="keyword">return</span> SUCCESS.equals(result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="Redis/assets/640-20210825225135893" alt="图片"></p>
+<p>这仅仅满足上述的第一个条件和第三个条件，保证上锁和解锁都是同一个客户端，也保证只有一个客户端持有锁。</p>
+<p>但是第二点没法保证，因为如果一个客户端持有锁的期间突然崩溃了，就会导致无法解锁，最后导致出现死锁的现象。</p>
+<p><img src="Redis/assets/640-20210825225709149" alt="图片"></p>
+<p>所以要有个超时的机制，在设置key的值时，需要加上有效时间，如果有效时间过期了，就会自动失效，就不会出现死锁。然后加锁的代码就会变成这样。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(String key, String requestId, <span class="keyword">int</span> expireTime)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//使用jedis的api，保证原子性</span></span><br><span class="line">    <span class="comment">//NX 不存在则操作 EX 设置有效期，单位是秒</span></span><br><span class="line">    String result = jedis.set(key, requestId, <span class="string">&quot;NX&quot;</span>, <span class="string">&quot;EX&quot;</span>, expireTime);</span><br><span class="line">    <span class="comment">//返回OK则表示加锁成功</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;OK&quot;</span>.equals(result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="Redis/assets/640-20210825225825756" alt="图片"></p>
+<h3 id="7-3-3-问题1：有效时间设置多长"><a href="#7-3-3-问题1：有效时间设置多长" class="headerlink" title="7.3.3 问题1：有效时间设置多长"></a>7.3.3 问题1：有效时间设置多长</h3><ol>
+<li><p><strong>根据经验预测</strong></p>
+</li>
+<li><p><strong>锁续期</strong></p>
+<p>在Redisson框架实现分布式锁的思路，就使用watchDog机制实现锁的续期。当加锁成功后，同时开启守护线程，默认有效期是30秒，每隔10秒就会给锁续期到30秒，只要持有锁的客户端没有宕机，就能保证一直持有锁，直到业务代码执行完毕由客户端自己解锁，如果宕机了自然就在有效期失效后自动解锁。</p>
+</li>
+</ol>
+<p><img src="Redis/assets/640-20210825230049945" alt="图片"></p>
+<h3 id="7-3-4-问题2：可重入锁的实现思路"><a href="#7-3-4-问题2：可重入锁的实现思路" class="headerlink" title="7.3.4 问题2：可重入锁的实现思路"></a>7.3.4 问题2：可重入锁的实现思路</h3><p>在Redisson实现可重入锁的思路，<strong>使用Redis的hash存储可重入次数</strong>，当加锁成功后，使用<code>hset</code>命令，value(重入次数)则是1。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;if (redis.call(&#x27;exists&#x27;, KEYS[1]) == 0) then &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;hset&#x27;, KEYS[1], ARGV[2], 1); &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[1]); &quot;</span> +</span><br><span class="line"><span class="string">&quot;return nil; &quot;</span> +</span><br><span class="line"><span class="string">&quot;end; &quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果同一个客户端再次加锁成功，则使用<code>hincrby</code>自增加一。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;if (redis.call(&#x27;hexists&#x27;, KEYS[1], ARGV[2]) == 1) then &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;hincrby&#x27;, KEYS[1], ARGV[2], 1); &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[1]); &quot;</span> +</span><br><span class="line"><span class="string">&quot;return nil; &quot;</span> +</span><br><span class="line"><span class="string">&quot;end; &quot;</span> +</span><br><span class="line"><span class="string">&quot;return redis.call(&#x27;pttl&#x27;, KEYS[1]);&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="Redis/assets/640-20210825230413827" alt="图片"></p>
+<p>解锁时，先判断可重复次数是否大于0，大于0则减一，否则删除键值，释放锁资源。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> RFuture&lt;Boolean&gt; <span class="title">unlockInnerAsync</span><span class="params">(<span class="keyword">long</span> threadId)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, RedisCommands.EVAL_BOOLEAN,</span><br><span class="line"><span class="string">&quot;if (redis.call(&#x27;hexists&#x27;, KEYS[1], ARGV[3]) == 0) then &quot;</span> +</span><br><span class="line"><span class="string">&quot;return nil;&quot;</span> +</span><br><span class="line"><span class="string">&quot;end; &quot;</span> +</span><br><span class="line"><span class="string">&quot;local counter = redis.call(&#x27;hincrby&#x27;, KEYS[1], ARGV[3], -1); &quot;</span> +</span><br><span class="line"><span class="string">&quot;if (counter &gt; 0) then &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;pexpire&#x27;, KEYS[1], ARGV[2]); &quot;</span> +</span><br><span class="line"><span class="string">&quot;return 0; &quot;</span> +</span><br><span class="line"><span class="string">&quot;else &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;del&#x27;, KEYS[1]); &quot;</span> +</span><br><span class="line"><span class="string">&quot;redis.call(&#x27;publish&#x27;, KEYS[2], ARGV[1]); &quot;</span> +</span><br><span class="line"><span class="string">&quot;return 1; &quot;</span>+</span><br><span class="line"><span class="string">&quot;end; &quot;</span> +</span><br><span class="line"><span class="string">&quot;return nil;&quot;</span>,</span><br><span class="line">Arrays.&lt;Object&gt;asList(getName(), getChannelName()), LockPubSub.UNLOCK_MESSAGE, internalLockLeaseTime, getLockName(threadId));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="Redis/assets/640-20210825230450124" alt="图片"></p>
+<p>为了保证操作原子性，加锁和解锁操作都是使用lua脚本执行。</p>
+<h3 id="7-3-5-问题3：加锁失败情况处理"><a href="#7-3-5-问题3：加锁失败情况处理" class="headerlink" title="7.3.5 问题3：加锁失败情况处理"></a>7.3.5 问题3：加锁失败情况处理</h3><p>上面的加锁方法是加锁后立即返回加锁结果，如果加锁失败的情况下，总不可能一直轮询尝试加锁，直到加锁成功为止，这样太过耗费性能。所以需要<strong>利用发布订阅的机制进行优化</strong>。</p>
+<p><strong>步骤如下：</strong></p>
+<ol>
+<li>当加锁失败后，订阅锁释放的消息，自身进入阻塞状态；</li>
+<li>当持有锁的客户端释放锁的时候，发布锁释放的消息；</li>
+<li>当进入阻塞等待的其他客户端收到锁释放的消息后，解除阻塞等待状态，再次尝试加锁。</li>
+</ol>
+<p><img src="Redis/assets/640-20210825231200881" alt="图片"></p>
+<h3 id="7-3-7-Redis分布式锁Java实现-Redisson"><a href="#7-3-7-Redis分布式锁Java实现-Redisson" class="headerlink" title="7.3.7 Redis分布式锁Java实现-Redisson"></a>7.3.7 Redis分布式锁Java实现-Redisson</h3><blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/">Redisson</a>是架设在Redis基础上的一个Java驻内存数据网格（In-Memory Data Grid）。充分的利用了Redis键值数据库提供的一系列优势，基于Java实用工具包中常用接口，为使用者提供了一系列具有分布式特性的常用工具类。使得原本作为协调单机多线程并发程序的工具包获得了协调分布式多机多线程并发系统的能力，大大降低了设计和研发大规模分布式系统的难度。同时结合各富特色的分布式服务，更进一步简化了分布式环境中程序相互之间的协作。</p>
+</blockquote>
+<p>它里面也实现了分布式锁，而且包含多种类型的锁，更多请参阅<a target="_blank" rel="noopener" href="https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8">分布式锁和同步器</a>。</p>
+<p><strong>使用Redisson中的可重入锁示例：</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.10.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">或</span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.15.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.redisson.Redisson;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RLock;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.redisson.config.Config;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Config config = <span class="keyword">new</span> Config();</span><br><span class="line">    config.useSingleServer().setAddress(<span class="string">&quot;redis://127.0.0.1:6379&quot;</span>);</span><br><span class="line">    config.useSingleServer().setPassword(<span class="string">&quot;redis1234&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">final</span> RedissonClient client = Redisson.create(config);  </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">      返回一个RedissonLock实例。</span></span><br><span class="line"><span class="comment">      RedissonLock 是 java.util.concurrent.locks.Lock 的分布式实现，实现可重入锁。 如果客户端断开连接，锁定将自动解除。</span></span><br><span class="line"><span class="comment">      实现非公平锁定，因此不保证获取顺序。</span></span><br><span class="line"><span class="comment">      */</span></span><br><span class="line">    RLock lock = client.getLock(<span class="string">&quot;lock1&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">      	<span class="comment">// 获得锁。如果锁不可用，则当前线程将被禁用以用于线程调度目的并处于休眠状态，直到获得锁。</span></span><br><span class="line">        lock.lock();</span><br><span class="line">    &#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">      	<span class="comment">// 释放锁。</span></span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
 <hr>
 <blockquote>
 <p>内容来源：</p>
@@ -1290,6 +1462,12 @@
 <li><a target="_blank" rel="noopener" href="https://redis.io/topics/cluster-tutorial">Redis cluster tutorial</a></li>
 <li><a target="_blank" rel="noopener" href="https://redis.io/topics/partitioning"> Partitioning: how to split data among multiple Redis instances.</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ae47d69f92eb">3.redis持久化策略</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/348332384">什么是布隆过滤器？</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/vjof5CdJaRuoPMf6J5sMdA">Redis-缓存雪崩、缓存击穿、缓存穿透</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lzj3462144/article/details/78323589">【redis】redis的雪崩和穿透</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/FPt5rJIpHAe0psFo6inxUg">Redis如何实现分布式锁？</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/47fd7f86c848">分布式锁之Redis实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">Distributed locks with Redis</a></li>
 </ol>
 </blockquote>
 

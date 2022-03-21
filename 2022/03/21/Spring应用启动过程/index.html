@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Spring应用启动过程"/>
+
+
+
+
+  <meta name="keywords" content="SpringBoot," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2022/03/21/Spring应用启动过程/"/>
+
+
+<meta name="description" content="1. SpringApplication 类，可用于从Java主方法引导和启动Spring应用程序。默认情况下，类将执行以下步骤来引导你的应用程序:  创建适当的ApplicationContext实例(取决于您的类路径) 注册CommandLinePropertySource以将命令行参数公开为Spring属性 刷新应用程序上下文，加载所有单例beans 触发任何CommandLineRunne">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring应用启动过程">
+<meta property="og:url" content="http://blog.coder.love/2022/03/21/Spring%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="1. SpringApplication 类，可用于从Java主方法引导和启动Spring应用程序。默认情况下，类将执行以下步骤来引导你的应用程序:  创建适当的ApplicationContext实例(取决于您的类路径) 注册CommandLinePropertySource以将命令行参数公开为Spring属性 刷新应用程序上下文，加载所有单例beans 触发任何CommandLineRunne">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/AnnotationConfigServletWebServerApplicationContext.jpg">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/DefaultListableBeanFactory.jpg">
+<meta property="article:published_time" content="2022-03-21T07:06:25.000Z">
+<meta property="article:modified_time" content="2022-03-21T09:07:11.571Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="SpringBoot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/AnnotationConfigServletWebServerApplicationContext.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Spring应用启动过程 - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Spring应用启动过程
+        
+      </h1>
+
+      <time class="post-time">
+          3月 21 2022
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="1-SpringApplication"><a href="#1-SpringApplication" class="headerlink" title="1. SpringApplication"></a>1. SpringApplication</h1><blockquote>
+<p>类，可用于从Java主方法引导和启动Spring应用程序。默认情况下，类将执行以下步骤来引导你的应用程序:</p>
+<ul>
+<li>创建适当的ApplicationContext实例(取决于您的类路径)</li>
+<li>注册CommandLinePropertySource以将命令行参数公开为Spring属性</li>
+<li>刷新应用程序上下文，加载所有单例beans</li>
+<li>触发任何CommandLineRunner beans</li>
+</ul>
+</blockquote>
+<h1 id="BootstrapContext"><a href="#BootstrapContext" class="headerlink" title="BootstrapContext"></a>BootstrapContext</h1><p>引导上下文</p>
+<h1 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h1><p>应用上下文</p>
+<blockquote>
+<p>为应用程序提供配置的中央接口。在应用程序运行时，这是只读的，但如果实现支持，可能会重新加载。<br>一个ApplicationContext提供:</p>
+<ul>
+<li>用于访问应用程序组件的Bean工厂方法。从ListableBeanFactory继承。</li>
+<li>以通用方式加载文件资源的能力。继承自org.springframework.core.io.ResourceLoader接口。</li>
+<li>将事件发布到已注册侦听器的能力。继承自ApplicationEventPublisher接口。</li>
+<li>解析消息的能力，支持国际化。继承自MessageSource接口。</li>
+<li>从父上下文继承。后代上下文中的定义总是优先。这意味着，例如，一个单独的父上下文可以被整个web应用程序使用，而每个servlet都有自己独立于任何其他servlet的子上下文。</li>
+</ul>
+<p>除了标准的org.springframework.beans.factory.BeanFactory生命周期功能外，ApplicationContext实现检测和调用ApplicationContextAware bean以及ResourceLoaderAware、ApplicationEventPublisherAware和MessageSourceAware bean。</p>
+</blockquote>
+<h1 id="ApplicationContextInitializer"><a href="#ApplicationContextInitializer" class="headerlink" title="ApplicationContextInitializer"></a>ApplicationContextInitializer</h1><blockquote>
+<ul>
+<li>在刷新之前初始化一个Spring ConfigurableApplicationContext的回调接口。</li>
+<li>通常用于需要对应用上下文进行编程初始化的web应用程序中。例如，根据上下文的环境注册属性源或激活概要文件。参见ContextLoader和FrameworkServlet 支持，分别声明一个“contextInitializerClasses”上下文参数和初始化参数。</li>
+<li>ApplicationContextInitializer处理器被鼓励检测Spring的Ordered接口是否已经实现，或者是否存在@Order注解，如果存在，则在调用之前对实例进行排序。</li>
+<li>在prepareContext()过程中应用。</li>
+</ul>
+</blockquote>
+<h1 id="SpringApplicationRunListener"><a href="#SpringApplicationRunListener" class="headerlink" title="SpringApplicationRunListener"></a>SpringApplicationRunListener</h1><blockquote>
+<ul>
+<li><p>用于SpringApplication运行方法的侦听器。SpringApplicationRunListeners是通过SpringFactoriesLoader加载的，它应该声明一个公共构造函数，该构造函数接受一个SpringApplication实例和一个String[]参数。每次运行都会创建一个新的SpringApplicationRunListener实例</p>
+</li>
+<li><p>唯一实现：<strong>EventPublishingRunListener</strong></p>
+<blockquote>
+<ul>
+<li><p>发布SpringApplicationEvents的SpringApplicationRunListener。</p>
+</li>
+<li><p>使用内部的<strong>ApplicationEventMulticaster</strong>来处理在上下文实际刷新之前触发的事件。</p>
+<blockquote>
+<p><strong>ApplicationEventMulticaster</strong></p>
+<ul>
+<li>由对象实现的接口，这些对象可以管理许多<strong>ApplicationListener</strong>对象并向它们发布事件。</li>
+<li>一个org.springframework.context.ApplicationEventPublisher，通常是一个Spring org.springframework.context.ApplicationEventPublisher，可以使用一个ApplicationEventMulticaster作为一个委托来实际发布事件。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>通过该接口可看出Spring Boot将运行过程分成几个环节（事件），对应spring-boot包context.event package 下的七个SpringApplicationEvent。</p>
+<blockquote>
+<ol>
+<li><p>starting：当run方法第一次启动时立即调用。可以用于非常早期的初始化。</p>
+<p>-&gt; ApplicationStartingEvent</p>
+<blockquote>
+<p>事件应该在SpringApplication启动后尽早发布——在环境或ApplicationContext可用之前，但在ApplicationListeners被注册之后。事件的源是SpringApplication本身，但是要注意在这个早期阶段不要过多地使用它的内部状态，因为它可能会在生命周期的后期被修改。</p>
+</blockquote>
+</li>
+<li><p>environmentPrepared：在环境准备好之后，但在ApplicationContext创建之前调用。 </p>
+<p>-&gt; ApplicationEnvironmentPreparedEvent</p>
+<blockquote>
+<p>事件发布时，一个SpringApplication正在启动，并且Environment第一次可用来检查和修改。</p>
+</blockquote>
+</li>
+<li><p>contextPrepared：创建并准备好ApplicationContext，但在加载源之前调用。</p>
+<p>-&gt; ApplicationContextInitializedEvent</p>
+<blockquote>
+<p>事件发布时，SpringApplication启动，ApplicationContext已经准备好，ApplicationContextInitializers已经被调用，但在任何bean定义被加载之前。</p>
+</blockquote>
+</li>
+<li><p>contextLoaded：加载应用程序上下文后，在刷新应用程序上下文之前调用。</p>
+<p>-&gt; ApplicationPreparedEvent</p>
+<blockquote>
+<p>事件发布时，一个SpringApplication正在启动，ApplicationContext已经完全准备好，但还没有刷新。bean定义将被加载，并且在这个阶段Environment已经可以使用了。</p>
+</blockquote>
+</li>
+<li><p>started：上下文已经刷新，应用程序已经启动，但是CommandLineRunners和ApplicationRunners还没有被调用。</p>
+<p>-&gt; ApplicationStartedEvent</p>
+<blockquote>
+<p>事件在刷新应用程序上下文之后，但在调用任何应用程序和命令行运行程序之前发布。</p>
+</blockquote>
+</li>
+<li><p>ready：在run方法结束之前，当应用程序上下文已经被刷新并且所有的CommandLineRunners和ApplicationRunner已经被调用时，立即调用。</p>
+<p>-&gt; ApplicationReadyEvent</p>
+<blockquote>
+<p>事件尽可能晚地发布，以表明应用程序已准备好为请求提供服务。事件的源是SpringApplication本身，但是要谨慎修改它的内部状态，因为那时所有的初始化步骤都已经完成了</p>
+</blockquote>
+</li>
+<li><p>failed：当运行应用程序时发生故障时调用。</p>
+<p>-&gt; ApplicationFailedEvent</p>
+<blockquote>
+<p>SpringApplication启动失败时发布的事件。</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h1 id="ApplicationListener"><a href="#ApplicationListener" class="headerlink" title="ApplicationListener"></a>ApplicationListener</h1><blockquote>
+<ul>
+<li>由应用程序事件侦听器实现的接口。</li>
+<li>基于观察者设计模式的标准java.util.EventListener接口。</li>
+<li>从Spring 3.0开始，ApplicationListener可以通用地声明它感兴趣的事件类型。当在Spring ApplicationContext中注册时，事件将被相应地过滤，只有匹配的事件对象才会调用侦听器。</li>
+<li>不同于SpringApplicationRunListener，有一点关联，其关联可阅读EventPublishingRunListener。</li>
+</ul>
+</blockquote>
+<h1 id="ApplicationContextFactory"><a href="#ApplicationContextFactory" class="headerlink" title="ApplicationContextFactory"></a>ApplicationContextFactory</h1><blockquote>
+<ul>
+<li><p>用于创建用于SpringApplication的ConfigurableApplicationContext的策略接口。创建的上下文应该以默认的形式返回，由SpringApplication负责配置和刷新上下文。 </p>
+</li>
+<li><p>其有一个功能接口create(WebApplicationType webApplicationType)，根据给定的webApplicationType为SpringApplication创建应用上下文。</p>
+</li>
+<li><p>默认实现：ApplicationContextFactory.DEFAULT</p>
+<blockquote>
+<ul>
+<li>SERVLET -&gt; <strong>AnnotationConfigServletWebServerApplicationContext</strong></li>
+<li>REACTIVE -&gt; <strong>AnnotationConfigReactiveWebServerApplicationContext</strong></li>
+<li>default -&gt; AnnotationConfigApplicationContext</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h1 id="AnnotationConfigServletWebServerApplicationContext"><a href="#AnnotationConfigServletWebServerApplicationContext" class="headerlink" title="AnnotationConfigServletWebServerApplicationContext"></a>AnnotationConfigServletWebServerApplicationContext</h1><blockquote>
+<ul>
+<li><p>ServletWebServerApplicationContext，它接受带注解的类作为输入——特别是带@Configuration注解的类，但也接受普通的@Component类和使用javax兼容JSR-330 的javax.inject注解。允许逐个注册类(将类名指定为配置位置)以及类路径扫描(将基包指定为配置位置)。</p>
+</li>
+<li><p>注意:在有多个@Configuration类的情况下，后面的@Bean定义将覆盖前面加载文件中定义的定义。可以利用这一点，通过额外的Configuration类有意覆盖某些bean定义。</p>
+</li>
+<li><p>register(Class&lt;?&gt;… annotatedClasses)</p>
+<blockquote>
+<p>注册一个或多个要处理的带注解类。请注意，为了让上下文完全处理新类，必须调用<strong>refresh()<strong>。<br>调用#register是</strong>幂等</strong>的;多次添加同一个带注解的类不会产生额外的效果。</p>
+</blockquote>
+</li>
+<li><p>scan(String… basePackages)</p>
+<blockquote>
+<p>在指定的基包中执行扫描。请注意，为了让上下文完全处理新类，必须调用**refresh()**。 </p>
+</blockquote>
+</li>
+<li><p><strong>refresh()</strong></p>
+<blockquote>
+<p>继承自<strong>ServletWebServerApplicationContext</strong>的实现：在超类（<strong>AbstractApplicationContext</strong>）的refresh外层加了异常处理，发生运行时异常时关闭web服务器。</p>
+</blockquote>
+</li>
+<li><p>其supertypes hierarchy：</p>
+<blockquote>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/AnnotationConfigServletWebServerApplicationContext.jpg" alt="AnnotationConfigServletWebServerApplicationContext"></p>
+<ul>
+<li><p>BeanFactory：用于访问Spring bean容器的根接口。</p>
+</li>
+<li><p>AbstractApplicationContext</p>
+<blockquote>
+<ul>
+<li>ApplicationContext接口的抽象实现。不强制要求用于配置的存储类型;简单地实现公共上下文功能。使用模板方法设计模式，需要具体的子类来实现抽象方法。</li>
+<li>与普通的BeanFactory相反，ApplicationContext应该检测在其内部bean工厂中定义的特殊bean:因此，这个类自动注册了在上下文中定义为bean的BeanFactoryPostProcessors、BeanPostProcessors和ApplicationListeners。</li>
+<li>MessageSource也可以在上下文中作为bean提供，命名为“messageSource”;否则，消息解析被委托给父上下文。此外，应用事件的多播器可以作为ApplicationEventMulticaster类型的bean在上下文中提供;否则，将使用SimpleApplicationEventMulticaster类型的默认multicaster。</li>
+<li>通过扩展DefaultResourceLoader实现资源加载。因此，将非url资源路径视为类路径资源(支持包含包路径的完整类路径资源名，例如。”mypackage/myresource.dat”)，除非getResourceByPath方法在子类中被重写。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>GenericApplicationContext</p>
+<blockquote>
+<ul>
+<li>通用的ApplicationContext实现，保存单个内部DefaultListableBeanFactory实例，并且不采用特定的bean定义格式。实现BeanDefinitionRegistry 接口，以便对其应用任何bean定义读取器。</li>
+<li>典型的用法是通过BeanDefinitionRegistry接口注册各种bean定义，然后调用refresh()来用应用上下文语义初始化这些bean(处理ApplicationContextAware，自动检测BeanFactoryPostProcessors，等等)。</li>
+<li>与为每次刷新创建一个新的内部BeanFactory实例的其他ApplicationContext实现不同，此上下文的内部BeanFactory从一开始就可用，以便能够在其上注册bean定义。refresh() 只能被调用一次。</li>
+<li>对于自定义应用程序上下文实现，这些实现应该以可刷新的方式读取特殊的bean定义格式，考虑从AbstractRefreshableApplicationContext基类派生。</li>
+<li>该类无参构造中创建的<strong>DefaultListableBeanFactory</strong>的实例。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>GenericWebApplicationContext</p>
+<blockquote>
+<ul>
+<li>GenericApplicationContext的子类，适用于web环境。</li>
+<li>实现了ConfigurableWebApplicationContext，但不是用于web.xml中的声明式设置。相反，它是为编程设置而设计的，例如用于构建嵌套上下文或在WebApplicationInitializer中使用。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>ServletWebServerApplicationContext</p>
+<blockquote>
+<ul>
+<li><p>一个WebApplicationContext，可以用来从包含的ServletWebServerFactory bean中引导自己。</p>
+<blockquote>
+<p>ServletWebServerFactory: 工厂接口，可以用来创建一个WebServer。</p>
+</blockquote>
+</li>
+<li><p>这个上下文将通过在ApplicationContext本身中搜索单个ServletWebServerFactory bean来创建、初始化和运行一个WebServer。ServletWebServerFactory可以自由使用标准的Spring概念(比如依赖注入、生命周期回调和属性占位符变量)。</p>
+</li>
+<li><p>此外，任何在上下文中定义的Servlet或Filter bean都将自动注册到web服务器。在单个Servlet bean的情况下，将使用’/‘映射。如果发现多个Servlet bean，则小写的bean名称将用作映射前缀。任何名为’dispatcherServlet’的Servlet都会被映射到’/‘。筛选器bean将被映射到所有的url(‘/*’)。</p>
+</li>
+<li><p>对于更高级的配置，上下文可以定义实现ServletContextInitializer接口的bean(通常是ServletRegistrationBeans和/或FilterRegistrationBeans) 。为了防止重复注册，ServletContextInitializer bean的使用将禁用自动Servlet和Filter bean注册。</p>
+</li>
+<li><p>虽然这个上下文可以直接使用，但是大多数开发人员应该考虑使用AnnotationConfigServletWebServerApplicationContext或XmlServletWebServerApplicationContext的变体。</p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li></li>
+</ul>
+</blockquote>
+<h1 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h1><blockquote>
+<ul>
+<li><p>工厂钩子，允许自定义修改应用程序上下文的bean定义，调整上下文的底层bean工厂的bean属性值。 适用于针对系统管理员的定制配置文件，这些配置文件覆盖了在应用程序上下文中配置的bean属性。请参阅PropertyResourceConfigurer及其具体实现，了解满足此类配置需求的开箱即用解决方案。 <strong>BeanFactoryPostProcessor可以与bean定义进行交互和修改，但不能与bean实例进行交互。</strong>这样做可能会导致bean过早实例化，违反容器并导致意想不到的副作用。<strong>如果需要bean实例交互，可以考虑实现BeanPostProcessor</strong>。</p>
+</li>
+<li><p>注册</p>
+<p>ApplicationContext在它的bean定义中自动检测BeanFactoryPostProcessor bean，并在创建任何其他bean之前应用它们。一个BeanFactoryPostProcessor也可以通过编程的方式注册一个ConfigurableApplicationContext。</p>
+</li>
+</ul>
+</blockquote>
+<h1 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h1><blockquote>
+<ul>
+<li><p>工厂钩子，允许自定义修改新bean实例——例如，检查标记接口或用代理包装bean。</p>
+</li>
+<li><p>通常，通过标记接口或类似的方式填充bean的后处理器将实现postProcessBeforeInitialization， 而用代理包装bean的后处理器通常将实现postProcessAfterInitialization。</p>
+</li>
+<li><p>注册</p>
+<p>ApplicationContext可以在它的bean定义中自动检测BeanPostProcessor bean，并将这些后处理器应用到随后创建的任何bean。 普通的BeanFactory允许以编程方式注册后处理程序，将它们应用于通过bean工厂创建的所有bean。</p>
+</li>
+<li><p>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)</p>
+</li>
+</ul>
+</blockquote>
+<h1 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h1><blockquote>
+<ul>
+<li><p>默认创建的<strong>DefaultListableBeanFactory</strong>的实例。</p>
+<blockquote>
+<ul>
+<li><p>AnnotationConfigServletWebServerApplicationContext无参构造 -&gt; GenericApplicationContext无参构造。</p>
+</li>
+<li><p>DefaultListableBeanFactory</p>
+<blockquote>
+<ul>
+<li>Spring对ConfigurableListableBeanFactory和BeanDefinitionRegistry接口的默认实现:一个基于bean定义元数据的成熟的bean工厂，可以通过后处理器进行扩展。</li>
+<li>典型的用法是在访问bean之前，首先注册所有bean定义(可能是从bean定义文件中读取)。因此，按名称查找Bean是本地Bean定义表中的一种成本较低的操作，它对预先解析的Bean定义元数据对象进行操作。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>DefaultListableBeanFactory的supertypes hierarchy</p>
+<blockquote>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/DefaultListableBeanFactory.jpg" alt="DefaultListableBeanFactory"></p>
+<ul>
+<li><p>SingletonBeanRegistry</p>
+<blockquote>
+<p>为<strong>共享bean实例</strong>（即单例）定义注册表的接口。注意是注册bean实例而非bean定义。</p>
+</blockquote>
+</li>
+<li><p>BeanDefinitionRegistry</p>
+<blockquote>
+<ul>
+<li>保存<strong>bean定义</strong>的注册中心的接口。注意是注册的bean定义。</li>
+<li>DefaultListableBeanFactory对其方法的实现大多在其超类中，如SimpleAliasRegistry和AbstractBeanFactory。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>SimpleAliasRegistry</p>
+<blockquote>
+<p>AliasRegistry接口的简单实现。作为org.springframework.beans.factory.support.BeanDefinitionRegistry实现的基类。</p>
+</blockquote>
+</li>
+<li><p>DefaultSingletonBeanRegistry</p>
+<blockquote>
+<ul>
+<li>共享bean实例的通用注册中心，实现了<strong>SingletonBeanRegistry</strong>。允许注册应该为注册表的所有调用者共享的单例实例，通过bean名获得。</li>
+<li>还支持注册可销毁的bean实例(它可能与已注册的单例对应，也可能不对应)，在注册表关闭时销毁。可以注册bean之间的依赖项以强制执行适当的关闭顺序。</li>
+<li>这个类主要作为org.springframework.beans.factory.BeanFactory实现的基类，分解出单例bean实例的公共管理。注意，org.springframework.beans.factory .config.ConfigurableBeanFactory接口扩展了SingletonBeanRegistry接口。</li>
+<li>请注意，与AbstractBeanFactory和DefaultListableBeanFactory(继承自该类)相比，该类既不假设bean定义概念，也不假设bean实例的特定创建过程。也可以作为可委托的嵌套助手使用。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>FactoryBeanRegistrySupport</p>
+<blockquote>
+<ul>
+<li><p>支持需要处理FactoryBean实例的单例注册表的基类，集成了DefaultSingletonBeanRegistry的单例管理。 作为AbstractBeanFactory的基类。</p>
+</li>
+<li><p>注意：getObjectFromFactoryBean</p>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>HierarchicalBeanFactory</p>
+<blockquote>
+<ul>
+<li>由bean工厂实现的子接口，可以是层次结构的一部分。</li>
+<li>允许以可配置方式设置父类的bean工厂的相应setParentBeanFactory方法可以在ConfigurableBeanFactory接口中找到。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>ConfigurableBeanFactory</p>
+<blockquote>
+<ul>
+<li>由大多数bean工厂实现的配置接口。除了BeanFactory接口中的bean工厂客户端方法外，还提供配置bean工厂的工具。</li>
+<li>这个bean工厂接口并不打算用于普通的应用程序代码:对于典型的需求，请坚持使用BeanFactory或ListableBeanFactory。这个扩展的接口只是为了允许框架内部即插即用，以及对bean工厂配置方法的特殊访问。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>AbstractBeanFactory</p>
+<blockquote>
+<ul>
+<li>BeanFactory实现的抽象基类，提供了ConfigurableBeanFactory SPI的全部功能。不假设有一个listable bean工厂:因此也可以用作从后端资源(其中bean定义访问是一项开销很大的操作) 获取bean定义的bean工厂实现的基类。</li>
+<li>这个类提供了一个单例缓存(通过它的基类DefaultSingletonBeanRegistry、单例/原型确定、FactoryBean处理、别名、子bean定义的bean定义合并和bean销毁（可丢弃的bean接口、自定义销毁方法））。此外，它还可以通过实现HierarchicalBeanFactory接口来管理bean工厂层次结构(在未知bean的情况下委托给父类)。</li>
+<li><strong>子类要实现的主要模板方法是getBeanDefinition和createBean</strong>，分别为给定的bean名检索bean定义和为给定的bean定义创建bean实例。这些操作的<strong>默认实现</strong>可以在<strong>DefaultListableBeanFactory</strong>和<strong>AbstractAutowireCapableBeanFactory</strong>中找到。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>AbstractAutowireCapableBeanFactory</p>
+<blockquote>
+<ul>
+<li>抽象bean工厂超类，实现了默认的bean创建，具有由RootBeanDefinition类指定的全部功能。除了AbstractBeanFactory的createBean方法之外，还实现了AutowireCapableBeanFactory接口。</li>
+<li>提供bean创建(通过构造函数解析)、属性填充、连接(包括自动装配)和初始化。 处理运行时bean引用、解析托管集合、调用初始化方法等。支持自动装配构造函数、按名称的属性和按类型的属性。</li>
+<li>**子类要实现的主要模板方法是resolveDependency(DependencyDescriptor, String, Set, TypeConverter)**，用于按类型自动装配。 对于能够搜索其bean定义的工厂，匹配的bean通常通过这样的搜索来实现。对于其他工厂样式，可以实现简化的匹配算法。</li>
+<li>请注意，该类不假设或实现bean定义注册表功能。ListableBeanFactory和BeanDefinitionRegistry接口的实现请参见DefaultListableBeanFactory，它们分别表示这样一个工厂的API和SPI视图。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>ListableBeanFactory</p>
+<blockquote>
+<ul>
+<li>BeanFactory接口的扩展，由<strong>可以枚举其所有bean实例</strong>的bean工厂来实现，而不是按照客户端的要求，逐个尝试按名称查找bean实例。预加载所有bean定义(例如基于xml的工厂)的BeanFactory实现可以实现这个接口。</li>
+<li>如果这是一个HierarchicalBeanFactory，返回值将<strong>不考虑任何BeanFactory层次结构，而是只与当前工厂中定义的bean相关</strong>。也可以使用BeanFactoryUtils helper类来考虑祖先工厂中的bean。</li>
+<li>这个接口中的方法将只尊重这个工厂的bean定义。它们会忽略任何已经通过其他方式注册的单例bean，比如ConfigurableBeanFactory的registerSingleton方法，除了getBeanNamesForType和getBeansOfType，它们也会检查手动注册的单例bean。当然，BeanFactory的getBean也允许对这些特殊的bean进行透明访问。但是，在典型的场景中，所有bean都将由外部bean定义，因此大多数应用程序不需要担心这种区别。</li>
+<li>注意:除了getBeanDefinitionCount和containsBeanDefinition之外，此接口中的方法不是为频繁调用而设计的。实现可能会很慢。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h1 id="FactoryBean"><a href="#FactoryBean" class="headerlink" title="FactoryBean"></a>FactoryBean</h1><blockquote>
+<ul>
+<li>由BeanFactory中使用的对象实现的接口，BeanFactory本身就是单个对象的工厂。如果bean实现了这个接口，那么它将被用作要公开的对象的工厂，而不是直接用作将自身公开的bean实例。</li>
+<li>注意:实现此接口的bean不能作为普通bean使用。FactoryBean是以bean样式定义的，但是为bean引用公开的对象(getObject())始终是它创建的对象。</li>
+</ul>
+</blockquote>
+<h1 id="WebServer"><a href="#WebServer" class="headerlink" title="WebServer"></a>WebServer</h1><p>LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter</p>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/SpringBoot/">SpringBoot</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2022/03/21/SpringBoot-web-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">SpringBoot-web-问题记录</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2021/10/26/Mysql-Sql/">
+        <span class="next-text nav-default">Mysql事务</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

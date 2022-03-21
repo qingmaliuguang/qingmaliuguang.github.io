@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Spring 事务"/>
+
+
+
+
+  <meta name="keywords" content="Spring," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/29/Spring-Transaction/"/>
+
+
+<meta name="description" content="1. Spring事务传播特性 @Transactional.propagation  enum Propagation  interface TransactionDefinition   REQUIRED  支持当前事务，如果不存在则创建一个新事务。 这是事务注解的默认设置。  SUPPORTS  支持当前事务，如果不存在则以非事务方式执行。 注意：对于具有事务同步的事务管理器， SUPPOR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring 事务">
+<meta property="og:url" content="http://blog.coder.love/2021/08/29/Spring-Transaction/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="1. Spring事务传播特性 @Transactional.propagation  enum Propagation  interface TransactionDefinition   REQUIRED  支持当前事务，如果不存在则创建一个新事务。 这是事务注解的默认设置。  SUPPORTS  支持当前事务，如果不存在则以非事务方式执行。 注意：对于具有事务同步的事务管理器， SUPPOR">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E4%BD%BF%E7%94%A8AOP%20%E4%BB%A3%E7%90%86%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/tx.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_required.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_requires_new.png">
+<meta property="article:published_time" content="2021-08-29T04:13:37.000Z">
+<meta property="article:modified_time" content="2022-03-21T07:28:56.405Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E4%BD%BF%E7%94%A8AOP%20%E4%BB%A3%E7%90%86%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Spring 事务 - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Spring 事务
+        
+      </h1>
+
+      <time class="post-time">
+          8月 29 2021
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="1-Spring事务传播特性"><a href="#1-Spring事务传播特性" class="headerlink" title="1. Spring事务传播特性"></a>1. Spring事务传播特性</h1><ul>
+<li><p>@Transactional.propagation</p>
+</li>
+<li><p>enum Propagation</p>
+</li>
+<li><p>interface TransactionDefinition</p>
+</li>
+</ul>
+<p><strong>REQUIRED</strong></p>
+<ul>
+<li>支持当前事务，如果不存在则创建一个新事务。</li>
+<li>这是事务注解的<strong>默认</strong>设置。</li>
+</ul>
+<p><strong>SUPPORTS</strong></p>
+<ul>
+<li>支持当前事务，如果不存在则以非事务方式执行。</li>
+<li>注意：对于具有事务同步的事务管理器， SUPPORTS与根本没有事务略有不同，因为它定义了同步将应用的事务范围。 因此，相同的资源（JDBC 连接、Hibernate 会话等）将在整个指定范围内共享。 请注意，这取决于事务管理器的实际同步配置。</li>
+<li>See Also:<br>org.springframework.transaction.support.AbstractPlatformTransactionManager.setTransactionSynchronization</li>
+</ul>
+<p><strong>MANDATORY</strong></p>
+<ul>
+<li>支持当前事务，如果不存在则抛出异常。</li>
+</ul>
+<p><strong>REQUIRES_NEW</strong></p>
+<ul>
+<li>创建一个新事务，如果存在，则暂停当前事务。</li>
+<li>注意：实际的事务暂停不会在所有事务管理器上开箱即用。 这尤其适用于org.springframework.transaction.jta.JtaTransactionManager ，它需要javax.transaction.TransactionManager对其可用（这在标准 Java EE 中是特定于服务器的）。</li>
+<li>See Also:<br>org.springframework.transaction.jta.JtaTransactionManager.setTransactionManager</li>
+<li>场景：比如现在有一段业务代码，方法 A 调用方法 B，我希望的是如果方法 A 出错了，此时仅仅回滚方法 A，不能回滚方法 B，这个时候可以给方法 B 使用 REQUIRES_NEW 传播机制，让他们两的事务是不同的。</li>
+</ul>
+<p><strong>NOT_SUPPORTED</strong></p>
+<ul>
+<li>以非事务方式执行，如果存在则暂停当前事务。</li>
+<li>注意：实际的事务暂停不会在所有事务管理器上开箱即用。 这尤其适用于org.springframework.transaction.jta.JtaTransactionManager ，它需要javax.transaction.TransactionManager对其可用（这在标准 Java EE 中是特定于服务器的）。</li>
+<li>See Also:<br>org.springframework.transaction.jta.JtaTransactionManager.setTransactionManager</li>
+</ul>
+<p><strong>NEVER</strong></p>
+<ul>
+<li>以非事务方式执行，如果存在事务则抛出异常。</li>
+</ul>
+<p><strong><font color='FF0000'>NESTED</font></strong></p>
+<ul>
+<li>如果当前事务存在，则在一个嵌套事务中执行，否则行为类似于REQUIRED 。<ul>
+<li>嵌套事务：是指外层的事务如果回滚，会导致内层的事务也回滚；但是内层的事务如果回滚，仅仅是滚回自己的代码。</li>
+</ul>
+</li>
+<li>注意：嵌套事务的实际创建仅适用于特定的事务管理器。 开箱即用，这仅适用于 JDBC DataSourceTransactionManager。 一些 JTA 提供者也可能支持嵌套事务。</li>
+<li>See Also:<br>org.springframework.jdbc.datasource.DataSourceTransactionManager</li>
+<li>场景：如果方法 A 调用方法 B，如果出错，方法 B 只能回滚它自己，方法 A 可以带着方法 B 一起回滚。那这种情况可以给方法 B 加上 NESTED 嵌套事务。</li>
+</ul>
+<blockquote>
+<p>Y：也许主要使用REQUIRED与NESTED。</p>
+</blockquote>
+<p>除了事务的传播行为外，事务的其他特性Spring是借助底层资源的功能来完成的，Spring无非只充当个代理的角色。但是事务的传播行为却是Spring凭借自身的框架提供的功能。</p>
+<p><strong>在同一个类中，一个方法调用另外一个有注解（比如@Async，@Transational）的方法，注解是不会生效的</strong></p>
+<p>代码示例:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 例子中，有两方法，一个有<span class="doctag">@Transational</span>注解，一个没有。如果调用了有注解的addPerson()方法，会启动一个Transaction；如果调用 </span></span><br><span class="line"><span class="comment"> * updatePersonByPhoneNo()，因为它内部调用了有注解的addPerson()，如果你以为系统也会为它启动一个Transaction，那就错了，实际上是没有的。</span></span><br><span class="line"><span class="comment"> **/</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonServiceImpl</span> <span class="keyword">implements</span> <span class="title">PersonService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line"> <span class="meta">@Autowired</span></span><br><span class="line"> PersonDao personDao;</span><br><span class="line"> </span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="meta">@Transactional</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">addPerson</span><span class="params">(Person person)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">boolean</span> result = personDao.insertPerson(person)&gt;<span class="number">0</span> ? <span class="keyword">true</span> : <span class="keyword">false</span>;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="comment">//@Transactional</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">updatePersonByPhoneNo</span><span class="params">(Person person)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">boolean</span> result = personDao.updatePersonByPhoneNo(person)&gt;<span class="number">0</span> ? <span class="keyword">true</span> : <span class="keyword">false</span>;</span><br><span class="line">  addPerson(person); <span class="comment">//测试同一个类中@Transactional是否起作用</span></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因：</strong></p>
+<p>Spring 在扫描bean的时候会扫描方法上是否包含@Transactional注解，如果包含，spring会为这个bean动态地生成一个子类（即代理类，proxy），代理类是继承原来那个bean的。此时，当这个有注解的方法被调用的时候，实际上是由代理类来调用的，<strong>代理类在调用之前就会启动transaction</strong>。然而，<strong>如果这个有注解的方法是被同一个类中的其他方法调用的，那么该方法的调用并没有通过代理类，而是直接通过原来的那个bean，所以就不会启动transaction</strong>，我们看到的现象就是@Transactional注解无效。</p>
+<p><strong>为什么一个方法a()调用同一个类中另外一个方法b()的时候，b()不是通过代理类来调用的呢？</strong>可以看下面的例子（为了简化，用伪代码表示）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="meta">@Transactinal</span></span><br><span class="line">    <span class="function">method <span class="title">b</span><span class="params">()</span></span>&#123;...&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function">method <span class="title">a</span><span class="params">()</span></span>&#123;    <span class="comment">//标记1</span></span><br><span class="line">        b();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//Spring扫描注解后，创建了另外一个代理类，并为有注解的方法插入一个startTransaction()方法：</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">proxy</span>$<span class="title">A</span></span>&#123;</span><br><span class="line">    A objectA = <span class="keyword">new</span> A();</span><br><span class="line">    <span class="function">method <span class="title">b</span><span class="params">()</span></span>&#123;    <span class="comment">//标记2</span></span><br><span class="line">        startTransaction();</span><br><span class="line">        objectA.b();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function">method <span class="title">a</span><span class="params">()</span></span>&#123;    <span class="comment">//标记3</span></span><br><span class="line">        objectA.a();    <span class="comment">//由于a()没有注解，所以不会启动transaction，而是直接调用A的实例的a()方法</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解决的方法（两种）：</strong></p>
+<ol>
+<li>把这两个方法分开到不同的类中；</li>
+<li>把注解加到类名上面。</li>
+</ol>
+<p><strong>结论:</strong></p>
+<p>在一个Service内部，事务方法之间的嵌套调用，普通方法和事务方法之间的嵌套调用，都不会开启新的事务。</p>
+<ol>
+<li><p>Spring采用动态代理机制来实现事务控制，而动态代理最终都是要调用原始对象的，而原始对象在去调用方法时，是不会再触发代理了！</p>
+</li>
+<li><p>Spring的事务管理是通过AOP实现的，其AOP的实现对于非final类是通过cglib这种方式，即生成当前类的一个子类作为代理类，然后在调用其下的方法时，会判断这个方法有没有@Transactional注解，如果有的话，则通过动态代理实现事务管理(拦截方法调用，执行事务等切面)。当b()中调用a()时，发现b()上并没有@Transactional注解，所以整个AOP代理过程(事务管理)不会发生。</p>
+</li>
+</ol>
+<p><strong>使用AOP 代理后的方法调用执行流程：</strong></p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E4%BD%BF%E7%94%A8AOP%20%E4%BB%A3%E7%90%86%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.png" alt="img"></p>
+<h2 id="1-2-理解Spring框架事务抽象"><a href="#1-2-理解Spring框架事务抽象" class="headerlink" title="1.2 理解Spring框架事务抽象"></a>1.2 理解Spring框架事务抽象</h2><p>Spring事务抽象的关键是事务策略的概念。事务策略是由一个TransactionManager定义的，特别是</p>
+<ul>
+<li>用于Servlet事务管理的org.springframework.transaction.PlatformTransactionManager接口</li>
+<li>用于响应式事务管理的org.springframework.transaction.ReactiveTransactionManager接口</li>
+</ul>
+<p>下面的清单显示了PlatformTransactionManager API的定义:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">PlatformTransactionManager</span> <span class="keyword">extends</span> <span class="title">TransactionManager</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ReactiveTransactionManager</span> <span class="keyword">extends</span> <span class="title">TransactionManager</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">Mono&lt;ReactiveTransaction&gt; <span class="title">getReactiveTransaction</span><span class="params">(TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Mono&lt;Void&gt; <span class="title">commit</span><span class="params">(ReactiveTransaction status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Mono&lt;Void&gt; <span class="title">rollback</span><span class="params">(ReactiveTransaction status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-3-声明式事务管理"><a href="#1-3-声明式事务管理" class="headerlink" title="1.3 声明式事务管理"></a>1.3 声明式事务管理</h2><p>Spring框架的TransactionInterceptor为命令式和响应式编程模型提供了事务管理。拦截器通过检查方法返回类型来检测所需的事务管理风格。返回响应类型(如Publisher或Kotlin Flow)的方法(或它们的子类型)符合响应事务管理的条件。包括void在内的所有其他返回类型都使用命令事务管理的代码路径。</p>
+<p>事务管理风格会影响需要哪个事务管理器。命条式事务需要一个PlatformTransactionManager，而响应式事务使用ReactiveTransactionManager实现。</p>
+<blockquote>
+<p>@Transactional通常使用PlatformTransactionManager管理的线程绑定事务，将事务暴露给当前执行线程中的所有数据访问操作。注意:这不会传播到方法中新启动的线程。</p>
+<p><code>ReactiveTransactionManager</code>管理的反应式事务使用Reactor上下文而不是线程本地属性。因此，所有参与的数据访问操作都需要在同一响应管道中的同一Reactor上下文中执行。</p>
+</blockquote>
+<p>下图展示了在事务代理上调用方法的概念视图:</p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/tx.png" alt="tx"></p>
+<h2 id="1-4-事务传播"><a href="#1-4-事务传播" class="headerlink" title="1.4 事务传播"></a>1.4 事务传播</h2><p>在Spring管理的事务中，注意物理事务和逻辑事务之间的差异，以及传播设置如何适用于此差异。</p>
+<h5 id="理解PROPAGATION-REQUIRED"><a href="#理解PROPAGATION-REQUIRED" class="headerlink" title="理解PROPAGATION_REQUIRED"></a>理解<code>PROPAGATION_REQUIRED</code></h5><p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_required.png" alt="需要tx道具"></p>
+<p><code>PROPAGATION_REQUIRED</code>执行物理事务，如果不存在事务，则在本地为当前范围执行，或参与为更大范围定义的现有“外”事务。这是同一线程中常见调用堆栈安排中的良好默认值（例如，将服务立面委托给多个存储库方法，所有基础资源都必须参与服务级事务）。</p>
+<h5 id="理解PROPAGATION-REQUIRES-NEW"><a href="#理解PROPAGATION-REQUIRES-NEW" class="headerlink" title="理解PROPAGATION_REQUIRES_NEW"></a>理解<code>PROPAGATION_REQUIRES_NEW</code></h5><p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_requires_new.png" alt="tx道具需要新的"></p>
+<h1 id="2-Transactional的其它属性"><a href="#2-Transactional的其它属性" class="headerlink" title="2. @Transactional的其它属性"></a>2. @Transactional的其它属性</h1><p><strong>isolation 属性</strong></p>
+<p>事务的隔离级别，默认值为 Isolation.DEFAULT。可选的值有：</p>
+<ul>
+<li>Isolation.DEFAULT：使用底层数据库默认的隔离级别</li>
+<li>Isolation.READ_UNCOMMITTED：读取未提交数据（会出现脏读，不可重复读）基本不使用</li>
+<li>Isolation.READ_COMMITTED：读取已提交数据（会出现不可重复读和幻读）</li>
+<li>Isolation.REPEATABLE_READ：可重复读（会出现幻读）</li>
+<li>Isolation.SERIALIZABLE：串行化</li>
+</ul>
+<p><strong>timeout 属性</strong></p>
+<p>事务的超时时间，默认值为 -1。如果超过该时间限制但事务还没有完成，则自动回滚事务。</p>
+<p><strong>readOnly 属性</strong></p>
+<p>指定事务是否为只读事务，默认值为 false；为了忽略那些不需要事务的方法，比如读取数据，可以设置 read-only 为 true。</p>
+<p><strong>rollbackFor 属性</strong></p>
+<p>用于指定能够触发事务回滚的异常类型，可以指定多个异常类型。</p>
+<p><strong>noRollbackFor 属性</strong></p>
+<p>抛出指定的异常类型，不回滚事务，也可以指定多个异常类型。</p>
+<hr>
+<blockquote>
+<p>内容来源：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/157646604">Spring 的事务实现原理和传播机制</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#spring-data-tier">Spring框架文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/levae1024/article/details/82998386">Spring事务管理嵌套事务详解 : 同一个类中，一个方法调用另外一个有事务的方法</a></li>
+</ul>
+</blockquote>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Spring/">Spring</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2021/08/29/Spring-Abstract/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Spring 抽象</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2021/08/26/Spring-AOP/">
+        <span class="next-text nav-default">Spring-AOP</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

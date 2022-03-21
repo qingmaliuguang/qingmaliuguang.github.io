@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Spring-AOP"/>
+
+
+
+
+  <meta name="keywords" content="Spring," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/26/Spring-AOP/"/>
+
+
+<meta name="description" content="@EnableAspectJAutoProxy -&gt; @Import(AspectJAutoProxyRegistrar.class) -&gt; 注册一个适当的AnnotationAwareAspectJAutoProxyCreator 的BeanDefinition。 -&gt; 经过IOC advice：通知，即增强。 advisor：advice的载体。 spring实现AOP思路:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-AOP">
+<meta property="og:url" content="http://blog.coder.love/2021/08/26/Spring-AOP/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="@EnableAspectJAutoProxy -&gt; @Import(AspectJAutoProxyRegistrar.class) -&gt; 注册一个适当的AnnotationAwareAspectJAutoProxyCreator 的BeanDefinition。 -&gt; 经过IOC advice：通知，即增强。 advisor：advice的载体。 spring实现AOP思路:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hjMTIzX2phdmE=,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20210826222938687.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/70.png">
+<meta property="article:published_time" content="2021-08-26T00:44:07.000Z">
+<meta property="article:modified_time" content="2022-03-21T07:26:57.216Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hjMTIzX2phdmE=,size_16,color_FFFFFF,t_70.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Spring-AOP - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Spring-AOP
+        
+      </h1>
+
+      <time class="post-time">
+          8月 26 2021
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <p>@EnableAspectJAutoProxy -&gt; @Import(AspectJAutoProxyRegistrar.class) -&gt; 注册一个适当的AnnotationAwareAspectJAutoProxyCreator 的BeanDefinition。</p>
+<p>-&gt; 经过IOC</p>
+<p>advice：通知，即增强。</p>
+<p>advisor：advice的载体。</p>
+<p>spring实现AOP思路:</p>
+<p>1： 创建<code>AnnotationAwareAspectJAutoProxyCreator</code>对象</p>
+<p>2： 扫描容器中的切面，创建<code>PointcutAdvisor</code>对象<br>3： 生成代理类</p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hjMTIzX2phdmE=,size_16,color_FFFFFF,t_70.png" alt="img"></p>
+<p>AbstractAutoProxyCreator中实现的postProcessBeforeInstantiation与postProcessAfterInitialization。</p>
+<p>postProcessBeforeInstantiation</p>
+<p>-&gt; createProxy</p>
+<p>postProcessAfterInitialization：如果 bean 被子类标识为代理，则使用配置的拦截器创建一个代理。</p>
+<p>-&gt; wrapIfNecessary</p>
+<p>-&gt; createProxy</p>
+<p>ProxyFactory：AOP 代理工厂，以编程的方式使用，而不是通过 bean 工厂中的声明式设置。 此类提供了一种在自定义用户代码中获取和配置 AOP 代理实例的简单方法。</p>
+<ul>
+<li>Spring并没有提供其它的实现类。</li>
+</ul>
+<p>AopProxyFactory</p>
+<p>由能够基于AdvisedSupport配置对象创建 AOP 代理的工厂实现的接口。<br>代理人应遵守以下合同：</p>
+<ul>
+<li>它们应该实现配置指示应该被代理的所有接口。</li>
+<li>他们应该实现Advised接口。</li>
+<li>他们应该实现 equals 方法来比较代理接口、通知和目标。</li>
+<li>如果所有顾问程序和目标都是可序列化的，则它们应该是可序列化的。</li>
+<li>如果顾问和目标是线程安全的，它们应该是线程安全的。<br>代理可能允许也可能不允许更改建议。 如果他们不允许建议更改（例如，因为配置被冻结），代理应该在尝试更改建议时抛出AopConfigException 。</li>
+</ul>
+<p>Spring中只有一个实现类DefaultAopProxyFactory。</p>
+<p><strong>DefaultAopProxyFactory</strong></p>
+<p>默认AopProxyFactory实现，创建 CGLIB 代理或 JDK 动态代理。<br>如果对于给定的AdvisedSupport实例满足以下任一条件，则创建 CGLIB 代理：</p>
+<ul>
+<li>optimize标志已设置</li>
+<li>设置了proxyTargetClass标志</li>
+<li>没有指定代理接口<br>通常，指定proxyTargetClass以强制执行 CGLIB 代理，或指定一个或多个接口以使用 JDK 动态代理。</li>
+</ul>
+<p>createAopProxy</p>
+<p>AopProxy</p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20210826222938687.png" alt="image-20210826222938687"></p>
+<p>Proxy</p>
+<p>Proxy提供了创建动态代理类和实例的静态方法，它也是由这些方法创建的所有动态代理类的超类。</p>
+<p>java动态代理是利用反射机制生成一个实现代理接口的匿名类，在调用具体方法前调用InvokeHandler来处理。</p>
+<p>而cglib动态代理是利用asm开源包，对代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。</p>
+<p>1、如果目标对象实现了接口，默认情况下会采用JDK的动态代理实现AOP<br>2、如果目标对象实现了接口，可以强制使用CGLIB实现AOP </p>
+<p>3、如果目标对象没有实现了接口，必须采用CGLIB库，spring会自动在JDK动态代理和CGLIB之间转换</p>
+<p>JDK动态代理和CGLIB字节码生成的区别？<br> （1）JDK动态代理只能对实现了接口的类生成代理，而不能针对类<br> （2）CGLIB是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法<br>  因为是继承，所以该类或方法最好不要声明成final </p>
+<p>创建的代理类是怎么使用上的呢？</p>
+<p>AbstractAutowireCapableBeanFactory</p>
+<ul>
+<li>initializeBean<ul>
+<li>applyBeanPostProcessorsBeforeInitialization</li>
+<li>invokeInitMethods</li>
+<li>applyBeanPostProcessorsAfterInitialization</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">applyBeanPostProcessorsBeforeInitialization</span><span class="params">(Object existingBean, String beanName)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line"></span><br><span class="line">		Object result = existingBean;</span><br><span class="line">		<span class="keyword">for</span> (BeanPostProcessor processor : getBeanPostProcessors()) &#123;</span><br><span class="line">      <span class="comment">// 返回的对象替换了原对象，代理类是在这时候完成的替换。</span></span><br><span class="line">			Object current = processor.postProcessBeforeInitialization(result, beanName);</span><br><span class="line">			<span class="keyword">if</span> (current == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">return</span> result;</span><br><span class="line">			&#125;</span><br><span class="line">			result = current;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> result;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">applyBeanPostProcessorsAfterInitialization</span><span class="params">(Object existingBean, String beanName)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line"></span><br><span class="line">		Object result = existingBean;</span><br><span class="line">		<span class="keyword">for</span> (BeanPostProcessor processor : getBeanPostProcessors()) &#123;</span><br><span class="line">			Object current = processor.postProcessAfterInitialization(result, beanName);</span><br><span class="line">			<span class="keyword">if</span> (current == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">return</span> result;</span><br><span class="line">			&#125;</span><br><span class="line">			result = current;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> result;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>Filter 与 Interceptor 的区别。</p>
+<p>HandlerInterceptor基本上类似于Servlet Filter，但与后者相比，它只允许自定义预处理(禁止处理程序本身的执行)和自定义后处理。过滤器更强大，例如，它们允许交换链下传递的请求和响应对象。注意，过滤器是在web.xml中配置的，这是应用程序上下文中的HandlerInterceptor。</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jichi/p/12805719.html">filter和interceptor的区别</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zxd1435513775/article/details/80556034">拦截器（Interceptor）和过滤器（Filter）的执行顺序和区别</a></p>
+<p>filter的执行在interceptor之前。</p>
+<p>该图仅供参考，感觉并不是很准确。</p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/70.png" alt="这里写图片描述"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doDispatch</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		HttpServletRequest processedRequest = request;</span><br><span class="line">		HandlerExecutionChain mappedHandler = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">boolean</span> multipartRequestParsed = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			ModelAndView mv = <span class="keyword">null</span>;</span><br><span class="line">			Exception dispatchException = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				processedRequest = checkMultipart(request);</span><br><span class="line">				multipartRequestParsed = (processedRequest != request);</span><br><span class="line"></span><br><span class="line">				<span class="comment">// Determine handler for the current request.</span></span><br><span class="line">        <span class="comment">// 获取当前request的handler</span></span><br><span class="line">				mappedHandler = getHandler(processedRequest);</span><br><span class="line">				<span class="keyword">if</span> (mappedHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">					noHandlerFound(processedRequest, response);</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// Determine handler adapter for the current request.</span></span><br><span class="line">				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">				<span class="comment">// Process last-modified header, if supported by the handler.</span></span><br><span class="line">				String method = request.getMethod();</span><br><span class="line">				<span class="keyword">boolean</span> isGet = <span class="string">&quot;GET&quot;</span>.equals(method);</span><br><span class="line">				<span class="keyword">if</span> (isGet || <span class="string">&quot;HEAD&quot;</span>.equals(method)) &#123;</span><br><span class="line">					<span class="keyword">long</span> lastModified = ha.getLastModified(request, mappedHandler.getHandler());</span><br><span class="line">					<span class="keyword">if</span> (<span class="keyword">new</span> ServletWebRequest(request, response).checkNotModified(lastModified) &amp;&amp; isGet) &#123;</span><br><span class="line">						<span class="keyword">return</span>;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 应用所有注册拦截器的 preHandle 方法，若其中一个返回false则中断返回。</span></span><br><span class="line">				<span class="keyword">if</span> (!mappedHandler.applyPreHandle(processedRequest, response)) &#123;</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				<span class="comment">// Actually invoke the handler.</span></span><br><span class="line">				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());</span><br><span class="line"></span><br><span class="line">				<span class="keyword">if</span> (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				applyDefaultViewName(processedRequest, mv);</span><br><span class="line">				mappedHandler.applyPostHandle(processedRequest, response, mv);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">				dispatchException = ex;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line">				<span class="comment">// As of 4.3, we&#x27;re processing Errors thrown from handler methods as well,</span></span><br><span class="line">				<span class="comment">// making them available for @ExceptionHandler methods and other scenarios.</span></span><br><span class="line">				dispatchException = <span class="keyword">new</span> NestedServletException(<span class="string">&quot;Handler dispatch failed&quot;</span>, err);</span><br><span class="line">			&#125;</span><br><span class="line">			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">			triggerAfterCompletion(processedRequest, response, mappedHandler, ex);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line">			triggerAfterCompletion(processedRequest, response, mappedHandler,</span><br><span class="line">					<span class="keyword">new</span> NestedServletException(<span class="string">&quot;Handler processing failed&quot;</span>, err));</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">finally</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (asyncManager.isConcurrentHandlingStarted()) &#123;</span><br><span class="line">				<span class="comment">// Instead of postHandle and afterCompletion</span></span><br><span class="line">				<span class="keyword">if</span> (mappedHandler != <span class="keyword">null</span>) &#123;</span><br><span class="line">					mappedHandler.applyAfterConcurrentHandlingStarted(processedRequest, response);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">// Clean up any resources used by a multipart request.</span></span><br><span class="line">				<span class="keyword">if</span> (multipartRequestParsed) &#123;</span><br><span class="line">					cleanupMultipart(processedRequest);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Filter什么时候调用的？</p>
+<p>嵌入服务器，如tomcat的ApplicationDispatcher。</p>
+<p>doDispatch</p>
+<p>-&gt;invoke</p>
+<p>-&gt; </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ApplicationFilterChain filterChain =</span><br><span class="line">                ApplicationFilterFactory.createFilterChain(request, wrapper, servlet);</span><br><span class="line">                ......</span><br><span class="line">                <span class="keyword">if</span> ((servlet != <span class="keyword">null</span>) &amp;&amp; (filterChain != <span class="keyword">null</span>)) &#123;</span><br><span class="line">               filterChain.doFilter(request, response);</span><br><span class="line">             &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">internalDoFilter</span><br><span class="line">filter.doFilter(request, response, this);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">servlet.service(request, response);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Filter &amp; HandlerInterceptoer &amp; MethodInterceptor</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/guyue35/article/details/104658234">https://blog.csdn.net/guyue35/article/details/104658234</a></p>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Spring/">Spring</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2021/08/29/Spring-Transaction/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Spring 事务</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2021/08/22/Redis/">
+        <span class="next-text nav-default">Redis</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

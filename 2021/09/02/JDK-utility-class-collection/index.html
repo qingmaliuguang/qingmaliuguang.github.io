@@ -12,12 +12,12 @@
 
 
 
-  <meta name="description" content="Start"/>
+  <meta name="description" content="JDK中好用的工具类收集"/>
 
 
 
 
-  <meta name="keywords" content="Think," />
+  <meta name="keywords" content="Java," />
 
 
 
@@ -32,20 +32,20 @@
 
 
 
-<link rel="canonical" href="http://blog.coder.love/2021/08/11/start/"/>
+<link rel="canonical" href="http://blog.coder.love/2021/09/02/JDK-utility-class-collection/"/>
 
 
-<meta name="description" content="Code the love to the world.     Knowledge is not confused.  知识不迷茫">
+<meta name="description" content="数组复制 Arrays.copyOf：基于System.arraycopy实现。 12&#x2F;&#x2F; ArrayList::growelementData &#x3D; Arrays.copyOf(elementData, newCapacity); System.arraycopy: native方法 123&#x2F;&#x2F; ArrayList::add(int index, E element)System.arraycop">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Start">
-<meta property="og:url" content="http://blog.coder.love/2021/08/11/start/index.html">
+<meta property="og:title" content="JDK中好用的工具类收集">
+<meta property="og:url" content="http://blog.coder.love/2021/09/02/JDK-utility-class-collection/index.html">
 <meta property="og:site_name" content="青马流光的博客">
-<meta property="og:description" content="Code the love to the world.     Knowledge is not confused.  知识不迷茫">
+<meta property="og:description" content="数组复制 Arrays.copyOf：基于System.arraycopy实现。 12&#x2F;&#x2F; ArrayList::growelementData &#x3D; Arrays.copyOf(elementData, newCapacity); System.arraycopy: native方法 123&#x2F;&#x2F; ArrayList::add(int index, E element)System.arraycop">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-08-11T06:26:25.000Z">
-<meta property="article:modified_time" content="2021-10-12T06:53:14.199Z">
+<meta property="article:published_time" content="2021-09-02T00:06:06.000Z">
+<meta property="article:modified_time" content="2021-09-02T00:15:51.757Z">
 <meta property="article:author" content="青马流光">
-<meta property="article:tag" content="Think">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
 
 
@@ -79,7 +79,7 @@
 
 
 
-    <title> Start - 青马流光的博客 </title>
+    <title> JDK中好用的工具类收集 - 青马流光的博客 </title>
   <meta name="generator" content="Hexo 5.4.0"></head>
 
   <body>
@@ -125,12 +125,12 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          Start
+          JDK中好用的工具类收集
         
       </h1>
 
       <time class="post-time">
-          8月 11 2021
+          9月 02 2021
       </time>
     </header>
 
@@ -138,10 +138,11 @@
 
     
             <div class="post-content">
-            <center> <h3>Code the love to the world. </h3> </center>
-
-<ul>
-<li>Knowledge is not confused.  知识不迷茫</li>
+            <h3 id="数组复制"><a href="#数组复制" class="headerlink" title="数组复制"></a>数组复制</h3><ul>
+<li><p>Arrays.copyOf：基于System.arraycopy实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ArrayList::grow</span></span><br><span class="line">elementData = Arrays.copyOf(elementData, newCapacity);</span><br></pre></td></tr></table></figure></li>
+<li><p>System.arraycopy: native方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ArrayList::add(int index, E element)</span></span><br><span class="line">System.arraycopy(elementData, index, elementData, index + <span class="number">1</span>,</span><br><span class="line">                         size - index);</span><br></pre></td></tr></table></figure></li>
 </ul>
 
             </div>
@@ -152,7 +153,7 @@
 		
 		<div class="post-tags">
 		  
-			<a href="/tags/Think/">Think</a>
+			<a href="/tags/Java/">Java</a>
 		  
 		</div>
 		
@@ -161,15 +162,15 @@
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2021/08/12/HashMap-TreeNode/">
+      <a class="prev" href="/2021/09/03/Design-Patterns/">
         <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">HashMap中的红黑树实现-TreeNode</span>
+        <span class="prev-text nav-default">Design Patterns</span>
         <span class="prev-text nav-mobile">Prev</span>
       </a>
     
     
-      <a class="next" href="/2021/08/11/hello-world/">
-        <span class="next-text nav-default">Hello World</span>
+      <a class="next" href="/2021/08/29/Spring/">
+        <span class="next-text nav-default">Spring</span>
         <span class="prev-text nav-mobile">Next</span>
         <i class="iconfont icon-right"></i>
       </a>

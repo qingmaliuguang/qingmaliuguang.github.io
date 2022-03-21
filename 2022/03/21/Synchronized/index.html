@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="Synchronized"/>
+
+
+
+
+  <meta name="keywords" content="Java、subject," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2022/03/21/Synchronized/"/>
+
+
+<meta name="description" content="表格 表示字段访问权限和属性的各个标志（来自Java虚拟机规范4.5）(ACC 简写自 access_flags)    标志名 值 说明    ACC_PUBLIC  声明为public，可以从包外访问   ACC_PRIVATE  声明为private，只能在定义该字段的类中访问   ACC_PROTECTED  声明为protected，子类可以访问   ACC_STATIC  声明为sta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Synchronized">
+<meta property="og:url" content="http://blog.coder.love/2022/03/21/Synchronized/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="表格 表示字段访问权限和属性的各个标志（来自Java虚拟机规范4.5）(ACC 简写自 access_flags)    标志名 值 说明    ACC_PUBLIC  声明为public，可以从包外访问   ACC_PRIVATE  声明为private，只能在定义该字段的类中访问   ACC_PROTECTED  声明为protected，子类可以访问   ACC_STATIC  声明为sta">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/HotSpot%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%AF%B9%E8%B1%A1%E5%A4%B4Mark%20Word.png">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E5%81%8F%E5%90%91%E9%94%81%E4%B8%8E%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81%E8%BF%87%E7%A8%8B.jpg">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1575018455.jpeg">
+<meta property="article:published_time" content="2022-03-21T07:06:25.000Z">
+<meta property="article:modified_time" content="2022-03-21T10:01:04.339Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Java、subject">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/HotSpot%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%AF%B9%E8%B1%A1%E5%A4%B4Mark%20Word.png">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Synchronized - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Synchronized
+        
+      </h1>
+
+      <time class="post-time">
+          3月 21 2022
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <p>表格 表示<strong>字段</strong>访问权限和属性的各个标志（来自Java虚拟机规范4.5）(ACC 简写自 access_flags)</p>
+<table>
+<thead>
+<tr>
+<th>标志名</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC_PUBLIC</td>
+<td></td>
+<td>声明为public，可以从包外访问</td>
+</tr>
+<tr>
+<td>ACC_PRIVATE</td>
+<td></td>
+<td>声明为private，只能在定义该字段的类中访问</td>
+</tr>
+<tr>
+<td>ACC_PROTECTED</td>
+<td></td>
+<td>声明为protected，子类可以访问</td>
+</tr>
+<tr>
+<td>ACC_STATIC</td>
+<td></td>
+<td>声明为static</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td></td>
+<td>声明为final，对象构造好之后，就不能直接设置该字段了</td>
+</tr>
+<tr>
+<td>ACC_VOLATILE</td>
+<td></td>
+<td>声明为volatile，被标识的字段无法缓存</td>
+</tr>
+<tr>
+<td>ACC_TRANSIENT</td>
+<td></td>
+<td>声明为transient，被标识的字段不会为持久化对象管理器所写入或读取</td>
+</tr>
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td></td>
+<td>被表示的字段由编译器产生，而没有写源代码中</td>
+</tr>
+<tr>
+<td>ACC_ENUM</td>
+<td></td>
+<td>该字段声明为某个枚举类型的成员</td>
+</tr>
+</tbody></table>
+<p>表格 表示<strong>方法</strong>访问权限及属性的各个标志（来自Java虚拟机规范4.6）(ACC 简写自 access_flags)</p>
+<table>
+<thead>
+<tr>
+<th>标志名</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACC_PUBLIC</td>
+<td></td>
+<td>声明为public，可以从包外访问</td>
+</tr>
+<tr>
+<td>ACC_PRIVATE</td>
+<td></td>
+<td>声明为private，只能在定义该方法的类中访问</td>
+</tr>
+<tr>
+<td>ACC_PROTECTED</td>
+<td></td>
+<td>声明为protected，子类可以访问</td>
+</tr>
+<tr>
+<td>ACC_STATIC</td>
+<td></td>
+<td>声明为static</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td></td>
+<td>声明为final，不能被覆盖</td>
+</tr>
+<tr>
+<td>ACC_SYNCHRONIZED</td>
+<td></td>
+<td><font color='00FF00'>声明为synchronized，对该方法的调用，将包装在同步锁（monitor）里</font></td>
+</tr>
+<tr>
+<td>ACC_BRIDGE</td>
+<td></td>
+<td>声明为bridge方法，由编译器产生</td>
+</tr>
+<tr>
+<td>ACC_VARARGS</td>
+<td></td>
+<td>表示方法带有变长参数</td>
+</tr>
+<tr>
+<td>ACC_NATIVE</td>
+<td></td>
+<td>声明为native，该方法不是用Java语言实现的</td>
+</tr>
+<tr>
+<td>ACC_ABSTRACT</td>
+<td></td>
+<td>声明为abstract，该方法没有实现代码</td>
+</tr>
+<tr>
+<td>ACC_STRICT</td>
+<td></td>
+<td>声明为strictfp，使用FP-strict浮点模式</td>
+</tr>
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td></td>
+<td>该方法是由编译器合成的，而不是由源代码编译出来的</td>
+</tr>
+</tbody></table>
+<p>参见SynchronizedDemo的字节码，同步方法add由一个ACC_SYNCHRONIZED flag。在其调用方main方法中调用add的前后几句指令如下，先通过monitorenter获取同步锁，调用完成同通过monitorexit释放同步锁。（此处静态方法add的监视器对象为SynchronizedDemo的类对象）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4</span>: monitorenter</span><br><span class="line"><span class="number">5</span>: getstatic     #<span class="number">7</span>                  <span class="comment">// Field java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line"><span class="number">8</span>: iconst_1</span><br><span class="line"><span class="number">9</span>: invokestatic  #<span class="number">23</span>                 <span class="comment">// Method add:(I)I</span></span><br><span class="line"><span class="number">12</span>: invokevirtual #<span class="number">27</span>                 <span class="comment">// Method java/io/PrintStream.println:(I)V</span></span><br><span class="line"><span class="number">15</span>: aload_1</span><br><span class="line"><span class="number">16</span>: monitorexit</span><br></pre></td></tr></table></figure>
+
+<p><strong>关于静态同步方法与非静态同步方法的调用：</strong></p>
+<ul>
+<li>不同线程 调用 同一个类的静态同步方法 互斥；</li>
+<li>不同线程 调用 同一个对象的非静态同步方法 互斥；</li>
+<li>不同线程 调用 同一个类的不同对象的非静态同步方法 不互斥。</li>
+</ul>
+<p><strong>对象头中同步锁相关内容：</strong></p>
+<ul>
+<li><p>对象在堆内存中的存储布局：对象头 + 实例数据 + 对齐填充</p>
+</li>
+<li><p>对象头=Mark Word + Klass Word + （数组长度）？</p>
+<blockquote>
+<p>Mark Word：存储对象自身运行时数据</p>
+<p>Klass Word：类型指针，指向它的类型元数据。Java虚拟机通过该指针确定该对象是哪个类的实例。</p>
+</blockquote>
+</li>
+<li><p>对象同步锁信息位于Mark Word中。</p>
+</li>
+<li><p>hotspot虚拟机对synchronized所做的锁优化：自旋锁与自适应自旋、轻量级锁、偏向锁、锁消除、锁粗化。</p>
+<blockquote>
+<p>这些优化应该只是针对synchronized的，对于并发框架中的Lock并未使用。</p>
+</blockquote>
+</li>
+<li><p>针对锁优化，同步锁状态分成了四种状态：无锁、偏向锁、轻量级锁、重量级锁。</p>
+</li>
+</ul>
+<blockquote>
+<p>参考《深入理解Java虚拟机》</p>
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/HotSpot%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%AF%B9%E8%B1%A1%E5%A4%B4Mark%20Word.png" alt="HotSpot虚拟机对象头Mark Word" style="zoom: 50%;" />
+
+<p>参考：<a target="_blank" rel="noopener" href="https://www.likecs.com/show-203562639.html">Java对象头与偏向锁、轻量级锁</a></p>
+</blockquote>
+<p>重量级锁</p>
+<ul>
+<li><p>通过操作系统互斥量来实现。Linux中提供一把互斥锁mutex（也称之为互斥量）。</p>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39736982/article/details/82348672">互斥锁mutex</a></p>
+<p>主要应用函数：</p>
+<ul>
+<li><p>pthread_mutex_init()函数          功能：初始化一个互斥锁</p>
+</li>
+<li><p>pthread_mutex_destroy()函数   功能：销毁一个互斥锁</p>
+</li>
+<li><p>pthread_mutex_lock()函数        功能：加锁</p>
+</li>
+<li><p>pthread_mutex_trylock()函数    功能：尝试加锁</p>
+</li>
+<li><p>pthread_mutex_unlock()函数    功能：解锁</p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p>轻量级锁</p>
+<ul>
+<li><p>目的：初衷是<strong>在没有多线程竞争的前提下</strong>，减少传统的重量级锁使用操作系统互斥量产生的性能消耗。</p>
+<blockquote>
+<p>互斥同步面临的主要问题是进行线程阻塞和唤醒所带来的性能开销，因此这种同步也被称为阻塞同步（Blocking Synchronization）。</p>
+</blockquote>
+</li>
+</ul>
+<p>偏向锁</p>
+<ul>
+<li><p>目的：消除数据在<strong>无竞争情况下</strong>的同步原语，进一步提高程序的运行性能。</p>
+<blockquote>
+<p>即避免了轻量级锁中Mark Word 的 CAS拷贝等操作的消耗。</p>
+</blockquote>
+</li>
+<li><p>其他注意点：</p>
+<ul>
+<li><p>当一个对象已经计算过一致性哈希码后，它就再也无法进入偏向锁状态了；而当一个对象当前正处于偏向锁状态，又收到需要计算其一致性哈希码请求[1]时，它的偏向状态会被立即撤销，并且锁会膨胀为重量级锁。在重量级锁的实现中，对象头指向了重量级锁的位置，代表重量级锁的ObjectMonitor类里有字段可以记录非加锁状态（标志位为“01”）下的Mark Word，其中自然可以存储原来的哈希码。</p>
+<blockquote>
+<p>注意，[1]这里说的计算请求应来自于对Object::hashCode()或者System::identityHashCode(Object)方法的调用，如果重写了对象的hashCode()方法，计算哈希码时并不会产生这里所说的请求。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E5%81%8F%E5%90%91%E9%94%81%E4%B8%8E%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81%E8%BF%87%E7%A8%8B.jpg" alt="偏向锁与轻量级锁过程"></p>
+<p>偏向锁还有写疑问，参考：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/55075763">https://www.zhihu.com/question/55075763</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/cqqfboy/p/14657900.html">https://www.cnblogs.com/cqqfboy/p/14657900.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.itqiankun.com/article/bias-lightweight-synchronized-lock">https://www.itqiankun.com/article/bias-lightweight-synchronized-lock</a></p>
+<blockquote>
+<p>文中的一幅图：</p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/1575018455.jpeg" alt="img"></p>
+</blockquote>
+</li>
+</ul>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Java%E3%80%81subject/">Java、subject</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2022/03/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Java多线程</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2022/03/21/%E8%AF%AD%E8%A8%80%E8%A7%84%E8%8C%83%E9%9B%B6%E6%95%A3%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">
+        <span class="next-text nav-default">语言规范零散问题记录.md</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

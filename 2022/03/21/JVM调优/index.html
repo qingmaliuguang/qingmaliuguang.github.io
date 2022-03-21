@@ -12,12 +12,12 @@
 
 
 
-  <meta name="description" content="Mysql事务"/>
+  <meta name="description" content="JVM调优"/>
 
 
 
 
-  <meta name="keywords" content="Mysql," />
+  <meta name="keywords" content="Java、subject," />
 
 
 
@@ -32,20 +32,20 @@
 
 
 
-<link rel="canonical" href="http://blog.coder.love/2021/10/26/Mysql-Sql/"/>
+<link rel="canonical" href="http://blog.coder.love/2022/03/21/JVM调优/"/>
 
 
-<meta name="description" content="INSERT … ON DUPLICATE KEY UPDATE  相当于 先判断一条记录是否存在，存在则执行后边的Update语句，否则执行前边的insert语句。 参考：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;moxiaotao&#x2F;p&#x2F;9431808.html   replace into tbl_name(col_name, …) values(…)  replace into 首先">
+<meta name="description" content="关于锁 自适应自旋  默认开启。   偏向锁  默认开启。- XX:+UseBiased Locking 如果某一类锁对象的总撤销数超过了一个阈值（对应 Java 虚拟机参数-XX:BiasedLockingBulkRebiasThreshold，默认为 20），那么 Java 虚拟机会宣布这个类的偏向锁失效。 如果总撤销数超过另一个阈值（对应 Java 虚拟机参数-XX:BiasedLockin">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mysql事务">
-<meta property="og:url" content="http://blog.coder.love/2021/10/26/Mysql-Sql/index.html">
+<meta property="og:title" content="JVM调优">
+<meta property="og:url" content="http://blog.coder.love/2022/03/21/JVM%E8%B0%83%E4%BC%98/index.html">
 <meta property="og:site_name" content="青马流光的博客">
-<meta property="og:description" content="INSERT … ON DUPLICATE KEY UPDATE  相当于 先判断一条记录是否存在，存在则执行后边的Update语句，否则执行前边的insert语句。 参考：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;moxiaotao&#x2F;p&#x2F;9431808.html   replace into tbl_name(col_name, …) values(…)  replace into 首先">
+<meta property="og:description" content="关于锁 自适应自旋  默认开启。   偏向锁  默认开启。- XX:+UseBiased Locking 如果某一类锁对象的总撤销数超过了一个阈值（对应 Java 虚拟机参数-XX:BiasedLockingBulkRebiasThreshold，默认为 20），那么 Java 虚拟机会宣布这个类的偏向锁失效。 如果总撤销数超过另一个阈值（对应 Java 虚拟机参数-XX:BiasedLockin">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-10-26T11:36:09.000Z">
-<meta property="article:modified_time" content="2021-10-26T11:40:42.759Z">
+<meta property="article:published_time" content="2022-03-21T07:06:25.000Z">
+<meta property="article:modified_time" content="2022-03-21T10:01:04.344Z">
 <meta property="article:author" content="青马流光">
-<meta property="article:tag" content="Mysql">
+<meta property="article:tag" content="Java、subject">
 <meta name="twitter:card" content="summary">
 
 
@@ -79,7 +79,7 @@
 
 
 
-    <title> Mysql事务 - 青马流光的博客 </title>
+    <title> JVM调优 - 青马流光的博客 </title>
   <meta name="generator" content="Hexo 5.4.0"></head>
 
   <body>
@@ -125,12 +125,12 @@
     <header class="post-header">
       <h1 class="post-title">
         
-          Mysql事务
+          JVM调优
         
       </h1>
 
       <time class="post-time">
-          10月 26 2021
+          3月 21 2022
       </time>
     </header>
 
@@ -138,23 +138,17 @@
 
     
             <div class="post-content">
-            <ul>
-<li><p>INSERT … ON DUPLICATE KEY UPDATE</p>
+            <h3 id="关于锁"><a href="#关于锁" class="headerlink" title="关于锁"></a>关于锁</h3><ul>
+<li><p>自适应自旋</p>
 <blockquote>
-<p>相当于 先判断一条记录是否存在，存在则执行后边的Update语句，否则执行前边的insert语句。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/moxiaotao/p/9431808.html">https://www.cnblogs.com/moxiaotao/p/9431808.html</a></p>
+<p>默认开启。</p>
 </blockquote>
 </li>
-<li><p>replace into tbl_name(col_name, …) values(…)</p>
+<li><p>偏向锁</p>
 <blockquote>
-<p>replace into 首先尝试插入数据到表中，如果发现表中已经有此行数据（根据主键或者唯一索引判断）则先删除此行数据，然后插入新的数据。 否则，直接插入新数据。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu379702831/article/details/105819304/">https://blog.csdn.net/liu379702831/article/details/105819304/</a></p>
-</blockquote>
-</li>
-<li><p>replace into与INSERT … ON DUPLICATE KEY UPDATE的区别</p>
-<blockquote>
-<p>replace into和on duplcate key update都是只有在primary key或者unique key冲突的时候才会执行。如果数据存在，replace into则会将原有数据删除，再进行插入操作，这样就会有一种情况，如果某些字段有默认值，但是replace into语句的字段不完整，则会设置成默认值。而on duplicate key update则是执行update后面的语句。 </p>
-<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq2430/article/details/80511640">https://blog.csdn.net/qq2430/article/details/80511640</a></p>
+<p>默认开启。- XX:+UseBiased Locking</p>
+<p>如果某一类锁对象的总撤销数超过了一个阈值（对应 Java 虚拟机参数<br>-XX:BiasedLockingBulkRebiasThreshold，默认为 20），那么 Java 虚拟机会宣布这个类的偏向锁失效。</p>
+<p>如果总撤销数超过另一个阈值（对应 Java 虚拟机参数<br>-XX:BiasedLockingBulkRevokeThreshold，默认值为 40），那么 Java 虚拟机会认为这个类已经不再适合偏向锁。此时，Java 虚拟机会撤销该类实例的偏向锁，并且在之后的加锁过程中直接为该类实例设置轻量级锁。</p>
 </blockquote>
 </li>
 </ul>
@@ -167,7 +161,7 @@
 		
 		<div class="post-tags">
 		  
-			<a href="/tags/Mysql/">Mysql</a>
+			<a href="/tags/Java%E3%80%81subject/">Java、subject</a>
 		  
 		</div>
 		
@@ -176,15 +170,15 @@
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2022/03/21/%E8%AF%AD%E8%A8%80%E8%A7%84%E8%8C%83%E9%9B%B6%E6%95%A3%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">
+      <a class="prev" href="/2022/03/21/Spring%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">
         <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">语言规范零散问题记录.md</span>
+        <span class="prev-text nav-default">Spring应用启动过程</span>
         <span class="prev-text nav-mobile">Prev</span>
       </a>
     
     
-      <a class="next" href="/2021/09/09/Concurrent-Programming/">
-        <span class="next-text nav-default">并发编程</span>
+      <a class="next" href="/2022/03/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/">
+        <span class="next-text nav-default">Java多线程</span>
         <span class="prev-text nav-mobile">Next</span>
         <i class="iconfont icon-right"></i>
       </a>

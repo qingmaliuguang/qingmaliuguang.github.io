@@ -6,3 +6,4 @@ tags: Think
 
 <center> <h3>Code the love to the world. </h3> </center>
 
+- Knowledge is not confused.  知识不迷茫

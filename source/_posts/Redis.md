@@ -92,7 +92,7 @@ OK
 
 常用的五种数据结构：
 
-<img src="Redis/assets/1289934-20190621163930814-1395015700.png" alt="img" style="zoom: 67%;" />
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/1289934-20190621163930814-1395015700.png" alt="img" style="zoom: 67%;" />
 
 ## 1.1 Redis Strings
 
@@ -722,7 +722,7 @@ struct sdshdr {
 };
 ```
 
-<img src="Redis/assets/sds_def.png" alt="buf 保存了字符串信息   free为预留出的空间 len为长度" style="zoom:50%;" />
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/sds_def.png" alt="buf 保存了字符串信息   free为预留出的空间 len为长度" style="zoom:50%;" />
 
 ### C 字符串和 SDS 之间的区别
 
@@ -779,7 +779,7 @@ typedef struct list {
 
 一个由一个 list 结构和三个 listNode 结构组成的链表：
 
-<img src="Redis/assets/1238581-20210213200117107-1518159670.png" alt="img" style="zoom: 67%;" />
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213200117107-1518159670.png" alt="img" style="zoom: 67%;" />
 
 ## 2.3 字典
 
@@ -865,7 +865,7 @@ typedef struct dictEntry {
 
 一个普通状态下（没有进行 rehash）的字典：
 
-![img](Redis/assets/1238581-20210213200929586-318083919.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213200929586-318083919.png)
 
 **渐进式 rehash**
 
@@ -882,21 +882,21 @@ typedef struct dictEntry {
 
 学过数据结构的都知道，在单链表中查询一个元素的时间复杂度为O(n)，即使该单链表是有序的，我们也不能通过2分的方式缩减时间复杂度。 
 
-![这里写图片描述](Redis/assets/20161205210928206.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205210928206.png)
 
    如上图，我们要查询元素为55的结点，必须从头结点，循环遍历到最后一个节点，不算-INF(负无穷)一共查询8次。那么用什么办法能够用更少的次数访问55呢？最直观的，当然是新开辟一条捷径去访问55。 
 
-![这里写图片描述](Redis/assets/20161205211105653.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205211105653.png)
 
    如上图，我们要查询元素为55的结点，只需要在L2层查找4次即可。在这个结构中，查询结点为46的元素将耗费最多的查询次数5次。即先在L2查询46，查询4次后找到元素55，因为链表是有序的，46一定在55的左边，所以L2层没有元素46。然后我们退回到元素37，到它的下一层即L1层继续搜索46。非常幸运，我们只需要再查询1次就能找到46。这样一共耗费5次查询。
 
 那么，如何才能更快的搜寻55呢？有了上面的经验，我们就很容易想到，再开辟一条捷径。 
 
-![这里写图片描述](Redis/assets/20161205211246498.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205211246498.png)
 
 如上图，我们搜索55只需要2次查找即可。这个结构中，查询元素46仍然是最耗时的，需要查询5次。即首先在L3层查找2次，然后在L2层查找2次，最后在L1层查找1次，共5次。很显然，这种思想和2分非常相似，那么我们最后的结构图就应该如下图。
 
-![这里写图片描述](Redis/assets/20161205211539787.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205211539787.png)
 
 我们可以看到，最耗时的访问46需要6次查询。即L4访问55，L3访问21、55，L2访问37、55，L1访问46。我们直觉上认为，这样的结构会让查询有序链表的某个元素更快。那么究竟算法复杂度是多少呢？
 
@@ -910,27 +910,27 @@ typedef struct dictEntry {
 
 在此还是以上图为例：跳跃表的初试状态如下图，表中没有一个元素： 
 
-![这里写图片描述](Redis/assets/20161205212059243.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212059243.png)
 
 如果我们要插入元素2，首先是在底部插入元素2，如下图： 
 
-![这里写图片描述](Redis/assets/20161205212409123.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212409123.png)
 
 继续抛硬币，结果是反面，那么元素2的插入操作就停止了，插入后的表结构就是上图所示。接下来，我们插入元素33，跟元素2的插入一样，现在L1层插入33，如下图： 
 
-![这里写图片描述](Redis/assets/20161205212458264.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212458264.png)
 
 然后抛硬币，结果是反面，那么元素33的插入操作就结束了，插入后的表结构就是上图所示。接下来，我们插入元素55，首先在L1插入55，插入后如下图： 
 
-![这里写图片描述](Redis/assets/20161205212553339.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212553339.png)
 
 然后抛硬币，结果是正面，那么L2层需要插入55，如下图： 
 
-![这里写图片描述](Redis/assets/20161205212659309.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212659309.png)
 
 继续抛硬币，结果又是正面，那么L3层需要插入55，如下图： 
 
-![这里写图片描述](Redis/assets/20161205212712590.png)
+![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20161205212712590.png)
 
  以此类推，插入剩余的元素。当然因为规模小，结果很可能不是一个理想的跳跃表。但是如果元素个数n的规模很大，基于概率，最终的表结构可能非常接近于理想跳跃表。
 
@@ -945,7 +945,7 @@ Redis 的跳跃表
 - redis.h/zskiplistNode：zskiplistNode 结构用于表示跳跃表节点。
 - redis.h/zskiplist：zskiplist 结构则用于保存跳跃表节点的相关信息， 比如节点的数量， 以及指向表头节点和表尾节点的指针， 等等。
 
-![img](Redis/assets/1238581-20210213201733089-1490815062.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213201733089-1490815062.png)
 
 zskiplist （图片最左边）属性：
 
@@ -1006,7 +1006,7 @@ typedef struct zskiplistNode {
 
 图 5-2 分别展示了三个高度为 1 层、 3 层和 5 层的节点， 因为 C 语言的数组索引总是从 0 开始的， 所以节点的第一层是 level[0] ， 而第二层是 level[1] ， 以此类推。
 
-![img](Redis/assets/1238581-20210213201838639-805210660.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213201838639-805210660.png)
 
 **前进指针**
 
@@ -1021,11 +1021,11 @@ typedef struct zskiplistNode {
 
 举个例子， 图 5-4 用虚线标记了在跳跃表中查找分值为 3.0 、 成员对象为 o3 的节点时， 沿途经历的层： 查找的过程只经过了一个层L3， 并且层的跨度为 3 ， 所以目标节点在跳跃表中的排位为 3 。
 
-![img](Redis/assets/1238581-20210213202024590-570344443.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213202024590-570344443.png)
 
 再举个例子， 图 5-5 用虚线标记了在跳跃表中查找分值为 2.0 、 成员对象为 o2 的节点时， 沿途经历的层： 在查找节点的过程中， 程序经过了两个跨度为 1 的节点， 因此可以计算出， 目标节点在跳跃表中的排位为 2 。
 
-![img](Redis/assets/1238581-20210213202038671-1204788410.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213202038671-1204788410.png)
 
 **后退指针**
 
@@ -1033,7 +1033,7 @@ typedef struct zskiplistNode {
 
 图 5-6 用虚线展示了如何**从表尾向表头遍历跳跃表中的所有节点**： 程序首先通过跳跃表的 tail 指针访问表尾节点， 然后通过后退指针访问倒数第二个节点， 之后再沿着后退指针访问倒数第三个节点， 再之后遇到指向 NULL 的后退指针， 于是访问结束。
 
-![img](Redis/assets/1238581-20210213202122053-915674055.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213202122053-915674055.png)
 
 **分值和成员**
 
@@ -1043,7 +1043,7 @@ typedef struct zskiplistNode {
 
 举个例子， 在图 5-7 所示的跳跃表中， 三个跳跃表节点都保存了相同的分值 10086.0 ， 但保存成员对象 o1 的节点却排在保存成员对象 o2 和 o3 的节点之前， 而保存成员对象 o2 的节点又排在保存成员对象 o3 的节点之前， 由此可见， o1 、 o2 、 o3 三个成员对象在字典中的排序为 o1 <= o2 <= o3 。
 
-![img](Redis/assets/1238581-20210213202144716-2013979073.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1238581-20210213202144716-2013979073.png)
 
 **总结**
 
@@ -1180,7 +1180,7 @@ encoding 记录当前 intset 使用编码，有三个取值：
 
 其中，每种type类型的对象都至少使用了两种不同的编码，使用 OBJECT ENCODING 命令可以查看一个数据库键的值对象的编码。
 
-![image-20210822195733449](Redis/assets/image-20210822195733449.png)
+![image-20210822195733449](https://gitee.com/qmlg/image-bed/raw/master/images/image-20210822195733449.png)
 
 ### 2.7.2 对象编码转换条件
 
@@ -1419,6 +1419,8 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 根据redis.conf的配置文件中，我们可以得出，主要分为如下几种淘汰机制。
 
+> Y：键空间 + 淘汰策略
+
 - volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，使用LRU算法删除key。
 
 
@@ -1447,7 +1449,7 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 ## 4.1 主从同步/复制
 
-![img](Redis/assets/1350922-20191006113347736-1579349638.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006113347736-1579349638.png)
 
 　为了避免单点故障，通常的做法是将数据库复制多个副本以部署在不同的服务器上，这样即使有一台服务器出现故障，其他服务器依然可以继续提供服务。为此， **Redis 提供了复制（replication）功能，可以实现当一台数据库中的数据更新后，自动将更新的数据同步到其他数据库上**。　　
 
@@ -1459,7 +1461,7 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 **主从复制原理：**
 
-![img](Redis/assets/1350922-20191006113541904-1736285180.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006113541904-1736285180.png)
 
 - 从数据库连接主数据库，发送SYNC命令； 
 - 主数据库接收到SYNC命令后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令； 
@@ -1492,7 +1494,7 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 　哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，**哨兵是一个独立的进程，作为进程，它会独立运行。**其原理是哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例。
 
-<img src="Redis/assets/1350922-20191006121120390-676037470.png" alt="img" style="zoom:67%;" />
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006121120390-676037470.png" alt="img" style="zoom:67%;" />
 
 **哨兵模式的作用：**
 
@@ -1501,7 +1503,7 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 然而一个哨兵进程对Redis服务器进行监控，也可能会出现问题，为此，我们可以使用多个哨兵进行监控。各个哨兵之间还会进行监控，这样就形成了**多哨兵模式**。
 
-![img](Redis/assets/1350922-20191006122611921-809764078.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006122611921-809764078.png)
 
 **故障切换的过程：**
 
@@ -1511,7 +1513,7 @@ Redis内存过期策略分为三类，定时策略、惰性策略和定期策略
 
 配置一主二从和三个哨兵的 Redis 服务器来演示这个过程
 
-![img](Redis/assets/1350922-20191006122741113-1584577962.png)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006122741113-1584577962.png)
 
 **主从服务器配置**
 
@@ -1568,7 +1570,7 @@ sentinel auth-pass mymaster 123456
 
 Redis 的哨兵模式基本已经可以实现高可用，读写分离 ，但是在这种模式下每台 Redis 服务器都存储相同的数据，很浪费内存，所以在redis3.0上加入了 Cluster 集群模式，实现了 **Redis 的分布式存储**，也就是说每台 Redis 节点上存储不同的内容。
 
-<img src="Redis/assets/1350922-20191006124637992-2055348918.png" alt="img" style="zoom:50%;" />
+<img src="https://gitee.com/qmlg/image-bed/raw/master/images/1350922-20191006124637992-2055348918.png" alt="img" style="zoom:50%;" />
 
 **集群的配置**
 
@@ -1727,7 +1729,7 @@ Redis data  => data dump to disk => dump file （rdb文件）
 
 client每次请求redis，都会将写请求的命令保存到文件中。
 
-![img](Redis/assets/webp-20210822233424914)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210822233424914)
 
 **AOF三种策略**
 
@@ -1746,7 +1748,7 @@ client每次请求redis，都会将写请求的命令保存到文件中。
 
 **AOF重写定义：**
 
-![img](Redis/assets/webp-20210822234038823)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210822234038823)
 
 AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的数据进行分析实现的。
 
@@ -1762,7 +1764,7 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 **AOF重写流程：**
 
-![img](Redis/assets/webp-20210822234537782)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210822234537782)
 
 
 
@@ -1782,7 +1784,7 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 - 缓存雪崩：当某一个时刻出现大规模的缓存失效的情况，那么就会导致大量的请求直接打在数据库上面，导致数据库压力巨大，如果在高并发的情况下，可能瞬间就会导致数据库宕机。这时候如果运维马上又重启数据库，马上又会有新的流量把数据库打死。这就是缓存雪崩。
 
-  ![图片](Redis/assets/640)
+  ![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640_asljoijoabc)
 
   - 解决方法
 
@@ -1837,11 +1839,11 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 假设布隆过滤器的底层存储结构是一个长度为16的位数组，初始状态时，它的所有位置都设置为0。
 
-![img](Redis/assets/v2-44745af66b87d954e59ee956bc6fcde8_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-44745af66b87d954e59ee956bc6fcde8_720w.jpg)
 
 当有变量添加到布隆过滤器中，通过K个映射函数将变量映射到位数组的K个点，并把这K个点的值设置为1(假设有三个映射函数)。
 
-![img](Redis/assets/v2-d39c084b459972a1bfd7864bc6ff9921_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-d39c084b459972a1bfd7864bc6ff9921_720w.jpg)
 
 查询某个变量是否存在的时候，我们只需要通过同样的K个映射函数，找到对应的K个点，判断K个点上的值是否全都是1，**如果全都是1则表示很可能存在**，如果**K个点上有任何一个是0则表示一定不存在**。
 
@@ -1857,7 +1859,7 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 答案是不能的。因为在位数组上的同一个点有可能有多个输入值映射，如果删除了会影响布隆过滤器里其他元素的判断结果。
 
-![img](Redis/assets/v2-38456fee3c0bd46d38d9fd8ce984faa8_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-38456fee3c0bd46d38d9fd8ce984faa8_720w.jpg)
 
 如上图，如果删除obj1，把4,7,15置为0，那么判断obj2是否存在时就会导致因为映射点7是0，结果判断obj2是不存在的，结果出错。
 
@@ -1881,7 +1883,7 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 ​	缓存穿透的问题主要是因为传进来的key在Redis中是不存在的，那么就会直接打在DB上，造成DB压力增大。
 
-![img](Redis/assets/v2-ba08c0076931750ec07a0a3411ec3cb9_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-ba08c0076931750ec07a0a3411ec3cb9_720w.jpg)
 
 针对这种情况，可以在Redis前加上布隆过滤器，预先把数据库中的数据加入到布隆过滤器中，因为布隆过滤器的底层数据结构是一个二进制向量，所以占用的空间并不是很大。**在查询Redis之前先通过布隆过滤器判断是否存在，如果不存在就直接返回，如果存在的话，按照原来的流程还是查询Redis，Redis不存在则查询DB**。
 
@@ -1889,7 +1891,7 @@ AOF文件重写不是对原有AOF文件进行读取分析,而是读取最新的�
 
 这里主要利用的是**布隆过滤器判断结果是不存在的话就一定不存在**这一个特点，但是由于布隆过滤器有一定的误判，所以并不能说完全解决缓存穿透，但是能很大程度缓解缓存穿透的问题。
 
-![img](Redis/assets/v2-ce8779e9d5a90b55719de6b3a25e2d35_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-ce8779e9d5a90b55719de6b3a25e2d35_720w.jpg)
 
 ### 布隆过滤器插件
 
@@ -1994,13 +1996,13 @@ public boolean unLock(String key, String requestId) {
 }
 ```
 
-![图片](Redis/assets/640-20210825225135893)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825225135893)
 
 这仅仅满足上述的第一个条件和第三个条件，保证上锁和解锁都是同一个客户端，也保证只有一个客户端持有锁。
 
 但是第二点没法保证，因为如果一个客户端持有锁的期间突然崩溃了，就会导致无法解锁，最后导致出现死锁的现象。
 
-![图片](Redis/assets/640-20210825225709149)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825225709149)
 
 所以要有个超时的机制，在设置key的值时，需要加上有效时间，如果有效时间过期了，就会自动失效，就不会出现死锁。然后加锁的代码就会变成这样。
 
@@ -2014,7 +2016,7 @@ public boolean tryLock(String key, String requestId, int expireTime) {
 }
 ```
 
-![图片](Redis/assets/640-20210825225825756)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825225825756)
 
 
 
@@ -2026,7 +2028,7 @@ public boolean tryLock(String key, String requestId, int expireTime) {
 
    在Redisson框架实现分布式锁的思路，就使用watchDog机制实现锁的续期。当加锁成功后，同时开启守护线程，默认有效期是30秒，每隔10秒就会给锁续期到30秒，只要持有锁的客户端没有宕机，就能保证一直持有锁，直到业务代码执行完毕由客户端自己解锁，如果宕机了自然就在有效期失效后自动解锁。
 
-![图片](Redis/assets/640-20210825230049945)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825230049945)
 
 ### 7.3.4 问题2：可重入锁的实现思路
 
@@ -2051,7 +2053,7 @@ public boolean tryLock(String key, String requestId, int expireTime) {
 "return redis.call('pttl', KEYS[1]);"
 ```
 
-![图片](Redis/assets/640-20210825230413827)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825230413827)
 
 解锁时，先判断可重复次数是否大于0，大于0则减一，否则删除键值，释放锁资源。
 
@@ -2075,7 +2077,7 @@ Arrays.<Object>asList(getName(), getChannelName()), LockPubSub.UNLOCK_MESSAGE, i
 }
 ```
 
-![图片](Redis/assets/640-20210825230450124)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825230450124)
 
 为了保证操作原子性，加锁和解锁操作都是使用lua脚本执行。
 
@@ -2089,7 +2091,7 @@ Arrays.<Object>asList(getName(), getChannelName()), LockPubSub.UNLOCK_MESSAGE, i
 2. 当持有锁的客户端释放锁的时候，发布锁释放的消息；
 3. 当进入阻塞等待的其他客户端收到锁释放的消息后，解除阻塞等待状态，再次尝试加锁。
 
-![图片](Redis/assets/640-20210825231200881)
+![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210825231200881)
 
 ### 7.3.7 Redis分布式锁Java实现-Redisson
 

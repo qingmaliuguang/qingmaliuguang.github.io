@@ -8,7 +8,7 @@ tags: Mysql
 
 Mysql 架构图
 
-![img](InnoDB/assets/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg)
 
 MySQL区别于其他数据库的一个最重要的特点是**插件式存储引擎**。它是**基于表**的，而不是数据库。MySql常用存储引擎如下：
 
@@ -26,7 +26,7 @@ MySQL区别于其他数据库的一个最重要的特点是**插件式存储引�
 
 **InnoDB架构图**
 
-![img](InnoDB/assets/v2-5271f9ac34525757edd866a8f9fbba80_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-5271f9ac34525757edd866a8f9fbba80_720w.jpg)
 
 以下主要从内存和线程的角度分析InnoDB的架构。
 
@@ -40,7 +40,7 @@ MySQL区别于其他数据库的一个最重要的特点是**插件式存储引�
 
 InnoDB内存池主要有以下部分
 
-![img](InnoDB/assets/v2-210d508df6c12e9df71982754ee3225d_720w.jpg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/v2-210d508df6c12e9df71982754ee3225d_720w.jpg)
 
 **缓冲池**
 InnoDB是基于磁盘存储的，并将其中的记录按照页的方式进行管理。
@@ -175,7 +175,7 @@ InnoDB使用异步IO操作磁盘，避免同步IO导致阻塞，也可以进行I
 
 在 InnoDB 存储引擎中，所有的数据都被**逻辑地**存放在表空间中，表空间（tablespace）是存储引擎中最高的存储逻辑单位，在表空间的下面又包括**段（segment）**、**区（extent）**、**页（page）**：
 
-![img](InnoDB/assets/dd5b5b00329248b3a3c9d5eba40ffc6b.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/dd5b5b00329248b3a3c9d5eba40ffc6b.jpeg)
 
 - 表空间
   - InnoDB将所有数据（包括表数据，索引，回滚信息，插入缓冲索引页，系统事务信息，二次写缓冲）逻辑地放在一个空间中，称为**共享表空间**。
@@ -193,7 +193,7 @@ InnoDB使用异步IO操作磁盘，避免同步IO导致阻塞，也可以进行I
 
 需要注意的是不同的页大小最终也会导致区大小的不同：
 
-![img](InnoDB/assets/4ecc11c77b7a4f67b101d3a0ebc003fa.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/4ecc11c77b7a4f67b101d3a0ebc003fa.jpeg)
 
 从图中可以看出，在 InnoDB 存储引擎中，一个区的大小最小为 1MB，页的数量最少为 64 个。
 
@@ -201,7 +201,7 @@ InnoDB使用异步IO操作磁盘，避免同步IO导致阻塞，也可以进行I
 
 MySQL 使用 InnoDB 存储表时，会将**表的定义**和**数据索引**等信息分开存储，其中前者存储在 .frm文件中，后者存储在 .ibd文件中，这一节就会对这两种不同的文件分别进行介绍。
 
-![img](InnoDB/assets/d06d7df771f647acb8fe2ebe5ad9ee3f.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/d06d7df771f647acb8fe2ebe5ad9ee3f.jpeg)
 
 ### .frm 文件
 
@@ -219,13 +219,13 @@ InnoDB 中用于存储数据的文件总共有两个部分，一是系统表空�
 
 当 InnoDB 存储数据时，它可以使用不同的行格式进行存储；MySQL 5.7 版本支持以下格式的行存储方式：
 
-![img](InnoDB/assets/a7d9d6b7b3a24cb7917dde4c3e8ae134.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/a7d9d6b7b3a24cb7917dde4c3e8ae134.jpeg)
 
 > Antelope 是 InnoDB 最开始支持的文件格式，它包含两种行格式 Compact 和 Redundant，它最开始并没有名字；Antelope 的名字是在新的文件格式 Barracuda 出现后才起的，Barracuda 的出现引入了两种新的行格式 Compressed 和 Dynamic；InnoDB 对于文件格式都会向前兼容，而官方文档中也对之后会出现的新文件格式预先定义好了名字：Cheetah、Dragon、Elk 等等。
 
 两种行记录格式 Compact 和 Redundant 在磁盘上按照以下方式存储：
 
-![img](InnoDB/assets/29fabb2da77243758ba324c75ed25e21.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/29fabb2da77243758ba324c75ed25e21.jpeg)
 
 Compact 和 Redundant 格式最大的不同就是记录格式的第一个部分；在 Compact 中，行记录的第一部分倒序存放了一行数据中列的长度（Length），而 Redundant 中存的是每一列的偏移量（Offset），从总体上上看，Compact 行记录格式相比 Redundant 格式能够减少 20% 的存储空间。
 
@@ -233,11 +233,11 @@ Compact 和 Redundant 格式最大的不同就是记录格式的第一个部分�
 
 当 InnoDB 使用 Compact 或者 Redundant 格式存储**极长的 VARCHAR 或者 BLOB 这类大对象**时，我们并不会直接将所有的内容都存放在数据页节点中，而是将行数据中的前 **768** 个字节存储在**数据页**中，后面会通过偏移量指向**溢出页**。
 
-![img](InnoDB/assets/7636bec2081d4035bfa8abd2e6e402e1.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/7636bec2081d4035bfa8abd2e6e402e1.jpeg)
 
 但是当我们使用新的行记录格式 Compressed 或者 Dynamic 时都只会在行记录中保存 20 个字节的指针，实际的数据都会存放在溢出页面中。
 
-![img](InnoDB/assets/78c3c2b5a0f54e418ae4a8d82ba31593.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/78c3c2b5a0f54e418ae4a8d82ba31593.jpeg)
 
 当然在实际存储中，可能会对不同长度的 TEXT 和 BLOB 列进行优化，不过这就不是本文关注的重点了。
 
@@ -247,7 +247,7 @@ Compact 和 Redundant 格式最大的不同就是记录格式的第一个部分�
 
 页是 InnoDB 存储引擎管理数据的最小磁盘单位，而 B-Tree 节点就是实际存放表中数据的页面，我们在这里将要介绍页是如何组织和存储记录的；首先，一个 InnoDB 页有以下七个部分：
 
-![img](InnoDB/assets/481bd5bdd7c44c4a92b5b1fee845b952.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/481bd5bdd7c44c4a92b5b1fee845b952.jpeg)
 
 每一个页中包含了两对 header/trailer：内部的 Page Header/Page Directory 关心的是页的状态信息，而 Fil Header/Fil Trailer 关心的是记录页的头信息。
 
@@ -267,7 +267,7 @@ InnoDB 存储引擎中对数据的存储是一个非常复杂的话题，这一�
 
 在上一节中，我们谈了行记录的存储和页的存储，在这里我们就要从更高的层面看 InnoDB 中对于数据是如何存储的；InnoDB 存储引擎在绝大多数情况下使用 B+ 树建立索引，这是关系型数据库中查找最为常用和有效的索引，但是B+ 树索引并不能找到一个给定键对应的具体值，它只能找到数据行对应的页，然后正如上一节所提到的，数据库把整个页读入到内存中，并在内存中查找具体的数据行。
 
-![img](InnoDB/assets/1ee74dd1ddf0471e8744c704993ec642.jpeg)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/1ee74dd1ddf0471e8744c704993ec642.jpeg)
 
 B+ 树是平衡树，它查找任意节点所耗费的时间都是完全相同的，比较的次数就是 B+ 树的高度；在这里，我们并不会深入分析或者动手实现一个 B+ 树，只是对它的特性进行简单的介绍。
 
@@ -293,7 +293,7 @@ CREATE TABLE users(
 
 如果使用上面的 SQL 在数据库中创建一张表，B+ 树就会使用 `id` 作为索引的键，并在叶子节点中存储一条记录中的**所有**信息。
 
-![Clustered-Index](InnoDB/assets/Clustered-Index.jpg)
+![Clustered-Index](https://gitee.com/qmlg/image-bed/raw/master/images/Clustered-Index.jpg)
 
 图中对 B+ 树的描述与真实情况下 B+ 树中的数据结构有一些差别，不过这里想要表达的主要意思是：聚集索引叶节点中保存的是整条行记录，而不是其中的一部分。
 
@@ -309,11 +309,11 @@ CREATE TABLE users(
 
 > 一张表一定包含一个聚集索引构成的 B+ 树以及若干辅助索引的构成的 B+ 树。
 
-![Secondary-Index](InnoDB/assets/Secondary-Index.jpg)
+![Secondary-Index](https://gitee.com/qmlg/image-bed/raw/master/images/Secondary-Index.jpg)
 
 如果在表 `users` 中存在一个辅助索引 `(first_name, age)`，那么它构成的 B+ 树大致就是上图这样，按照 `(first_name, age)` 的字母顺序对表中的数据进行排序，当查找到主键时，再通过聚集索引获取到整条行记录。
 
-![Clustered-Secondary-Index](InnoDB/assets/Clustered-Secondary-Index.jpg)
+![Clustered-Secondary-Index](https://gitee.com/qmlg/image-bed/raw/master/images/Clustered-Secondary-Index.jpg)
 
 上图展示了一个使用辅助索引查找一条表记录的过程：通过辅助索引查找到对应的主键，最后在聚集索引中使用主键获取对应的行记录，这也是通常情况下行记录的查找方式。
 
@@ -341,7 +341,7 @@ LOCK_MODE分别是：IS或IX。
 
 随着意向锁的加入，锁类型之间的兼容矩阵也变得愈加复杂：
 
-![Lock-Type-Compatibility-Matrix](InnoDB/assets/Lock-Type-Compatibility-Matrix.jpg)
+![Lock-Type-Compatibility-Matrix](https://gitee.com/qmlg/image-bed/raw/master/images/Lock-Type-Compatibility-Matrix.jpg)
 
 意向锁其实不会阻塞全表扫描之外的任何请求，它们的主要目的是为了表示**是否有人请求锁定表中的某一行数据**。
 
@@ -411,7 +411,7 @@ Next-Key Lock在不同的场景中会退化:
 
 锁的兼容性
 
-![锁的兼容性](InnoDB/assets/suodejianrongxing.png)
+![锁的兼容性](https://gitee.com/qmlg/image-bed/raw/master/images/suodejianrongxing.png)
 
 ### 自增锁(AUTO-INC Locks)
 
@@ -456,11 +456,11 @@ AUTO-INC锁是在语句结束后被释放。
 
 下面，来看看两个死锁的例子 (一个是两个Session的两条SQL产生死锁；另一个是两个Session的一条SQL，产生死锁)：
 
-![sql死锁示例1](InnoDB/assets/53abaeb5e5aefad98d02e0240739dcc41603799550974.jpeg)
+![sql死锁示例1](https://gitee.com/qmlg/image-bed/raw/master/images/53abaeb5e5aefad98d02e0240739dcc41603799550974.jpeg)
 
 情况一很好理解，也是最常见的死锁，**每个事务**执行两条SQL，分别持有了一把锁，然后加另一把锁，产生死锁。
 
-![sql死锁示例2）——数据库锁看这一篇就足够了12](InnoDB/assets/f08513e2d2380ea4a428c40ee9c114cb1603799550974.jpeg)
+![sql死锁示例2）——数据库锁看这一篇就足够了12](https://gitee.com/qmlg/image-bed/raw/master/images/f08513e2d2380ea4a428c40ee9c114cb1603799550974.jpeg)
 
 ​	第二个用例，虽然每个Session都只有一条语句，仍旧会产生死锁。要分析这个死锁，首先必须用到本文前面提到的MySQL加锁的规则。针对Session 1，从name索引出发，读到的[hdc, 1]，[hdc, 6]均满足条件，不仅会加name索引上的记录X锁，而且会加聚簇索引上的记录X锁，加锁顺序为先[1,hdc,100]，后[6,hdc,10]。而Session 2，从pubtime索引出发，[10,6],[100,1]均满足过滤条件，同样也会加聚簇索引上的记录X锁，加锁顺序为[6,hdc,10]，后[1,hdc,100]。发现没有，跟Session 1的加锁顺序正好相反，如果两个Session恰好都持有了第一把锁，请求加第二把锁，死锁就发生了。
 
@@ -548,7 +548,7 @@ ISO 和 ANSI SQL 标准制定了四种事务隔离级别，而 InnoDB 遵循了 
 
 **MySQL 中默认的事务隔离级别就是 `REPEATABLE READ`，但是它通过 Next-Key 锁也能够在某种程度上解决幻读的问题。**
 
-![Transaction-Isolation-Matrix](InnoDB/assets/Transaction-Isolation-Matrix.jpg)
+![Transaction-Isolation-Matrix](https://gitee.com/qmlg/image-bed/raw/master/images/Transaction-Isolation-Matrix.jpg)
 
 **快照读（一致性非锁定读）：**
 
@@ -570,7 +570,7 @@ delete from table where ?;
 
 为什么将 插入/更新/删除 操作，都归为当前读？可以看看下面这个 更新 操作，在数据库中的执行流程：
 
-![MySQL 加锁处理分析](InnoDB/assets/c391f56ae077738c088a69e5d9fd3eed1603799550970.jpeg)
+![MySQL 加锁处理分析](https://gitee.com/qmlg/image-bed/raw/master/images/c391f56ae077738c088a69e5d9fd3eed1603799550970.jpeg)
 
 从图中，可以看到，一个Update操作的具体流程。当Update SQL被发给MySQL后，MySQL Server会根据where条件，读取第一条满足条件的记录，然后InnoDB引擎会将第一条记录返回，并加锁 (current read)。待MySQL Server收到这条加锁的记录之后，会再发起一个Update请求，更新这条记录。一条记录操作完成，再读取下一条记录，直至没有满足条件的记录为止。因此，Update操作内部，就包含了一个当前读。同理，Delete操作也一样。Insert操作会稍微有些不同，简单来说，就是Insert操作可能会触发Unique Key的冲突检查，也会进行一个当前读。
 
@@ -589,16 +589,16 @@ binlog记录的所有操作实际上都有对应的事件类型的，MySQL binlo
 
 - Row level（用到MySQL的特殊功能如存储过程、触发器、函数，又希望数据最大化，则选择Row模式）
    　简介：日志中会记录每一行数据被修改的情况，然后在slave端对相同的数据进行修改。
-   　优点：能清楚的记录每一行数据修改的细节
-   　缺点：数据量太大
+      　优点：能清楚的记录每一行数据修改的细节
+      　缺点：数据量太大
 - Statement level（默认）
    　简介：每一条被修改数据的sql都会记录到master的bin-log中，slave在复制的时候sql进程会解析成和原来master端执行过的相同的sql再次执行。在主从同步中一般是不建议用statement模式的，因为会有些语句不支持，比如语句中包含UUID函数，以及LOAD DATA IN FILE语句等
-   　优点：解决了 Row level下的缺点，不需要记录每一行的数据变化，减少bin-log日志量，节约磁盘IO，提高新能
-   　缺点：容易出现主从复制不一致
+      　优点：解决了 Row level下的缺点，不需要记录每一行的数据变化，减少bin-log日志量，节约磁盘IO，提高新能
+      　缺点：容易出现主从复制不一致
 - Mixed（混合模式）
    　简介：结合了Row level和Statement level的优点，同时binlog结构也更复杂。在Mixed模式下，一般的语句修改使用statment格式保存binlog，如一些函数，statement无法完成主从复制的操作，则采用row格式保存binlog，MySQL会根据执行的每一条具体的sql语句来区分对待记录的日志形式，也就是在Statement和Row之间选择一种。
 
-![img](InnoDB/assets/webp-20210817172959146)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210817172959146)
 
 下面描述几个重要的EVENT类型：
 
@@ -639,7 +639,7 @@ MySQL 从 内存更新到磁盘的过程，称为刷脏页的过程（flush）�
 
 - 内存中的**redo log 写满**了，这时系统就会**停止所有更新**操作，把checkoutpoint 往前推，redo log留出空间可以继续写。
 
-![img](InnoDB/assets/webp-20210817164427455)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210817164427455)
 
 往前推进之后，就要把两个点之间的日志对应的所有脏页都 flush 到磁盘上。
 
@@ -672,7 +672,7 @@ binlog 的写入机制比较简单：事务执行的过程中，先把日志写�
 
 事务提交的时候，执行器把 binlog cache 里完整事务写入到 binlog 中，并清空 binlog cache。
 
-![img](InnoDB/assets/webp-20210817165909518)
+![img](https://gitee.com/qmlg/image-bed/raw/master/images/webp-20210817165909518)
 
 - write 指的是把日志写入到**文件系统的 page cache**，并没有把数据持久化到磁盘，所以速度比较快。
 - fsync 是持久化到磁盘的操作，一般情况下， fsync 才会占磁盘的 IOPS。

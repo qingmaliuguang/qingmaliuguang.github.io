@@ -1,41 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    
-<meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 5.4.0">
 
 
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-
-
-  <meta name="description" content="InnoDB"/>
-
-
-
-
-  <meta name="keywords" content="Mysql," />
+<link rel="stylesheet" href="/css/main.css">
 
 
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.coder.love","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-  <link rel="alternate" href="/default" title="青马流光的博客" >
-
-
-
-
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
-
-
-
-<link rel="canonical" href="http://blog.coder.love/2021/08/16/InnoDB/"/>
-
-
-<meta name="description" content="Mysql 架构Mysql 架构图  MySQL区别于其他数据库的一个最重要的特点是插件式存储引擎。它是基于表的，而不是数据库。MySql常用存储引擎如下： MyISAM存储引擎  不支持事务。 缓冲池只缓存索引文件，不缓冲数据文件。 由MYD和MYI文件组成，MYD用来存放数据文件，MYI用来存放索引文件。  InnoDB存储引擎  独立表空间，支持MVCC，行锁设计，提供一致性非锁定读。 支持">
+    <meta name="description" content="Mysql 架构Mysql 架构图  MySQL区别于其他数据库的一个最重要的特点是插件式存储引擎。它是基于表的，而不是数据库。MySql常用存储引擎如下： MyISAM存储引擎  不支持事务。 缓冲池只缓存索引文件，不缓冲数据文件。 由MYD和MYI文件组成，MYD用来存放数据文件，MYI用来存放索引文件。  InnoDB存储引擎  独立表空间，支持MVCC，行锁设计，提供一致性非锁定读。 支持">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB">
 <meta property="og:url" content="http://blog.coder.love/2021/08/16/InnoDB/index.html">
@@ -74,96 +60,198 @@
 <meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg">
 
 
-<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
-<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+<link rel="canonical" href="http://blog.coder.love/2021/08/16/InnoDB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://blog.coder.love/2021/08/16/InnoDB/","path":"2021/08/16/InnoDB/","title":"InnoDB"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>InnoDB | 青马流光的博客</title>
+  
 
 
 
 
 
-<script type="text/javascript">
-  var themeConfig = {
-    fancybox: {
-      enable: false
-    },
-  };
-</script>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">青马流光的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Code the love to the world.</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
 
 
 
 
-  <script id="baidu_analytics">
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
-
-
-
-    <title> InnoDB - 青马流光的博客 </title>
-  <meta name="generator" content="Hexo 5.4.0"></head>
-
-  <body>
-    <div id="page">
-      <header id="masthead"><div class="site-header-inner">
-    <h1 class="site-title">
-        <a href="/." class="logo">青马流光的博客</a>
-    </h1>
-
-    <nav id="nav-top">
+</div>
         
-            <ul id="menu-top" class="nav-top-items">
-                
-                    <li class="menu-item">
-                        <a href="/archives">
-                            
-                            
-                                Archives
-                            
-                        </a>
-                    </li>
-                
-                    <li class="menu-item">
-                        <a href="/about">
-                            
-                            
-                                About
-                            
-                        </a>
-                    </li>
-                
-            </ul>
-        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Mysql-%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">Mysql 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B1%A0"><span class="nav-number">1.1.</span> <span class="nav-text">内存池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Checkpoint%E6%9C%BA%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">Checkpoint机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%81%9A%E6%97%A5%E5%BF%97"><span class="nav-number">1.3.</span> <span class="nav-text">重做日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.4.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB%E5%85%B3%E9%94%AE%E7%89%B9%E6%80%A7"><span class="nav-number">1.5.</span> <span class="nav-text">InnoDB关键特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E7%BC%93%E5%86%B2"><span class="nav-number">1.5.1.</span> <span class="nav-text">插入缓冲</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#doublewrite"><span class="nav-number">1.5.2.</span> <span class="nav-text">doublewrite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E9%80%82%E5%BA%94%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95"><span class="nav-number">1.5.3.</span> <span class="nav-text">自适应哈希索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5IO"><span class="nav-number">1.5.4.</span> <span class="nav-text">异步IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%B7%E6%96%B0%E9%82%BB%E6%8E%A5%E9%A1%B5"><span class="nav-number">1.5.5.</span> <span class="nav-text">刷新邻接页</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AD%98%E5%82%A8"><span class="nav-number">2.</span> <span class="nav-text">数据的存储</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%E8%A1%A8"><span class="nav-number">2.1.</span> <span class="nav-text">如何存储表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#frm-%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.1.</span> <span class="nav-text">.frm 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ibd-%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.2.</span> <span class="nav-text">.ibd 文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AD%98%E5%82%A8%E8%AE%B0%E5%BD%95"><span class="nav-number">2.2.</span> <span class="nav-text">如何存储记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE"><span class="nav-number">2.2.1.</span> <span class="nav-text">行溢出数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.2.</span> <span class="nav-text">数据页结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95"><span class="nav-number">2.3.</span> <span class="nav-text">索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.1.</span> <span class="nav-text">索引的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E9%9B%86%E7%B4%A2%E5%BC%95%E5%92%8C%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95"><span class="nav-number">2.3.2.</span> <span class="nav-text">聚集索引和辅助索引</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%9A%E9%9B%86%E7%B4%A2%E5%BC%95"><span class="nav-number">2.3.2.1.</span> <span class="nav-text">聚集索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95"><span class="nav-number">2.3.2.2.</span> <span class="nav-text">辅助索引</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81"><span class="nav-number">3.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">3.1.</span> <span class="nav-text">锁的种类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%92%8C%E4%BA%92%E6%96%A5%E7%9A%84%E9%94%81"><span class="nav-number">3.1.1.</span> <span class="nav-text">共享和互斥的锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%84%8F%E5%90%91%E9%94%81"><span class="nav-number">3.1.2.</span> <span class="nav-text">意向锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Record-Lock-%E8%AE%B0%E5%BD%95%E9%94%81"><span class="nav-number">3.1.3.</span> <span class="nav-text">Record Lock 记录锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Gap-Lock-%E9%97%B4%E9%9A%99%E9%94%81"><span class="nav-number">3.1.4.</span> <span class="nav-text">Gap Lock 间隙锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Next-Key-Lock-%E4%B8%B4%E9%94%AE%E9%94%81"><span class="nav-number">3.1.5.</span> <span class="nav-text">Next-Key Lock 临键锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-Intention-Locks-%E6%8F%92%E5%85%A5%E6%84%8F%E5%90%91%E9%94%81"><span class="nav-number">3.1.6.</span> <span class="nav-text">Insert Intention Locks 插入意向锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%A2%9E%E9%94%81-AUTO-INC-Locks"><span class="nav-number">3.1.7.</span> <span class="nav-text">自增锁(AUTO-INC Locks)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E7%B4%A2%E5%BC%95%E7%9A%84%E8%B0%93%E8%AF%8D%E9%94%81"><span class="nav-number">3.1.8.</span> <span class="nav-text">空间索引的谓词锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">3.2.</span> <span class="nav-text">锁的选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E9%94%81%E6%93%8D%E4%BD%9C"><span class="nav-number">3.3.</span> <span class="nav-text">加锁操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E5%85%A5"><span class="nav-number">3.3.0.1.</span> <span class="nav-text">插入</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E5%8E%9F%E7%90%86%E4%B8%8E%E5%88%86%E6%9E%90"><span class="nav-number">3.4.</span> <span class="nav-text">死锁原理与分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E4%BF%A1%E6%81%AF%E6%9F%A5%E7%9C%8B"><span class="nav-number">3.5.</span> <span class="nav-text">锁信息查看</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%A0%E7%A7%8D%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">4.</span> <span class="nav-text">几种隔离级别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Binlog"><span class="nav-number">5.</span> <span class="nav-text">Binlog</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WAL%E6%9C%BA%E5%88%B6"><span class="nav-number">6.</span> <span class="nav-text">WAL机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#InnoDB-%E5%88%B7%E8%84%8F%E9%A1%B5%E7%9A%84%E6%97%B6%E6%9C%BA"><span class="nav-number">6.0.0.1.</span> <span class="nav-text">InnoDB 刷脏页的时机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">6.0.0.2.</span> <span class="nav-text">对性能的影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#binlog-%E7%9A%84%E5%86%99%E5%85%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">6.0.0.3.</span> <span class="nav-text">binlog 的写入机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redo-log-%E7%9A%84%E5%86%99%E5%85%A5%E6%9C%BA%E5%88%B6"><span class="nav-number">6.0.0.4.</span> <span class="nav-text">redo log 的写入机制</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">青马流光</p>
+  <div class="site-description" itemprop="description">学习笔记</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
   </nav>
 </div>
 
-      </header>
-      <div id="content">
-        
-    <div id="primary">
-        
-  <article class="post">
-    <header class="post-header">
-      <h1 class="post-title">
-        
-          InnoDB
-        
-      </h1>
 
-      <time class="post-time">
-          8月 16 2021
-      </time>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
     </header>
 
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
 
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.coder.love/2021/08/16/InnoDB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="青马流光">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="青马流光的博客">
+      <meta itemprop="description" content="学习笔记">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="InnoDB | 青马流光的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          InnoDB
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-16 13:06:04" itemprop="dateCreated datePublished" datetime="2021-08-16T13:06:04+08:00">2021-08-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-03-21 13:23:20" itemprop="dateModified" datetime="2022-03-21T13:23:20+08:00">2022-03-21</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
 
     
-            <div class="post-content">
-            <h1 id="Mysql-架构"><a href="#Mysql-架构" class="headerlink" title="Mysql 架构"></a>Mysql 架构</h1><p>Mysql 架构图</p>
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="Mysql-架构"><a href="#Mysql-架构" class="headerlink" title="Mysql 架构"></a>Mysql 架构</h1><p>Mysql 架构图</p>
 <p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/v2-973b9ba05057d3f610619a1efb38bef6_720w.jpg" alt="img"></p>
 <p>MySQL区别于其他数据库的一个最重要的特点是<strong>插件式存储引擎</strong>。它是<strong>基于表</strong>的，而不是数据库。MySql常用存储引擎如下：</p>
 <p><strong>MyISAM存储引擎</strong></p>
@@ -657,87 +745,76 @@
 </ul>
 </blockquote>
 
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/14/mysql-transaction/" rel="prev" title="Mysql事务">
+                  <i class="fa fa-chevron-left"></i> Mysql事务
+                </a>
             </div>
-          
+            <div class="post-nav-item">
+                <a href="/2021/08/17/Mysql-Optimize/" rel="next" title="Mysql 优化">
+                  Mysql 优化 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
 
-    
-      <footer class="post-footer">
-		
-		<div class="post-tags">
-		  
-			<a href="/tags/Mysql/">Mysql</a>
-		  
-		</div>
-		
 
-        
-        
-  <nav class="post-nav">
-    
-      <a class="prev" href="/2021/08/17/Mysql-Optimize/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">Mysql 优化</span>
-        <span class="prev-text nav-mobile">Prev</span>
-      </a>
-    
-    
-      <a class="next" href="/2021/08/14/mysql-transaction/">
-        <span class="next-text nav-default">Mysql事务</span>
-        <span class="prev-text nav-mobile">Next</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-    
-  </nav>
 
-        
-  <div class="comments" id="comments">
-    
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">青马流光</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
 
-
-      </footer>
-    
-  </article>
-
     </div>
+  </footer>
 
-      </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
 
-      <footer id="colophon"><span class="copyright-year">
-    
-        &copy;
-    
-        2014 -
-    
-    2022
-    <span class="footer-author">青马流光.</span>
-    <span class="power-by">
-        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
-    </span>
-</span>
+  
 
-      </footer>
-
-      <div class="back-to-top" id="back-to-top">
-        <i class="iconfont icon-up"></i>
-      </div>
-    </div>
-    
-
-
-    
 
 
 
 
   
-    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
-  
 
-  
 
-    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
-<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
 
-  </body>
+
+
+</body>
 </html>

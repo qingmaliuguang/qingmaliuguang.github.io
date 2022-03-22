@@ -1,27 +1,41 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 5.4.0">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
 
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
 
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <meta name="description" content="Redis"/>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.coder.love","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="1. Redis 数据类型Redis 不是一个普通的键值存储，它实际上是一个数据结构服务器，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：  Binary-safe strings。 Lists Sets Sorted sets Hashes Bit">
+
+
+  <meta name="keywords" content="Redis," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2021/08/22/Redis/"/>
+
+
+<meta name="description" content="1. Redis 数据类型Redis 不是一个普通的键值存储，它实际上是一个数据结构服务器，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：  Binary-safe strings。 Lists Sets Sorted sets Hashes Bit">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis">
 <meta property="og:url" content="http://blog.coder.love/2021/08/22/Redis/index.html">
@@ -79,198 +93,96 @@
 <meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1289934-20190621163930814-1395015700.png">
 
 
-<link rel="canonical" href="http://blog.coder.love/2021/08/22/Redis/">
-
-
-
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://blog.coder.love/2021/08/22/Redis/","path":"2021/08/22/Redis/","title":"Redis"}</script>
-
-<script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Redis | 青马流光的博客</title>
-  
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
 
 
 
 
 
-  <noscript>
-    <link rel="stylesheet" href="/css/noscript.css">
-  </noscript>
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
-  <div class="headband"></div>
-
-  <main class="main">
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏" role="button">
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-        <span class="toggle-line"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <i class="logo-line"></i>
-      <p class="site-title">青马流光的博客</p>
-      <i class="logo-line"></i>
-    </a>
-      <p class="site-subtitle" itemprop="description">Code the love to the world.</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-    </div>
-  </div>
-</div>
-
-
-
-<nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
-  </ul>
-</nav>
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
 
 
 
 
-</div>
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> Redis - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
         
-  
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-
-  <aside class="sidebar">
-
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
-      <ul class="sidebar-nav">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <div class="sidebar-panel-container">
-        <!--noindex-->
-        <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">1. Redis 数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-0-Redis-%E9%94%AE%EF%BC%88%E9%9D%9E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.0 Redis 键（非数据类型）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E8%BF%87%E6%9C%9F%EF%BC%9A%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4%E6%9C%89%E9%99%90%E7%9A%84%E9%94%AE"><span class="nav-number">1.1.1.</span> <span class="nav-text">Redis 过期：生存时间有限的键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%88%A0%E9%99%A4%E5%92%8C%E5%88%9B%E5%BB%BAkey"><span class="nav-number">1.1.2.</span> <span class="nav-text">自动删除和创建key</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Redis-Strings"><span class="nav-number">1.2.</span> <span class="nav-text">1.1 Redis Strings</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.1.</span> <span class="nav-text">实战场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Redis-Lists"><span class="nav-number">1.3.</span> <span class="nav-text">1.2 Redis Lists</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E7%9A%84%E5%B8%B8%E8%A7%81%E7%94%A8%E4%BE%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">列表的常见用例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E9%99%90%E5%88%97%E8%A1%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">上限列表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E4%B8%8A%E7%9A%84%E9%98%BB%E5%A1%9E%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.3.</span> <span class="nav-text">列表上的阻塞操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%88%97%E8%A1%A8%E7%9A%84%E6%8A%80%E5%B7%A7"><span class="nav-number">1.3.4.</span> <span class="nav-text">使用列表的技巧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF-1"><span class="nav-number">1.3.5.</span> <span class="nav-text">实战场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-Redis-Hashes"><span class="nav-number">1.4.</span> <span class="nav-text">1.3 Redis Hashes</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF-2"><span class="nav-number">1.4.1.</span> <span class="nav-text">实战场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Redis-Sets"><span class="nav-number">1.5.</span> <span class="nav-text">1.4 Redis Sets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF-3"><span class="nav-number">1.5.1.</span> <span class="nav-text">实战场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-Redis-Sorted-sets"><span class="nav-number">1.6.</span> <span class="nav-text">1.5 Redis Sorted sets</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF-4"><span class="nav-number">1.6.1.</span> <span class="nav-text">实战场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-6-Bitmaps"><span class="nav-number">1.7.</span> <span class="nav-text">1.6 Bitmaps</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-7-HyperLogLogs"><span class="nav-number">1.8.</span> <span class="nav-text">1.7 HyperLogLogs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">2. Redis 数据类型的底层实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E7%AE%80%E5%8D%95%E5%8A%A8%E6%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 简单动态字符串</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SDS-%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.1.</span> <span class="nav-text">SDS 的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%92%8C-SDS-%E4%B9%8B%E9%97%B4%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.1.2.</span> <span class="nav-text">C 字符串和 SDS 之间的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E9%93%BE%E8%A1%A8"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E5%AD%97%E5%85%B8"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 字典</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E8%B7%B3%E8%B7%83%E8%A1%A8"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 跳跃表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-1-%E8%B7%B3%E8%B7%83%E8%A1%A8%E5%8E%9F%E7%90%86"><span class="nav-number">2.4.1.</span> <span class="nav-text">2.4.1 跳跃表原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">2.4.1.1.</span> <span class="nav-text">插入过程分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-2-Redis-%E4%B8%AD%E7%9A%84%E8%B7%B3%E8%B7%83%E8%A1%A8"><span class="nav-number">2.4.2.</span> <span class="nav-text">2.4.2 Redis 中的跳跃表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Redis%E8%B7%B3%E8%B7%83%E8%A1%A8%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.4.2.1.</span> <span class="nav-text">Redis跳跃表的实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-3-Redis%E8%B7%B3%E8%B7%83%E8%A1%A8%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">2.4.3.</span> <span class="nav-text">2.4.3 Redis跳跃表常用操作的时间复杂度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 整数集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 压缩列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-7-%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.</span> <span class="nav-text">2.7 对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-1-%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%B1%BB%E5%9E%8B%E4%B8%8E%E7%BC%96%E7%A0%81"><span class="nav-number">2.7.1.</span> <span class="nav-text">2.7.1 对象的类型与编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-2-%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A0%81%E8%BD%AC%E6%8D%A2%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.7.2.</span> <span class="nav-text">2.7.2 对象编码转换条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-2-1-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.2.1.</span> <span class="nav-text">2.7.2.1 字符串对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-2-2-%E5%88%97%E8%A1%A8%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.2.2.</span> <span class="nav-text">2.7.2.2 列表对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-2-3-%E5%93%88%E5%B8%8C%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.2.3.</span> <span class="nav-text">2.7.2.3 哈希对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-2-4-%E9%9B%86%E5%90%88%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.2.4.</span> <span class="nav-text">2.7.2.4 集合对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-7-2-5-%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.7.2.5.</span> <span class="nav-text">2.7.2.5 有序集合对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-8-%E7%B1%BB%E5%9E%8B%E6%A3%80%E6%9F%A5%E4%B8%8E%E5%91%BD%E4%BB%A4%E5%A4%9A%E6%80%81"><span class="nav-number">2.8.</span> <span class="nav-text">2.8 类型检查与命令多态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-9-%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6"><span class="nav-number">2.9.</span> <span class="nav-text">2.9 内存回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-10-%E5%AF%B9%E8%B1%A1%E5%85%B1%E4%BA%AB"><span class="nav-number">2.10.</span> <span class="nav-text">2.10 对象共享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-11-%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%A9%BA%E8%BD%AC%E6%97%B6%E9%95%BF"><span class="nav-number">2.11.</span> <span class="nav-text">2.11 对象的空转时长</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Redis-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">3. Redis 内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Redis%E7%9A%84%E5%86%85%E5%AD%98%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 Redis的内存过期策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-1-%E5%AE%9A%E6%97%B6%E7%AD%96%E7%95%A5"><span class="nav-number">3.2.</span> <span class="nav-text">3.1.1 定时策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-2-%E6%83%B0%E6%80%A7%E7%AD%96%E7%95%A5"><span class="nav-number">3.3.</span> <span class="nav-text">3.1.2 惰性策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-3-%E5%AE%9A%E6%9C%9F%E7%AD%96%E7%95%A5"><span class="nav-number">3.4.</span> <span class="nav-text">3.1.3 定期策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-4-%E7%AD%96%E7%95%A5%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.5.</span> <span class="nav-text">3.1.4 策略注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5%E5%AF%B9%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-number">3.5.1.</span> <span class="nav-text">过期策略对持久化存储的影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RDB%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">3.5.2.</span> <span class="nav-text">RDB持久化存储方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">3.5.3.</span> <span class="nav-text">AOF持久化存储方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Redis%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.6.</span> <span class="nav-text">3.2 Redis内存淘汰机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-%E5%B8%B8%E8%A7%81%E7%9A%84%E7%BC%93%E5%AD%98%E7%AE%97%E6%B3%95"><span class="nav-number">3.6.1.</span> <span class="nav-text">3.2.1 常见的缓存算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-2-%E6%B7%98%E6%B1%B0%E6%9C%BA%E5%88%B6%E5%88%86%E7%B1%BB"><span class="nav-number">3.6.2.</span> <span class="nav-text">3.2.2 淘汰机制分类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Redis-%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">4. Redis 集群模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5-%E5%A4%8D%E5%88%B6"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 主从同步&#x2F;复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F-sentinel"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 哨兵模式 sentinel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-Cluster%E9%9B%86%E7%BE%A4"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 Cluster集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-1-Redis-Cluster-%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87"><span class="nav-number">4.3.1.</span> <span class="nav-text">4.3.1 Redis Cluster 数据分片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-2-Redis-Cluster-%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.3.2.</span> <span class="nav-text">4.3.2 Redis Cluster 主从模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-3-Redis-%E9%9B%86%E7%BE%A4%E4%B8%80%E8%87%B4%E6%80%A7%E4%BF%9D%E8%AF%81"><span class="nav-number">4.3.3.</span> <span class="nav-text">4.3.3 Redis 集群一致性保证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E5%88%86%E5%8C%BA"><span class="nav-number">5.</span> <span class="nav-text">5. 分区</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-%E5%88%86%E5%8C%BA%E5%9F%BA%E7%A1%80"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 分区基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-%E5%88%86%E5%8C%BA%E7%9A%84%E4%B8%8D%E5%90%8C%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 分区的不同实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-3-%E5%88%86%E5%8C%BA%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 分区的缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-4-%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E8%BF%98%E6%98%AF%E7%BC%93%E5%AD%98%EF%BC%9F"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 数据存储还是缓存？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-5-%E9%A2%84%E5%88%86%E7%89%87"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 预分片</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-Redis-%E6%8C%81%E4%B9%85%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-number">6.</span> <span class="nav-text">6. Redis 持久化策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-Redis%E6%8C%81%E4%B9%85%E5%8C%96%E4%B9%8B-RDB-Redis-database"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 Redis持久化之 RDB(Redis database)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-Redis%E6%8C%81%E4%B9%85%E5%8C%96%E4%B9%8BAOF-Append-only-file"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 Redis持久化之AOF(Append-only file)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF%E9%87%8D%E5%86%99"><span class="nav-number">6.2.1.</span> <span class="nav-text">AOF重写</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-%E6%B7%B7%E5%90%88%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 混合持久化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-Redis-%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">7. Redis 的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#7-1-%E7%BC%93%E5%AD%98%E7%9A%84%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E3%80%81%E7%A9%BF%E9%80%8F"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 缓存的雪崩、击穿、穿透</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-2-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">7.2.</span> <span class="nav-text">7.2 布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">7.2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%80%A7"><span class="nav-number">7.2.2.</span> <span class="nav-text">特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">7.2.3.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E4%BA%8E%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="nav-number">7.2.4.</span> <span class="nav-text">应用于缓存穿透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E6%8F%92%E4%BB%B6"><span class="nav-number">7.2.5.</span> <span class="nav-text">布隆过滤器插件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-3-Redis-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">7.3.</span> <span class="nav-text">7.3 Redis 分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-1-%E5%AE%89%E5%85%A8%EF%BC%88Safety%EF%BC%89%E5%92%8C%E6%B4%BB%E5%8A%9B%EF%BC%88Liveness%EF%BC%89%E4%BF%9D%E8%AF%81"><span class="nav-number">7.3.1.</span> <span class="nav-text">7.3.1 安全（Safety）和活力（Liveness）保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-2-%E5%88%9D%E6%AD%A5%E5%AE%9E%E7%8E%B0%E6%80%9D%E8%B7%AF"><span class="nav-number">7.3.2.</span> <span class="nav-text">7.3.2 初步实现思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-3-%E9%97%AE%E9%A2%981%EF%BC%9A%E6%9C%89%E6%95%88%E6%97%B6%E9%97%B4%E8%AE%BE%E7%BD%AE%E5%A4%9A%E9%95%BF"><span class="nav-number">7.3.3.</span> <span class="nav-text">7.3.3 问题1：有效时间设置多长</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-4-%E9%97%AE%E9%A2%982%EF%BC%9A%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%80%9D%E8%B7%AF"><span class="nav-number">7.3.4.</span> <span class="nav-text">7.3.4 问题2：可重入锁的实现思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-5-%E9%97%AE%E9%A2%983%EF%BC%9A%E5%8A%A0%E9%94%81%E5%A4%B1%E8%B4%A5%E6%83%85%E5%86%B5%E5%A4%84%E7%90%86"><span class="nav-number">7.3.5.</span> <span class="nav-text">7.3.5 问题3：加锁失败情况处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-7-Redis%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81Java%E5%AE%9E%E7%8E%B0-Redisson"><span class="nav-number">7.3.6.</span> <span class="nav-text">7.3.7 Redis分布式锁Java实现-Redisson</span></a></li></ol></li></ol></li></ol></div>
-        </div>
-        <!--/noindex-->
-
-        <div class="site-overview-wrap sidebar-panel">
-          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">青马流光</p>
-  <div class="site-description" itemprop="description">学习笔记</div>
-</div>
-<div class="site-state-wrap site-overview-item animated">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-        <a href="/archives/">
-          <span class="site-state-item-count">25</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-tags">
-          <a href="/tags/">
-        <span class="site-state-item-count">12</span>
-        <span class="site-state-item-name">标签</span></a>
-      </div>
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
   </nav>
 </div>
 
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          Redis
+        
+      </h1>
 
-
-        </div>
-      </div>
-    </div>
-  </aside>
-  <div class="sidebar-dimmer"></div>
-
-
+      <time class="post-time">
+          8月 22 2021
+      </time>
     </header>
 
-    
-  <div class="back-to-top" role="button" aria-label="返回顶部">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-  <div class="reading-progress-bar"></div>
 
-<noscript>
-  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
-</noscript>
-
-
-    <div class="main-inner post posts-expand">
-
-
-  
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.coder.love/2021/08/22/Redis/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="青马流光">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="青马流光的博客">
-      <meta itemprop="description" content="学习笔记">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Redis | 青马流光的博客">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          Redis
-        </h1>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2021-08-22 09:44:22" itemprop="dateCreated datePublished" datetime="2021-08-22T09:44:22+08:00">2021-08-22</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-03-21 15:25:28" itemprop="dateModified" datetime="2022-03-21T15:25:28+08:00">2022-03-21</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
-        <h1 id="1-Redis-数据类型"><a href="#1-Redis-数据类型" class="headerlink" title="1. Redis 数据类型"></a>1. Redis 数据类型</h1><p>Redis 不是一个<em>普通的</em>键值存储，它实际上是一个<em>数据结构服务器</em>，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：</p>
+            <div class="post-content">
+            <h1 id="1-Redis-数据类型"><a href="#1-Redis-数据类型" class="headerlink" title="1. Redis 数据类型"></a>1. Redis 数据类型</h1><p>Redis 不是一个<em>普通的</em>键值存储，它实际上是一个<em>数据结构服务器</em>，支持不同类型的值。这意味着，在传统的键值存储中，您将字符串键与字符串值相关联，而在 Redis 中，值不仅限于简单的字符串，还可以包含更复杂的数据结构。以下是Redis支持的所有数据结构的列表：</p>
 <ul>
 <li>Binary-safe strings。</li>
 <li>Lists</li>
@@ -1562,76 +1474,87 @@
 </ol>
 </blockquote>
 
-    </div>
+            </div>
+          
 
     
-    
-    
-
-    <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/Redis/" rel="tag"># Redis</a>
-          </div>
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/Redis/">Redis</a>
+		  
+		</div>
+		
 
         
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2021/08/26/Spring-AOP/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">Spring-AOP</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2021/08/19/IO-Model/">
+        <span class="next-text nav-default">IO 模型</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
 
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2021/08/19/IO-Model/" rel="prev" title="IO 模型">
-                  <i class="fa fa-chevron-left"></i> IO 模型
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2021/08/26/Spring-AOP/" rel="next" title="Spring-AOP">
-                  Spring-AOP <i class="fa fa-chevron-right"></i>
-                </a>
-            </div>
-          </div>
-    </footer>
-  </article>
-</div>
-
-
-
-
-
-
-</div>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-inner">
-
-
-<div class="copyright">
-  &copy; 
-  <span itemprop="copyrightYear">2022</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">青马流光</span>
-</div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+        
+  <div class="comments" id="comments">
+    
   </div>
 
+
+      </footer>
+    
+  </article>
+
     </div>
-  </footer>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
 
   
-  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
 
   
 
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
 
-
-
-
-  
-
-
-
-
-
-</body>
+  </body>
 </html>

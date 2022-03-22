@@ -43,9 +43,11 @@
 <meta property="og:description" content="1. SpringApplication 类，可用于从Java主方法引导和启动Spring应用程序。默认情况下，类将执行以下步骤来引导你的应用程序:  创建适当的ApplicationContext实例(取决于您的类路径) 注册CommandLinePropertySource以将命令行参数公开为Spring属性 刷新应用程序上下文，加载所有单例beans 触发任何CommandLineRunne">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/AnnotationConfigServletWebServerApplicationContext.jpg">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/AbstractApplicationContext-refresh.jpg">
 <meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/DefaultListableBeanFactory.jpg">
+<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/TomcatServletWebServerFactory.jpg">
 <meta property="article:published_time" content="2022-03-21T07:06:25.000Z">
-<meta property="article:modified_time" content="2022-03-21T09:07:11.571Z">
+<meta property="article:modified_time" content="2022-03-22T15:04:24.500Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="SpringBoot">
 <meta name="twitter:card" content="summary">
@@ -294,13 +296,22 @@
 <ul>
 <li><p>BeanFactory：用于访问Spring bean容器的根接口。</p>
 </li>
-<li><p>AbstractApplicationContext</p>
+<li><p><strong>AbstractApplicationContext</strong></p>
 <blockquote>
 <ul>
-<li>ApplicationContext接口的抽象实现。不强制要求用于配置的存储类型;简单地实现公共上下文功能。使用模板方法设计模式，需要具体的子类来实现抽象方法。</li>
-<li>与普通的BeanFactory相反，ApplicationContext应该检测在其内部bean工厂中定义的特殊bean:因此，这个类自动注册了在上下文中定义为bean的BeanFactoryPostProcessors、BeanPostProcessors和ApplicationListeners。</li>
-<li>MessageSource也可以在上下文中作为bean提供，命名为“messageSource”;否则，消息解析被委托给父上下文。此外，应用事件的多播器可以作为ApplicationEventMulticaster类型的bean在上下文中提供;否则，将使用SimpleApplicationEventMulticaster类型的默认multicaster。</li>
-<li>通过扩展DefaultResourceLoader实现资源加载。因此，将非url资源路径视为类路径资源(支持包含包路径的完整类路径资源名，例如。”mypackage/myresource.dat”)，除非getResourceByPath方法在子类中被重写。</li>
+<li><p>ApplicationContext接口的抽象实现。不强制要求用于配置的存储类型;简单地实现公共上下文功能。使用模板方法设计模式，需要具体的子类来实现抽象方法。</p>
+</li>
+<li><p>与普通的BeanFactory相反，ApplicationContext应该检测在其内部bean工厂中定义的特殊bean:因此，这个类自动注册了在上下文中定义为bean的BeanFactoryPostProcessors、BeanPostProcessors和ApplicationListeners。</p>
+</li>
+<li><p>MessageSource也可以在上下文中作为bean提供，命名为“messageSource”;否则，消息解析被委托给父上下文。此外，应用事件的多播器可以作为ApplicationEventMulticaster类型的bean在上下文中提供;否则，将使用SimpleApplicationEventMulticaster类型的默认multicaster。</p>
+</li>
+<li><p>通过扩展DefaultResourceLoader实现资源加载。因此，将非url资源路径视为类路径资源(支持包含包路径的完整类路径资源名，例如。”mypackage/myresource.dat”)，除非getResourceByPath方法在子类中被重写。</p>
+</li>
+<li><p><strong>refresh()</strong></p>
+<blockquote>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/AbstractApplicationContext-refresh.jpg" alt="AbstractApplicationContext-refresh"></p>
+</blockquote>
+</li>
 </ul>
 </blockquote>
 </li>
@@ -486,7 +497,29 @@
 <li>注意:实现此接口的bean不能作为普通bean使用。FactoryBean是以bean样式定义的，但是为bean引用公开的对象(getObject())始终是它创建的对象。</li>
 </ul>
 </blockquote>
-<h1 id="WebServer"><a href="#WebServer" class="headerlink" title="WebServer"></a>WebServer</h1><p>LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter</p>
+<h1 id="WebServer"><a href="#WebServer" class="headerlink" title="WebServer"></a>WebServer</h1><h1 id="ServletWebServerFactory"><a href="#ServletWebServerFactory" class="headerlink" title="ServletWebServerFactory"></a>ServletWebServerFactory</h1><blockquote>
+<ul>
+<li><p>工厂接口，可以用来创建一个WebServer。</p>
+</li>
+<li><p>servlet web 应用中的实现 -&gt; <strong>TomcatServletWebServerFactory</strong></p>
+<blockquote>
+<p> <strong>TomcatServletWebServerFactory</strong></p>
+<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/TomcatServletWebServerFactory.jpg" alt="TomcatServletWebServerFactory"></p>
+<ul>
+<li><p>可以用来创建TomcatWebServers的AbstractServletWebServerFactory。可以使用Spring的servletcontextinitializer或Tomcat 的LifecycleListeners来初始化。<br>除非显式配置，否则该工厂将创建在端口8080上侦听HTTP请求的容器。</p>
+</li>
+<li><p>spring-boot-autoconfigure -&gt; spring.factory</p>
+<p>-&gt; EnableAutoConfiguration=ServletWebServerFactoryAutoConfiguration</p>
+<p>-&gt; @ConditionalOnWebApplication(type = Type.SERVLET) &amp; @Import({ServletWebServerFactoryConfiguration.<strong>EmbeddedTomcat</strong>.class})</p>
+<p>-&gt; @ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })决定了激活EmbeddedTomcat。</p>
+<p>通过@Bean生成TomcatServletWebServerFactory实例。</p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<p>LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter</p>
 
             </div>
           

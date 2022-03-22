@@ -101,8 +101,8 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-## theme: polarbear
-theme: next
+theme: polarbear
+## theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -113,8 +113,8 @@ deploy:
   message: 'hexo 发布'
 
 # 为主题 polarbear 而添加
-# archive_generator:
-#   per_page: 0
-#   yearly: false
-#   monthly: false
-#   daily: false
+archive_generator:
+  per_page: 0
+  yearly: false
+  monthly: false
+  daily: false

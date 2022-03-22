@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
-    "clean": "hexo clean",
-    "deploy": "hexo deploy",
-    "server": "hexo server"
-  },
+      "theme": "cat ./_config.next.yml > ./themes/next/_config.yml ",
+      "build": "npm run theme && hexo generate",
+      "clean": "hexo clean",
+      "deploy": "npm run theme && hexo deploy",
+      "server": "npm run theme && hexo server"
+   },
   "hexo": {
     "version": "5.4.0"
   },

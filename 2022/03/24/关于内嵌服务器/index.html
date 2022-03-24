@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="关于内嵌服务器"/>
+
+
+
+
+  <meta name="keywords" content="SpringBoot," />
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2022/03/24/关于内嵌服务器/"/>
+
+
+<meta name="description" content="1. 内嵌服务器是如何注入的？注入ServletWebServerFactory实例 spring-boot-autoconfigure -&gt; spring.factory   -&gt; EnableAutoConfiguration&#x3D;ServletWebServerFactoryAutoConfiguration    -&gt; ServletWebServerFactoryAutoC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于内嵌服务器">
+<meta property="og:url" content="http://blog.coder.love/2022/03/24/%E5%85%B3%E4%BA%8E%E5%86%85%E5%B5%8C%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="1. 内嵌服务器是如何注入的？注入ServletWebServerFactory实例 spring-boot-autoconfigure -&gt; spring.factory   -&gt; EnableAutoConfiguration&#x3D;ServletWebServerFactoryAutoConfiguration    -&gt; ServletWebServerFactoryAutoC">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-24T09:12:25.000Z">
+<meta property="article:modified_time" content="2022-03-24T09:12:48.513Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="SpringBoot">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title> 关于内嵌服务器 - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          关于内嵌服务器
+        
+      </h1>
+
+      <time class="post-time">
+          3月 24 2022
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="1-内嵌服务器是如何注入的？"><a href="#1-内嵌服务器是如何注入的？" class="headerlink" title="1. 内嵌服务器是如何注入的？"></a>1. 内嵌服务器是如何注入的？</h1><h2 id="注入ServletWebServerFactory实例"><a href="#注入ServletWebServerFactory实例" class="headerlink" title="注入ServletWebServerFactory实例"></a>注入ServletWebServerFactory实例</h2><ul>
+<li><p>spring-boot-autoconfigure -&gt; spring.factory</p>
+</li>
+<li><p> -&gt; EnableAutoConfiguration=ServletWebServerFactoryAutoConfiguration</p>
+</li>
+</ul>
+<ul>
+<li><p>-&gt; ServletWebServerFactoryAutoConfiguration</p>
+<blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration(proxyBeanMethods = false)</span></span><br><span class="line"><span class="meta">@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(ServletRequest.class)</span></span><br><span class="line"><span class="comment">// 应用类型推断为SERVLET</span></span><br><span class="line"><span class="meta">@ConditionalOnWebApplication(type = Type.SERVLET)</span></span><br><span class="line"><span class="comment">// 注册ServerProperties bean 用于web服务器的配置。</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(ServerProperties.class)</span></span><br><span class="line"><span class="comment">// 导入组件类：</span></span><br><span class="line"><span class="comment">// - ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar注册一个WebServerFactoryCustomizerBeanPostProcessor，通过ImportBeanDefinitionRegistrar提前注册</span></span><br><span class="line"><span class="comment">// - EmbeddedTomcat、EmbeddedJetty、EmbeddedUndertow根据条件会启用一个，用于注册一个ServletWebServerFactory实例。</span></span><br><span class="line"><span class="meta">@Import(&#123; ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,</span></span><br><span class="line"><span class="meta">		ServletWebServerFactoryConfiguration.EmbeddedTomcat.class,</span></span><br><span class="line"><span class="meta">		ServletWebServerFactoryConfiguration.EmbeddedJetty.class,</span></span><br><span class="line"><span class="meta">		ServletWebServerFactoryConfiguration.EmbeddedUndertow.class &#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ServletWebServerFactoryAutoConfiguration</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 通过@Bean注入ServletWebServerFactoryCustomizer、TomcatServletWebServerFactoryCustomizer、    FilterRegistrationBean【@ConditionalOnMissingFilterBean(ForwardedHeaderFilter.class)】</span></span><br><span class="line">  ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>ServletWebServerFactoryConfiguration -&gt; 以Tomcat为例 -&gt; ServletWebServerFactoryConfiguration.EmbeddedTomcat</p>
+<blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration(proxyBeanMethods = false)</span></span><br><span class="line">  <span class="comment">// 都是tomcat-embed中的类，即添加tomcat-embed依赖的情况下生效。</span></span><br><span class="line">	<span class="meta">@ConditionalOnClass(&#123; Servlet.class, Tomcat.class, UpgradeProtocol.class &#125;)</span></span><br><span class="line">  <span class="comment">// ServletWebServerFactory实例当前上下文中只需要一个。</span></span><br><span class="line">	<span class="meta">@ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)</span></span><br><span class="line">	<span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">EmbeddedTomcat</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="meta">@Bean</span></span><br><span class="line">		<span class="function">TomcatServletWebServerFactory <span class="title">tomcatServletWebServerFactory</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">      // ObjectProvider为一种依赖注入方式容器会自动将T类型beans包装成一个ObjectProvider，然后注入到依赖ObjectProvider&lt;T&gt;中。</span></span></span><br><span class="line"><span class="params"><span class="function">				ObjectProvider&lt;TomcatConnectorCustomizer&gt; connectorCustomizers,</span></span></span><br><span class="line"><span class="params"><span class="function">				ObjectProvider&lt;TomcatContextCustomizer&gt; contextCustomizers,</span></span></span><br><span class="line"><span class="params"><span class="function">				ObjectProvider&lt;TomcatProtocolHandlerCustomizer&lt;?&gt;&gt; protocolHandlerCustomizers)</span> </span>&#123;</span><br><span class="line">			TomcatServletWebServerFactory factory = <span class="keyword">new</span> TomcatServletWebServerFactory();</span><br><span class="line">			factory.getTomcatConnectorCustomizers()</span><br><span class="line">					.addAll(connectorCustomizers.orderedStream().collect(Collectors.toList()));</span><br><span class="line">			factory.getTomcatContextCustomizers()</span><br><span class="line">					.addAll(contextCustomizers.orderedStream().collect(Collectors.toList()));</span><br><span class="line">			factory.getTomcatProtocolHandlerCustomizers()</span><br><span class="line">					.addAll(protocolHandlerCustomizers.orderedStream().collect(Collectors.toList()));</span><br><span class="line">			<span class="keyword">return</span> factory;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>-&gt; 注册 TomcatServletWebServerFactory 实例 （即TomcatWebServer的工厂bean）</p>
+</li>
+</ul>
+<h2 id="创建WebServer实例"><a href="#创建WebServer实例" class="headerlink" title="创建WebServer实例"></a>创建WebServer实例</h2><ul>
+<li><p>AnnotationConfigServletWebServerApplicationContext.refresh()</p>
+</li>
+<li><p>-&gt; ServletWebServerApplicationContext.onRefresh()</p>
+</li>
+<li><p>-&gt; ServletWebServerApplicationContext.createWebServer()</p>
+<blockquote>
+<ul>
+<li>创建WebServer实例</li>
+<li>将获取的WebServer实例，分别构造WebServerGracefulShutdownLifecycle和WebServerStartStopLifecycle单例注册到beanFactory，用于管理其生命周期，即服务器的启动、关闭等。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>-&gt; 单例：webServerGracefulShutdown、webServerStartStop</p>
+</li>
+</ul>
+<h2 id="启动服务器webServer"><a href="#启动服务器webServer" class="headerlink" title="启动服务器webServer"></a>启动服务器webServer</h2><ul>
+<li><p>-&gt; AbstractApplicationContext.finishRefresh()</p>
+<blockquote>
+<p>完成这个上下文的刷新，调用LifecycleProcessor的onRefresh()方法并发布ContextRefreshedEvent</p>
+</blockquote>
+</li>
+<li><p>-&gt; getLifecycleProcessor().onRefresh();</p>
+<blockquote>
+<p>首先将刷新传播到生命周期处理器。</p>
+</blockquote>
+</li>
+<li><p>-&gt; DefaultLifecycleProcessor.onRefresh();</p>
+<blockquote>
+<p>上下文刷新的通知，例如自动启动组件</p>
+</blockquote>
+</li>
+<li><p>-&gt; DefaultLifecycleProcessor.startBeans()</p>
+<blockquote>
+<ul>
+<li><p>webServerGracefulShutdown：getPhase() == Integer.MAX_VALUE;</p>
+</li>
+<li><p>webServerStartStop：getPhase() == Integer.MAX_VALUE - 1;</p>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>LifecycleGroup.start() -&gt; LifecycleGroup.doStart()</p>
+</li>
+<li><p>-&gt; webServerStartStop.start()</p>
+<blockquote>
+<ul>
+<li>其后也会触发webServerGracefulShutdown.start()，但只是修改其自身标志位，用于webServer关闭，与webServer启动无关。</li>
+<li>在WebServer就绪之后还会发布一个<strong>ServletWebServerInitializedEvent</strong>事件，用于获取运行中的服务器的本地端口。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>-&gt; webServer.start() 【TomcatWebServer.start()】</p>
+</li>
+<li><blockquote>
+<p>@ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })决定了激活EmbeddedTomcat。</p>
+</blockquote>
+</li>
+</ul>
+<p> 通过@Bean生成TomcatServletWebServerFactory实例。</p>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+		<div class="post-tags">
+		  
+			<a href="/tags/SpringBoot/">SpringBoot</a>
+		  
+		</div>
+		
+
+        
+        
+  <nav class="post-nav">
+    
+    
+      <a class="next" href="/2022/03/21/SpringBoot-AOP/">
+        <span class="next-text nav-default">SpringBoot-AOP</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2022
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

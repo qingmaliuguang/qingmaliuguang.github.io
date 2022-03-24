@@ -23,5 +23,17 @@ tags: Java
                            size - index);
   ```
 
-  
+
+### Map.computeIfAbsent
+
+```java
+Map<Integer, List<Wrapper>> grouped = new TreeMap<>();
+		for (Container child : children) {
+			Wrapper wrapper = (Wrapper) child;
+			int order = wrapper.getLoadOnStartup();
+			if (order >= 0) {
+				grouped.computeIfAbsent(order, (o) -> new ArrayList<>()).add(wrapper);
+			}
+		}
+```
 

@@ -42,13 +42,19 @@
 <meta property="og:site_name" content="青马流光的博客">
 <meta property="og:description" content="1. 内嵌服务器是如何注入的？注入ServletWebServerFactory实例 spring-boot-autoconfigure -&gt; spring.factory   -&gt; EnableAutoConfiguration&#x3D;ServletWebServerFactoryAutoConfiguration    -&gt; ServletWebServerFactoryAutoC">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.coder.love/2022/03/24/%E5%85%B3%E4%BA%8E%E5%86%85%E5%B5%8C%E6%9C%8D%E5%8A%A1%E5%99%A8/images/TomcatWebServer-start.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatWebServer-start.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DispatcherServletRegistrationBean.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DispatcherServlet.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ServletWebServerApplicationContext-createWebServer.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatServletWebServerFactory.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/tomcat-embed-%E6%A6%82%E5%BF%B5%E5%85%B3%E7%B3%BB.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/tomcat-embed%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.jpg">
 <meta property="article:published_time" content="2022-03-24T09:12:25.000Z">
-<meta property="article:modified_time" content="2022-03-24T15:34:08.031Z">
+<meta property="article:modified_time" content="2022-03-31T16:06:08.331Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="SpringBoot">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://blog.coder.love/2022/03/24/%E5%85%B3%E4%BA%8E%E5%86%85%E5%B5%8C%E6%9C%8D%E5%8A%A1%E5%99%A8/images/TomcatWebServer-start.jpg">
+<meta name="twitter:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatWebServer-start.jpg">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
@@ -225,11 +231,227 @@
 </li>
 <li><p>启动流程图</p>
 <blockquote>
-<p><img src="images/TomcatWebServer-start.jpg" alt="TomcatWebServer-start"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatWebServer-start.jpg" alt="TomcatWebServer-start"></p>
+<ul>
+<li>由于servlet实例dispatcherServlet的创建交给了Spring容器，所以实际流程中通常不会执行wrapper.load()。</li>
+<li>可以看到performDeferredLoadOnStartup()实际并没有触发什么特殊的操作。</li>
+<li>TomcatWebServer.start()的实际效果就只剩了设置connectors和设置启动标志started。</li>
+</ul>
 </blockquote>
 </li>
 </ul>
-<h2 id="wrapper是什么时候构造的？"><a href="#wrapper是什么时候构造的？" class="headerlink" title="wrapper是什么时候构造的？"></a>wrapper是什么时候构造的？</h2>
+<h2 id="Wrapper是什么时候构造的，加载的哪个Servlet实例？"><a href="#Wrapper是什么时候构造的，加载的哪个Servlet实例？" class="headerlink" title="Wrapper是什么时候构造的，加载的哪个Servlet实例？"></a>Wrapper是什么时候构造的，加载的哪个Servlet实例？</h2><ul>
+<li><p>spring-boot-autoconfigure -&gt; spring.factory</p>
+</li>
+<li><p>-&gt; EnableAutoConfiguration=org.springframework.boot.autoconfigure.web.servlet.<strong>DispatcherServletAutoConfiguration</strong></p>
+</li>
+<li><p>-&gt; <strong>DispatcherServletAutoConfiguration</strong></p>
+<blockquote>
+<p>Spring DispatcherServlet的自动配置。应该适用于已经有嵌入式web服务器的独立应用程序，也适用于使用SpringBootServletInitializer的可部署应用程序。</p>
+</blockquote>
+</li>
+<li><p>-&gt; 生成DispatcherServlet 实例 dispatcherServlet 和 DispatcherServletRegistrationBean 实例 dispatcherServletRegistration。</p>
+<blockquote>
+<ul>
+<li><p><strong>DispatcherServletRegistrationBean</strong></p>
+<blockquote>
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DispatcherServletRegistrationBean.jpg" alt="DispatcherServletRegistrationBean" style="zoom: 50%;" /></blockquote>
+</li>
+<li><p><strong>DispatcherServlet</strong></p>
+<blockquote>
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DispatcherServlet.jpg" alt="DispatcherServlet" style="zoom:50%;" /></blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>-&gt; ServletWebServerApplicationContext.createWebServer()</p>
+</li>
+<li><p>-&gt; TomcatServletWebServerFactory.getWebServer(ServletContextInitializer… initializers)</p>
+</li>
+<li><p>-&gt; TomcatServletWebServerFactory.getTomcatWebServer(tomcat)</p>
+<blockquote>
+<p>构造并初始化TomcatWebServer实例。</p>
+</blockquote>
+</li>
+<li><p>-&gt; TomcatWebServer.initialize()</p>
+</li>
+<li><p>-&gt; Tomcat.start()</p>
+</li>
+<li><p>-&gt; StandardServer.start()</p>
+</li>
+<li><p>-&gt; StandardContext.startInternal()</p>
+<blockquote>
+<p>实际为TomcatEmbeddedContext实例。</p>
+</blockquote>
+</li>
+<li><p>-&gt; TomcatStarter.onStartUp()</p>
+<p>遍历initializers，依次调用其onStartup</p>
+</li>
+<li><p>-&gt; ServletWebServerApplicationContext.selfInitialize((ServletContext servletContext))</p>
+</li>
+<li><p>-&gt; RegistrationBean.onStartUp()</p>
+<blockquote>
+<ul>
+<li>实际为<strong>DispatcherServletRegistrationBean</strong>实例dispatcherServletRegistration，其通过自动配置实例化时有设置servlet，即<strong>DispatcherServlet</strong>实例dispatcherServlet。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>-&gt; ApplicationContext.addServlet(String servletName, Servlet servlet)</p>
+<blockquote>
+<ol>
+<li>通过StandardContext.createWrapper()生成Wrapper实例，没有填充servlet等属性。</li>
+<li>对Wrapper实例填充name、servlet、servletClass等属性。</li>
+</ol>
+</blockquote>
+</li>
+<li><p>参考下面的ServletWebServerApplicationContext.createWebServer()流程图</p>
+<blockquote>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ServletWebServerApplicationContext-createWebServer.jpg" alt="ServletWebServerApplicationContext-createWebServer"></p>
+</blockquote>
+</li>
+</ul>
+<h2 id="相关配置文件"><a href="#相关配置文件" class="headerlink" title="相关配置文件"></a>相关配置文件</h2><ul>
+<li><p>启用自动配置都是通过spring-boot-autoconfigure -&gt; spring.factory 的 EnableAutoConfiguration。</p>
+</li>
+<li><p>自动配置类</p>
+<ul>
+<li><p>ServerProperties</p>
+<blockquote>
+<ul>
+<li>prefix：“server”</li>
+<li>用于servlet web服务器的自动配置</li>
+</ul>
+</blockquote>
+</li>
+<li><p>WebMvcProperties</p>
+<blockquote>
+<ul>
+<li>prefix：“spring.mvc” </li>
+<li>Spring MVC的属性。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="都添加了哪些ServletContextInitializer"><a href="#都添加了哪些ServletContextInitializer" class="headerlink" title="都添加了哪些ServletContextInitializer"></a>都添加了哪些ServletContextInitializer</h2><ul>
+<li><p>ServletWebServerApplicationContext$lambda</p>
+<blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">selfInitialize</span><span class="params">(ServletContext servletContext)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">		prepareWebApplicationContext(servletContext);</span><br><span class="line">		registerApplicationScope(servletContext);</span><br><span class="line">		WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);</span><br><span class="line">		<span class="keyword">for</span> (ServletContextInitializer beans : getServletContextInitializerBeans()) &#123;</span><br><span class="line">			beans.onStartup(servletContext);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>AbstractServletWebServerFactory$lambda</p>
+<blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(servletContext) -&gt; <span class="keyword">this</span>.initParameters.forEach(servletContext::setInitParameter)</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+<li><p>AbstractServletWebServerFactory.SessionConfiguringInitializer</p>
+<blockquote>
+<p>ServletContextInitializer，应用合适部分的Session配置。</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatServletWebServerFactory.jpg" alt="TomcatServletWebServerFactory"></p>
+</blockquote>
+</li>
+</ul>
+<p>以上三者都是在AbstractServletWebServerFactory.mergeInitializers(ServletContextInitializer… initializers)方法中合并与添加的。</p>
+<p><strong>在哪里生效的？</strong>：TomcatStarter.onStartUp()</p>
+<h1 id="2-内嵌服务器是怎么提供服务的？"><a href="#2-内嵌服务器是怎么提供服务的？" class="headerlink" title="2. 内嵌服务器是怎么提供服务的？"></a>2. 内嵌服务器是怎么提供服务的？</h1><h2 id="是谁监听的请求？"><a href="#是谁监听的请求？" class="headerlink" title="是谁监听的请求？"></a>是谁监听的请求？</h2><blockquote>
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/tomcat-embed-%E6%A6%82%E5%BF%B5%E5%85%B3%E7%B3%BB.jpg" alt="tomcat-embed-概念关系" style="zoom: 33%;" />
+
+<ul>
+<li><p>概念的理解：</p>
+<ul>
+<li><p>Server是tomcat中服务器的概念，实现为StandardServer。</p>
+</li>
+<li><p>Service为提供的服务的概念，实现为StandardService。</p>
+</li>
+<li><p>Servlet为服务提供者。</p>
+</li>
+<li><p>从 Engine 到 Wrapper 为承载Servlet的四级容器，即servlet容器。</p>
+</li>
+<li><p>Connector 连接器</p>
+<blockquote>
+<ul>
+<li>在Tomcat.getConnector()中可看到服务端口port被通过Connector.setPort配置到Connector实例中。</li>
+<li>Connector.setPort将port设置为 ProtocolHandler 成员 protocolHandler 的“port”属性。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>猜测：请求监听者一定与port有关，Connector中并没有相关内容，那么可能是 protocolHandler。</p>
+<blockquote>
+<ul>
+<li><p>Connector是在Tomcat.getConnector()时创建的，在StandardServer.start过程中完成的初始化（initInternal）和启动（startInternal）。</p>
+</li>
+<li><p>Connector创建时通过ProtocolHandler.create(protocol)创建了protocolHandler，对于默认的“HTTP/1.1”，对应<strong>Http11NioProtocol</strong>实例。</p>
+</li>
+<li><p>Connector.startInternal()注释中提到“通过这个连接器开始处理请求”，其中主要处理为protocolHandler.start();</p>
+</li>
+<li><p>protocolHandler.start();  - &gt;  endpoint.start()</p>
+<blockquote>
+<p>Http11NioProtocol的默认构造中的endpoint为<strong>NioEndpoint</strong>的实例。</p>
+</blockquote>
+</li>
+<li><p><strong>NioEndpoint</strong></p>
+<blockquote>
+<p>NIO定制线程池，提供以下服务:</p>
+<ul>
+<li><p>Socket acceptor thread  套接字受体线程</p>
+<blockquote>
+<p>单个线程，线程名称以“-Acceptor”结尾。</p>
+</blockquote>
+</li>
+<li><p>Socket poller thread  套接字轮询器线程</p>
+<blockquote>
+<p>单个线程，线程名称以“-Poller”结尾。</p>
+</blockquote>
+</li>
+<li><p>Worker threads pool  工作线程池</p>
+<blockquote>
+<p>基于ThreadPoolExecutor的线程池 executor，名称含“-exec-”，形如“http-nio-8080-exec-3”。</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>结论：NioEndpoint中的 acceptor 线程负责监听请求。</p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h2 id="请求处理过程-如何传递到dispatcherServlet？"><a href="#请求处理过程-如何传递到dispatcherServlet？" class="headerlink" title="请求处理过程-如何传递到dispatcherServlet？"></a>请求处理过程-如何传递到dispatcherServlet？</h2><blockquote>
+<ul>
+<li><p>tomcat-embed请求处理流程：</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/tomcat-embed%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.jpg" alt="tomcat-embed请求处理流程"></p>
+</li>
+<li><p>简要描述：</p>
+<blockquote>
+<ul>
+<li><p>-&gt; endpoint的acceptor线程负责监听服务端口port，将接收到的请求包装成NioSocketWrapper对象向poller实例注册为PollerEvent对象，添加到poller的events队列中，唤醒poller的selector。</p>
+</li>
+<li><p>-&gt; poller的selector获取到sk，转换回NioSocketWrapper对象。</p>
+</li>
+<li><p>-&gt; 通过Http11Processor实例来处理NioSocketWrapper对象，转换为Request。</p>
+</li>
+<li><p>-&gt; 委托给Coyote处理器处理该请求。</p>
+</li>
+<li><p>-&gt; 通过connector调用service关联各级容器（自上而下）关联Valve pipeline，处理请求。</p>
+</li>
+<li><p>-&gt; 调用此请求的过滤器链</p>
+</li>
+<li><p>-&gt; 过滤器链执行完之后调用servlet（即dispatcherServlet）的service方法，真正服务于该请求以获取响应。</p>
+<blockquote>
+<p>dispatcherServlet继承的超类的service方法，doGet、doPost、doPut、do Delete等方法最终会调用dispatcherServlet的doService方法来处理请求。</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h2 id="DispatcherServlet的处理过程"><a href="#DispatcherServlet的处理过程" class="headerlink" title="DispatcherServlet的处理过程"></a>DispatcherServlet的处理过程</h2><blockquote>
+</blockquote>
+
             </div>
           
 

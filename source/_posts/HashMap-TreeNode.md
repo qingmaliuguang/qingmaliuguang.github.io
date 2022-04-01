@@ -138,7 +138,7 @@ final TreeNode<K,V> putTreeVal(HashMap<K,V> map, Node<K,V>[] tab,
 
 对标2-3-4树看红黑树的插入平衡性调整逻辑：
 
-![红黑树插入-对标2-3-4树](https://gitee.com/qmlg/image-bed/raw/master/images/%E7%BA%A2%E9%BB%91%E6%A0%91%E6%8F%92%E5%85%A5-%E5%AF%B9%E6%A0%872-3-4%E6%A0%91.jpg)
+![红黑树插入-对标2-3-4树](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/%E7%BA%A2%E9%BB%91%E6%A0%91%E6%8F%92%E5%85%A5-%E5%AF%B9%E6%A0%872-3-4%E6%A0%91.jpg)
 
 balanceInsertion方法源码：
 
@@ -478,7 +478,7 @@ removeTreeNode方法源码：
 
 对标2-3-4树看红黑树删除平衡性调整逻辑：
 
-![红黑树删除-对表2-3-4树](https://gitee.com/qmlg/image-bed/raw/master/images/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%88%A0%E9%99%A4-%E5%AF%B9%E8%A1%A82-3-4%E6%A0%91.jpg)
+![红黑树删除-对表2-3-4树](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/%E7%BA%A2%E9%BB%91%E6%A0%91%E5%88%A0%E9%99%A4-%E5%AF%B9%E8%A1%A82-3-4%E6%A0%91.jpg)
 
 balanceDeletion方法源码：
 

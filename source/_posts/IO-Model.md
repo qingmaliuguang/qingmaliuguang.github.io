@@ -41,7 +41,7 @@ tags: Java、Linux
 
 **基本 Unix I/O 模型的简单矩阵：**
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/285763-20180124095638428-586748501.png)
+![img](IO-Model/assets/285763-20180124095638428-586748501.png)
 
 > Y：此处的同步、异步、阻塞、非阻塞是怎么区分的？
 >
@@ -79,23 +79,23 @@ while(1) {
 
 这段代码会执行得磕磕绊绊，就像这样。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-asdbx_c.gif)
+![图片](IO-Model/assets/640.gif)
 
 可以看到，服务端的线程阻塞在了两个地方，一个是 accept 函数，一个是 read 函数。
 
 如果再把 read 函数的细节展开，我们会发现其阻塞在了两个阶段。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819220724509_cut.gif)
+![图片](IO-Model/assets/640-20210819220724509.gif)
 
 这就是传统的阻塞 IO。
 
 整体流程如下图：
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-asdfewe.png)
+![图片](IO-Model/assets/640.png)
 
 也可参考另一张读UDP数据报的图：
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206135021113-297824217.png" alt="img" style="zoom: 50%;" />
+<img src="IO-Model/assets/285763-20171206135021113-297824217.png" alt="img" style="zoom: 50%;" />
 
 > 所以，blocking IO的特点就是在IO执行的两个阶段都被block了。
 
@@ -119,7 +119,7 @@ void doWork() {
 
 <font color="8e8e8e">这样，当给一个客户端建立好连接后，就可以立刻等待新的客户端连接，而不用阻塞在原客户端的 read 请求上。</font>
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819221418782_c.gif)
+![图片](IO-Model/assets/640-20210819221418782.gif)
 
 <font color="8e8e8e">不过，这不叫非阻塞 IO，只不过用了多线程的手段使得主线程没有卡在 read 函数上不往下走罢了。操作系统为我们提供的 read 函数仍然是阻塞的。</font>
 
@@ -136,7 +136,7 @@ int n = read(connfd, buffer) != SUCCESS);
 
 这样，就需要用户线程循环调用 read，直到返回值不为 -1，再开始处理业务。【轮询】
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819222001434_c.gif)
+![图片](IO-Model/assets/640-20210819222001434.gif)
 
 这里我们注意到一个细节。
 
@@ -146,11 +146,11 @@ int n = read(connfd, buffer) != SUCCESS);
 
 整体流程如下图
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819222050286.png)
+![图片](IO-Model/assets/640-20210819222050286.png)
 
 也可参考另一张读UDP数据报的图：
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206143532081-1051608968.png" alt="img" style="zoom:50%;" />
+<img src="IO-Model/assets/285763-20171206143532081-1051608968.png" alt="img" style="zoom:50%;" />
 
 > 所以，nonblocking IO的特点是用户进程需要不断的主动询问kernel数据好了没有，第一阶段没有阻塞。
 
@@ -158,7 +158,7 @@ int n = read(connfd, buffer) != SUCCESS);
 
 为每个客户端创建一个线程，服务器端的线程资源很容易被耗光。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819222537196.png)
+![图片](IO-Model/assets/640-20210819222537196.png)
 
 <font color="8e8e8e">当然还有个聪明的办法，我们可以每 accept 一个客户端连接后，将这个文件描述符（connfd）放到一个数组里。</font>
 
@@ -180,7 +180,7 @@ while(1) {
 
 <font color="8e8e8e">这样，我们就成功用一个线程处理了多个客户端连接。</font>
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819222706208.gif)
+![图片](IO-Model/assets/640-20210819222706208.gif)
 
 <font color="8e8e8e">你是不是觉得这有些多路复用的意思？</font>
 
@@ -194,7 +194,7 @@ while(1) {
 
 select 是操作系统提供的系统调用函数，通过它，我们可以把一个文件描述符的数组发给操作系统， 让操作系统去遍历，确定哪个文件描述符可以读写， 然后告诉我们去处理：
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819223120652_c.gif)
+![图片](IO-Model/assets/640-20210819223120652.gif)
 
 select系统调用的函数定义如下:
 
@@ -259,7 +259,7 @@ while(1) {
 
 正如刚刚的动图中所描述的，其直观效果如下：
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819223514651_c.gif)
+![图片](IO-Model/assets/640-20210819223514651.gif)
 
 可以看出几个细节：
 
@@ -272,13 +272,13 @@ while(1) {
 
 整个 select 的流程图如下：
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640_1234123.png)
+![图片](IO-Model/assets/640_1234123.png)
 
 可以看到，这种方式，既做到了一个线程处理多个客户端连接（文件描述符），又减少了系统调用的开销（多个文件描述符只有一次 select 的系统调用 + n 次就绪状态的文件描述符的 read 系统调用）。
 
 也可参考另一张读UDP数据报的图：
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206153548753-104901162.png" alt="img" style="zoom: 50%;" />
+<img src="IO-Model/assets/285763-20171206153548753-104901162.png" alt="img" style="zoom: 50%;" />
 
 ### poll
 
@@ -340,7 +340,7 @@ int epoll_wait(
 
 使用起来，其内部原理如下：
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210819225241422_c.gif)
+![图片](IO-Model/assets/640-20210819225241422.gif)
 
 epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO 多路复用的！](http://mp.weixin.qq.com/s?__biz=MjM5Njg5NDgwNA==&mid=2247484905&idx=1&sn=a74ed5d7551c4fb80a8abe057405ea5e&chksm=a6e304d291948dc4fd7fe32498daaae715adb5f84ec761c31faf7a6310f4b595f95186647f12&scene=21#wechat_redirect)》
 
@@ -351,7 +351,7 @@ epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO
 - 如果处理的连接数不是很高的话，使用select/epoll的web server不一定比使用multi-threading + blocking IO的web server性能更好，可能延迟还更大。select/epoll的优势并不是对于单个连接能处理得更快，而是**在于能在更快的时间里处理更多的连接**。
 - Y：IO多路复用，好像是在用户程序与文件描述符之间加了一个代理，统一管理所有的连接，而且该代理是在内核态工作的，其与文件描述符之间的操作避免了系统调用。
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/fba756b4985b7d3f879cd4b4108d315e.png-wh_600x-s_2279313183.png)
+![img](IO-Model/assets/fba756b4985b7d3f879cd4b4108d315e.png-wh_600x-s_2279313183.png)
 
 ## 1.4 信号驱动I/O模型
 
@@ -359,7 +359,7 @@ epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO
 
 优势：等待数据报到达期间进程不被阻塞。主循环可以继续执行，只要等待来自信号处理函数的通知：既可以是数据已准备好被处理，也可以是数据报已准备好被读取。
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206154310988-1910394971.png" alt="img" style="zoom:50%;" />
+<img src="IO-Model/assets/285763-20171206154310988-1910394971.png" alt="img" style="zoom:50%;" />
 
 ## 1.5 异步I/O模型（asynchronous IO）
 
@@ -367,7 +367,7 @@ epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO
 
 **与信号驱动模型的主要区别在于：**信号驱动式I/O是由内核通知我们何时可以启动一个I/O操作，而异步模型是由内核通知我们I/O操作何时完成。
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206154720019-1532624356.png" alt="img" style="zoom:50%;" />
+<img src="IO-Model/assets/285763-20171206154720019-1532624356.png" alt="img" style="zoom:50%;" />
 
 调用aio_read（Posix异步I/O函数以aio\_或lio\_开头）函数，给内核传递描述字、缓冲区指针、缓冲区大小（与read相同的3个参数）、文件偏移以及通知的方式，然后系统立即返回。我们的进程不阻塞于等待I/0操作的完成。当内核将数据拷贝到缓冲区后，再通知应用程序。 
 
@@ -375,7 +375,7 @@ epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO
 
 ## 1.6 各个IO 模型的比较
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/285763-20171206155108581-1389952373.png" alt="img" style="zoom: 50%;" />
+<img src="IO-Model/assets/285763-20171206155108581-1389952373.png" alt="img" style="zoom: 50%;" />
 
 # 2. Java中的IO
 
@@ -383,7 +383,7 @@ epoll 的底层原理，详见《[图解 | 深入揭秘 epoll 是如何实现 IO
 
 ### InputStream
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/InputStream_uml.jpeg)
+![img](IO-Model/assets/InputStream_uml.jpeg)
 
 InputStream的作用表示那些从不同数据源产生输入的类，即其派生类多是不同数据源对应的流对象。如下：
 
@@ -403,7 +403,7 @@ InputStream的作用表示那些从不同数据源产生输入的类，即其派
 
 ### OutputStream
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/OutputStream_uml.jpeg)
+![img](IO-Model/assets/OutputStream_uml.jpeg)
 
 与InputStream相对应，OutputStream的作用表示将数据写入不同的数据源，常用的输出流对象如下：
 
@@ -427,7 +427,7 @@ InputStream的作用表示那些从不同数据源产生输入的类，即其派
 
 ### 1. Reader类型
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20210819164547736.png" alt="image-20210819164547736" style="zoom: 50%;" />
+<img src="IO-Model/assets/image-20210819164547736.png" alt="image-20210819164547736" style="zoom: 50%;" />
 
 继承自Reader类的，字符型数据来源常用类，如下：
 
@@ -446,7 +446,7 @@ InputStream的作用表示那些从不同数据源产生输入的类，即其派
 
 ### 2. Writer类型
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20210819165334081.png" alt="image-20210819165334081" style="zoom:50%;" />
+<img src="IO-Model/assets/image-20210819165334081.png" alt="image-20210819165334081" style="zoom:50%;" />
 
 继承自Writer类的，字符型数据来源常用类，如下：
 
@@ -464,7 +464,7 @@ InputStream的作用表示那些从不同数据源产生输入的类，即其派
 
 ## 2.3 RandomAccessFile
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20210819165649577.png" alt="image-20210819165649577" style="zoom: 50%;" />
+<img src="IO-Model/assets/image-20210819165649577.png" alt="image-20210819165649577" style="zoom: 50%;" />
 
 此类的实例支持**读取和写入随机访问文件**。 随机访问文件的行为类似于存储在文件系统中的一个很大的字节数组。 有一种游标，或隐含数组的索引，称为**文件指针**； 输入操作从文件指针开始读取字节，并将文件指针前进到读取的字节之后。 如果随机存取文件是以 read/write 模式创建的，那么也可以进行输出操作； 输出操作从文件指针开始写入字节，并将文件指针前进到写入的字节之后。 写入超过隐含数组当前末尾的输出操作会导致数组被扩展。 文件指针可以通过*getFilePointer*方法读取并通过*seek*方法设置。
 此类中的所有读取例程通常都是如此，如果在读取所需的字节数之前到达文件尾，则会抛出EOFException （这是IOException的一种）。 如果由于文件结束以外的任何原因无法读取任何字节，则抛出EOFException以外的IOException 。 特别是，如果流已关闭，则可能会抛出IOException 。
@@ -485,11 +485,11 @@ InputStream的作用表示那些从不同数据源产生输入的类，即其派
 
 **NIO的核心包括**：通道（Channel）、缓冲器（ByteBuffer）和选择器（Selector）。其中通道与缓冲器交互方式如下图，缓冲器可以从通道读数据和写数据，通道与具体数据来源对应。
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/1012728-20190126172139372-176112967.png)
+![img](IO-Model/assets/1012728-20190126172139372-176112967.png)
 
 ## 3.1 通道
 
-![Channel](https://gitee.com/qmlg/image-bed/raw/master/images/Channel.jpg)
+![Channel](IO-Model/assets/Channel.jpg)
 
 通道表示与实体的开放连接，可以通过通道进行读写。常用的通道有：
 
@@ -708,7 +708,7 @@ public static void socketChannelTry() {
 
 缓冲器除了基本的ByteBuffer外，还有CharBuffer、IntBuffer、ShortBuffer、LongBuffer、FloatBuffer、DoubleBuffer等基本类型缓冲器。
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/1012728-20190126172205753-982325998.png)
+![img](IO-Model/assets/1012728-20190126172205753-982325998.png)
 
 - 仅ByteBuffer可直接与Channel交互，完成读写。
 
@@ -721,9 +721,9 @@ public static void socketChannelTry() {
 
 ## 3.3 选择器 -> 多路复用
 
-![image-20210820143350800](https://gitee.com/qmlg/image-bed/raw/master/images/image-20210820143350800.png)
+![image-20210820143350800](IO-Model/assets/image-20210820143350800.png)
 
-![image-20210820170510206](https://gitee.com/qmlg/image-bed/raw/master/images/image-20210820170510206.png)
+![image-20210820170510206](IO-Model/assets/image-20210820170510206.png)
 
 选择器（Selector)
 
@@ -871,7 +871,7 @@ sun.nio.ch下有两个SelectorProvider实现类
 - CompletionHandler：用户处理器。定义了一个用户处理就绪事件的接口，由用户自己实现，异步io的数据就绪后回调该处理器消费或处理数据。
 - AsynchronousChannelGroup：一个用于资源共享的异步通道集合。处理IO事件和分配给CompletionHandler。
 
-![image-20210821100932944](https://gitee.com/qmlg/image-bed/raw/master/images/image-20210821100932944.png)
+![image-20210821100932944](IO-Model/assets/image-20210821100932944.png)
 
 另外，主要在java.nio.channels包下增加了下面四个异步通道：
 
@@ -903,7 +903,7 @@ Netty并没有使用AIO，只使用了NIO。
 
 下面看一个java进程发起read请求加载数据大致的流程图：
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/16a057a50ad06f61~tplv-t2oaga2asx-watermark.image)
+![img](IO-Model/assets/16a057a50ad06f61~tplv-t2oaga2asx-watermark.image)
 
  进程发起read请求之后，内核接收到read请求之后，会先检查内核空间中是否已经存在进程所需要的数据，如果已经存在，则直接把数据copy给进程的缓冲区；如果没有内核随即向磁盘控制器发出命令，要求从磁盘读取数据，磁盘控制器把数据直接写入内核read缓冲区，这一步通过DMA完成；接下来就是内核将数据copy到进程的缓冲区；
       如果进程发起write请求，同样需要把用户缓冲区里面的数据copy到内核的socket缓冲区里面，然后再通过DMA把数据copy到网卡中，发送出去。
@@ -913,15 +913,15 @@ Netty并没有使用AIO，只使用了NIO。
       2.虚拟内存空间可大于实际可用的物理地址；
 利用第一条特性可以把内核空间地址和用户空间的虚拟地址映射到同一个物理地址，这样DMA就可以填充对内核和用户空间进程同时可见的缓冲区了，大致如下图所示：
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/16a057ac4ffea504~tplv-t2oaga2asx-watermark.awebp)
+![img](IO-Model/assets/16a057ac4ffea504~tplv-t2oaga2asx-watermark.awebp)
 
 ## 5.2 先读然后直接写情况下四种IO方式对比
 
 ### 5.2.1 缓存IO（Buffered I/O）
 
-![缓存IO](https://gitee.com/qmlg/image-bed/raw/master/images/BufferIO1.png)
+![缓存IO](IO-Model/assets/BufferIO1.png)
 
-![CacheIO](https://gitee.com/qmlg/image-bed/raw/master/images/BufferIO2.png)
+![CacheIO](IO-Model/assets/BufferIO2.png)
 
 **过程描述：**
 
@@ -934,7 +934,7 @@ Netty并没有使用AIO，只使用了NIO。
 
 ### 5.2.2 直接IO（Direct I/O）
 
-![DirectIO](https://gitee.com/qmlg/image-bed/raw/master/images/DirectIO.png)
+![DirectIO](IO-Model/assets/DirectIO.png)
 
 直接IO会把磁盘上的数据直接复制到用户地址空间，而不经过内核地址空间。直接IO适合自缓存应用(self-caching applications)。某些应用程序有自己的数据缓存机制，不需要使用操作系统内核缓存，这种应用程序称为自缓存应用。
 
@@ -948,9 +948,9 @@ Netty并没有使用AIO，只使用了NIO。
 
 ### 5.2.3 零拷贝：mmap + write
 
-![mmp_write1](https://gitee.com/qmlg/image-bed/raw/master/images/mmp_write1.png)
+![mmp_write1](IO-Model/assets/mmp_write1.png)
 
-![mmp_write2](https://gitee.com/qmlg/image-bed/raw/master/images/mmp_write2.png)
+![mmp_write2](IO-Model/assets/mmp_write2.png)
 
 **过程描述：**
 
@@ -983,9 +983,9 @@ CPU copy次数取决于硬件是否支持gather operation。
 
 **如果硬件不支持gather operation：**
 
-![zero_copy1](https://gitee.com/qmlg/image-bed/raw/master/images/zero_copy1.png)
+![zero_copy1](IO-Model/assets/zero_copy1.png)
 
-![zero_copy2](https://gitee.com/qmlg/image-bed/raw/master/images/zero_copy2.png)
+![zero_copy2](IO-Model/assets/zero_copy2.png)
 
 **过程描述：**
 
@@ -996,7 +996,7 @@ CPU copy次数取决于硬件是否支持gather operation。
 
 **如果硬件支持gather operation,且Linux2.4以上：**
 
-![zero_copy3](https://gitee.com/qmlg/image-bed/raw/master/images/zero_copy3.png)
+![zero_copy3](IO-Model/assets/zero_copy3.png)
 
 数据不会从kernel buffer复制到sokcet buffer，仅会把包含kernel buffer地址和长度的信息的描述符append到socket buffer，DMA engine会把数据从kernel buffer直接传到protocol engine。
 
@@ -1010,7 +1010,7 @@ CPU copy次数取决于硬件是否支持gather operation。
 
 ## 5.3 Java 零拷贝
 
-![image-20210821114002614](https://gitee.com/qmlg/image-bed/raw/master/images/image-20210821114002614.png)
+![image-20210821114002614](IO-Model/assets/image-20210821114002614.png)
 
 ### 5.3.1 MappedByteBuffer
 
@@ -1117,7 +1117,7 @@ public abstract long transferTo(long position, long count,
 
 netty提供了零拷贝的buffer，在传输数据时，最终处理的数据会需要对单个传输的报文，进行组合和拆分，Nio原生的ByteBuffer无法做到，netty通过提供的Composite(组合)和Slice(拆分)两种buffer来实现零拷贝；看下面一张图会比较清晰：
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/16a0577f6f3da1c2~tplv-t2oaga2asx-watermark.awebp)
+![img](IO-Model/assets/16a0577f6f3da1c2~tplv-t2oaga2asx-watermark.awebp)
 
 TCP层HTTP报文被分成了两个ChannelBuffer，这两个Buffer对我们上层的逻辑(HTTP处理)是没有意义的。 但是两个ChannelBuffer被组合起来，就成为了一个有意义的HTTP报文，这个报文对应的ChannelBuffer，才是能称之为”Message”的东西，这里用到了一个词”Virtual Buffer”。
  可以看一下netty提供的CompositeChannelBuffer源码：
@@ -1155,7 +1155,7 @@ components用来保存的就是所有接收到的buffer，indices记录每个buf
 
 无论是Reactor模型还是Proactor模型，对于支持多连接的服务器，一般可以总结为2种fd和3种事件，如下图：
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/vxzkb57um9.jpeg" alt="vxzkb57um9" style="zoom: 50%;" />
+<img src="IO-Model/assets/vxzkb57um9.jpeg" alt="vxzkb57um9" style="zoom: 50%;" />
 
 **2种fd**
 
@@ -1196,7 +1196,7 @@ components用来保存的就是所有接收到的buffer，indices记录每个buf
 
 Reactor线程负责多路分离套接字，accept新连接，并分派请求到handler。**Redis**使用单Reactor单线程的模型。
 
-![kan4iva03p](https://gitee.com/qmlg/image-bed/raw/master/images/kan4iva03p.jpeg)
+![kan4iva03p](IO-Model/assets/kan4iva03p.jpeg)
 
 **消息处理流程：**
 
@@ -1219,7 +1219,7 @@ Reactor线程负责多路分离套接字，accept新连接，并分派请求到h
 
 **该模型在事件处理器（Handler）部分采用了多线程（线程池）。**
 
-![ev2wc5eqhl](https://gitee.com/qmlg/image-bed/raw/master/images/ev2wc5eqhl.jpeg)
+![ev2wc5eqhl](IO-Model/assets/ev2wc5eqhl.jpeg)
 
 **消息处理流程：**
 
@@ -1254,7 +1254,7 @@ Reactor线程负责多路分离套接字，accept新连接，并分派请求到h
 
 **Nginx**、Swoole、Memcached和**Netty**都是采用这种实现。
 
-![5vwph8mkvk](https://gitee.com/qmlg/image-bed/raw/master/images/5vwph8mkvk.jpeg)
+![5vwph8mkvk](IO-Model/assets/5vwph8mkvk.jpeg)
 
 **消息处理流程：**
 
@@ -1283,9 +1283,9 @@ Reactor模型具有如下的优点：
 
 UML类图：
 
-![Proactor](https://gitee.com/qmlg/image-bed/raw/master/images/241052458282851.jpg)
+![Proactor](IO-Model/assets/241052458282851.jpg)
 
-![mz4ztz4g66](https://gitee.com/qmlg/image-bed/raw/master/images/mz4ztz4g66.png)
+![mz4ztz4g66](IO-Model/assets/mz4ztz4g66.png)
 
 **模块关系：**
 
@@ -1320,7 +1320,7 @@ Proactor有如下缺点：
 
 ### 6.3.1 Reactor 反应器
 
-![Reactor](https://gitee.com/qmlg/image-bed/raw/master/images/241052434069024.jpg)
+![Reactor](IO-Model/assets/241052434069024.jpg)
 
 **Reactor包含如下角色：**
 
@@ -1335,7 +1335,7 @@ Proactor有如下缺点：
 
 **业务流程及时序图**
 
-![seq_Reactor](https://gitee.com/qmlg/image-bed/raw/master/images/241052444538838.jpg)
+![seq_Reactor](IO-Model/assets/241052444538838.jpg)
 
 1. 应用启动，将关注的事件handle注册到Reactor中；
 2. 调用Reactor，进入无限事件循环，等待注册的事件到来；
@@ -1343,7 +1343,7 @@ Proactor有如下缺点：
 
 ### 6.3.2 Proactor 主动器
 
-![Proactor](https://gitee.com/qmlg/image-bed/raw/master/images/241052458282851-20210821003116798.jpg)
+![Proactor](IO-Model/assets/241052458282851-20210821003116798.jpg)
 
 **Proactor主动器模式包含如下角色：**
 
@@ -1357,7 +1357,7 @@ Proactor有如下缺点：
 
 **业务流程及时序图**
 
-![seq_Proactor](https://gitee.com/qmlg/image-bed/raw/master/images/241052468598435.jpg)
+![seq_Proactor](IO-Model/assets/241052468598435.jpg)
 
 1. 应用程序启动，调用异步操作处理器提供的异步操作接口函数，调用之后应用程序和异步操作处理就独立运行；应用程序可以调用新的异步操作，而其它操作可以并发进行；
 2. 应用程序启动Proactor主动器，进行无限的事件循环，等待完成事件到来；
@@ -1434,7 +1434,7 @@ Nginx采用的是**多进程（单线程）& 多路IO复用模型**。
 
 master进程和worker进程
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/o_20170303170640322.png)
+![img](IO-Model/assets/o_20170303170640322.png)
 
 > 1、master  首先nginx 创建一个master 进程，通过socket() 创建一个sock文件描述符用来监听（sockfd） 绑定端口(bind) 开启监听（listen）。 nginx 一般监听80（http） 或 443 （https）端口 （fork 多个子进程后，master 会监听worker进程，和等待信号） 
 >
@@ -1465,7 +1465,7 @@ Redis基于**单Reactor单线程模式**开发了网络事件处理器，这个�
 
 **因为文件事件分派器队列的消费是单线程的，所以Redis才叫单线程模型。**
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210821005214541.jpg)
+![图片](IO-Model/assets/640-20210821005214541.jpg)
 
 **消息处理流程**
 
@@ -1480,7 +1480,7 @@ Redis的I/O多路复用程序的所有功能是通过包装select、epoll、evpo
 
 因为Redis为每个I/O多路复用函数库都实现了相同的API，所以I/O多路复用程序的底层实现是可以互换的，如下图所示。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210821005716490)
+![图片](IO-Model/assets/640-20210821005716490)
 
 **文件事件的类型**
 
@@ -1503,7 +1503,7 @@ networking.c中acceptTcpHandler函数是Redis的连接应答处理器，这个�
 
 当Redis服务器进行初始化的时候，程序会将这个连接应答处理器和服务器监听套接字的AE_READABLE事件关联起来，当有客户端用sys/socket.h/connect函数连接服务器监听套接字的时候， 套接字就会产生AE_READABLE 事件， 引发连接应答处理器执行， 并执行相应的套接字应答操作，如图所示。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210821010158979)
+![图片](IO-Model/assets/640-20210821010158979)
 
 **命令请求处理器**
 
@@ -1511,7 +1511,7 @@ networking.c中readQueryFromClient函数是Redis的命令请求处理器，这�
 
 当一个客户端通过连接应答处理器成功连接到服务器之后， 服务器会将客户端套接字的AE_READABLE事件和命令请求处理器关联起来，当客户端向服务器发送命令请求的时候，套接字就会产生 AE_READABLE事件，引发命令请求处理器执行，并执行相应的套接字读入操作，如图所示。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210821010244423)
+![图片](IO-Model/assets/640-20210821010244423)
 
 在客户端连接服务器的整个过程中，服务器都会一直为客户端套接字的AE_READABLE事件关联命令请求处理器。
 
@@ -1521,7 +1521,7 @@ networking.c中sendReplyToClient函数是Redis的命令回复处理器，这个�
 
 当服务器有命令回复需要传送给客户端的时候，服务器会将客户端套接字的AE_WRITABLE事件和命令回复处理器关联起来，当客户端准备好接收服务器传回的命令回复时，就会产生AE_WRITABLE事件，引发命令回复处理器执行，并执行相应的套接字写入操作， 如图所示。
 
-![图片](https://gitee.com/qmlg/image-bed/raw/master/images/640-20210821010353301)
+![图片](IO-Model/assets/640-20210821010353301)
 
 当命令回复发送完毕之后， 服务器就会解除命令回复处理器与客户端套接字的 AE_WRITABLE 事件之间的关联。
 

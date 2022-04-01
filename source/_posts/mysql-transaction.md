@@ -57,7 +57,7 @@ tags: Mysql
 
   事务A 按照一定条件进行数据读取， 期间事务B 插入了相同搜索条件的新数据，事务A再次按照原先条件进行读取时，发现了事务B 新插入的数据 称为幻读。
 
-![事务并行带来的问题](https://gitee.com/qmlg/image-bed/raw/master/images/%E4%BA%8B%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98.jpg)
+![事务并行带来的问题](mysql-transaction/assets/%E4%BA%8B%E5%8A%A1%E5%B9%B6%E8%A1%8C%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98.jpg)
 
 未提交数据的数据引起的问题，为“脏”。
 
@@ -136,9 +136,9 @@ tags: Mysql
 - 增长阶段：事务可以获得锁但是不能释放锁；
 - 缩减阶段：事务只可以释放锁，并不能获得新的锁。
 
-![preview](https://gitee.com/qmlg/image-bed/raw/master/images/v2-3d15b3ae70603f60e5507569ace8a819_r.jpg)
+![preview](mysql-transaction/assets/v2-3d15b3ae70603f60e5507569ace8a819_r.jpg)
 
-![preview](https://gitee.com/qmlg/image-bed/raw/master/images/v2-4aef706dd8bc745ef269d6c741ce6b3a_r.jpg)
+![preview](mysql-transaction/assets/v2-4aef706dd8bc745ef269d6c741ce6b3a_r.jpg)
 
 2PL存在级联回滚的可能，于是有了它的两个变种：
 
@@ -159,13 +159,13 @@ tags: Mysql
 
       非抢占。
 
-      ![img](https://gitee.com/qmlg/image-bed/raw/master/images/wait-die.png)
+      ![img](mysql-transaction/assets/wait-die.png)
 
     - wound-wait机制
 
       当前事务如果先于另一事务执行并请求了另一事务的资源，那么另一事务会立刻回滚，将资源让给先执行的事务，否则就会等待其他事务释放资源。抢占。
 
-      ![img](https://gitee.com/qmlg/image-bed/raw/master/images/wound-wait.png)
+      ![img](mysql-transaction/assets/wound-wait.png)
 
 - 死锁的检测与恢复
 
@@ -194,7 +194,7 @@ Basic T/O需要对每条记录额外存储以下几个信息：
 1. **Read Timestamp**: 表示读过该数据中最大的事务Timestamp
 2. **Write Timestamp**: 最近更新该数据的事务Timestamp
 
-![timestamp-ordering-protocol-process](https://gitee.com/qmlg/image-bed/raw/master/images/timestamp-ordering.png)
+![timestamp-ordering-protocol-process](mysql-transaction/assets/timestamp-ordering.png)
 
 ​	无论是读操作还是写操作都会从左到右依次比较读写时间戳的值，如果小于当前值就会直接被拒绝然后回滚，数据库系统会给回滚的事务添加一个新的时间戳并重新执行这个事务。
 
@@ -212,7 +212,7 @@ Y: 总结就是后来的事务B已经执行操作（对A当前操作有影响的
 
 - TO协议确保可串行化，因为优先级图如下：
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/101018_18427.png)
+![img](mysql-transaction/assets/101018_18427.png)
 
 - TS协议确保免于死锁，这意味着没有事务等待。
 
@@ -276,7 +276,7 @@ MVCC 并不是一个与乐观和悲观并发控制对立的东西，它能够与
    6byte，隐含的自增ID（隐藏主键），如果数据表没有主键，InnoDB会自动以DB_ROW_ID产生一个聚簇索引。
 - DELETE_BIT: 删除标志位, 即记录被更新或删除并不代表真的删除，而是删除标志位变了。
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/person.png)
+![img](mysql-transaction/assets/person.png)
 
 如上图，DB_ROW_ID是数据库默认为该行记录生成的唯一隐式主键，DB_TRX_ID是当前操作该记录的事务ID,而DB_ROLL_PTR是一个回滚指针，用于配合undo日志，指向上一个旧版本。
 

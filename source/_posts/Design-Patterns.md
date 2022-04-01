@@ -6,7 +6,7 @@ tags: 设计模式
 
 # 1. 设计模式六大原则
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/design_pattern_principle.png)
+![img](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/design_principle.png)
 
 1.1 单一职责原则
 
@@ -125,121 +125,121 @@ High level modules should not depends upon low level modules.Both should depend 
 
 ### 2.2.1 创建型（5种）
 
-- Factory Method（工厂方法）
+1. Factory Method（工厂方法）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Factory%20Method%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Factory Method 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Factory%20Method%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Factory Method 模式结构图" style="zoom: 50%;" />
 
-- Abstract Factory（抽象工厂）
+2. Abstract Factory（抽象工厂）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Abstract%20Factory%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Abstract Factory模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Abstract%20Factory%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Abstract Factory模式结构图" style="zoom:50%;" />
 
-- Builder（生成器）
+3. Builder（生成器）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Builder%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Builder 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Builder%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Builder 模式结构图" style="zoom:50%;" />
 
-- Prototype（原型）
+4. Prototype（原型）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Prototype%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Prototype 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Prototype%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Prototype 模式结构图" style="zoom: 50%;" />
 
--  Singleton（单例）
+5. Singleton（单例）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Singleton%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Singleton 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Singleton%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Singleton 模式结构图" style="zoom: 50%;" />
 
 ### 2.2.2 结构型（7种）
 
-- Adapter Class/Object（适配器）
+1. Adapter Class/Object（适配器）
 
   > 类适配器使用多重继承对一个接口与另一个接口进行匹配：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Adaptor%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Adaptor 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Adaptor%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Adaptor 模式结构图" style="zoom:50%;" />
   >
   > 对象匹配器依赖于对象组合：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Adaptor%20%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Adaptor 对象适配器模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Adaptor%20%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Adaptor 对象适配器模式结构图" style="zoom:50%;" />
 
-- Bridge（桥接）
+2. Bridge（桥接）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Bridge%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Bridge 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Bridge%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Bridge 模式结构图" style="zoom:50%;" />
 
-- Composite（组合）
+3. Composite（组合）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Composite%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Composite 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Composite%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Composite 模式结构图" style="zoom:50%;" />
   >
   > 典型的Composite对象结构图如下：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E5%85%B8%E5%9E%8B%20Composite%20%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="典型 Composite 对象结构图" style="zoom: 33%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/%E5%85%B8%E5%9E%8B%20Composite%20%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="典型 Composite 对象结构图" style="zoom: 33%;" />
 
-- Decorator（装饰）
+4. Decorator（装饰）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Decorator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Decorator 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Decorator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Decorator 模式结构图" style="zoom:50%;" />
 
-- Facade（外观）
+5. Facade（外观）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Facade%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Facade 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Facade%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Facade 模式结构图" style="zoom: 50%;" />
 
-- Flyweight（享元）
+6. Flyweight（享元）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Flyweight%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Flyweight 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Flyweight%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Flyweight 模式结构图" style="zoom:50%;" />
   >
   > 下面的对象图说明了如何共享flyweight：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E5%85%B1%E4%BA%ABflyweight%20%E5%AF%B9%E8%B1%A1%E5%9B%BE.png" alt="共享flyweight 对象图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/%E5%85%B1%E4%BA%ABflyweight%20%E5%AF%B9%E8%B1%A1%E5%9B%BE.png" alt="共享flyweight 对象图" style="zoom:50%;" />
 
-- Proxy（代理）
+7. Proxy（代理）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Proxy%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Proxy模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Proxy%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Proxy模式结构图" style="zoom:50%;" />
   >
   > Y：这种应该是基于接口的代理；还可以基于继承实现。
 
 ### 2.2.3 行为型（11种）
 
-- Interpreter（解释器）
+1. Interpreter（解释器）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Interpreter%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Interpreter 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Interpreter%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Interpreter 模式结构图" style="zoom: 50%;" />
 
-- Template Method（模板方法）
+2. Template Method（模板方法）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Template%20Method%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Template Method 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Template%20Method%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Template Method 模式结构图" style="zoom: 50%;" />
 
-- Chain of Responsibility（责任链）
+3. Chain of Responsibility（责任链）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Chain%20of%20Responsibility%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Chain of Responsibility 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Chain%20of%20Responsibility%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Chain of Responsibility 模式结构图" style="zoom:50%;" />
 
-- Command（命令）
+4. Command（命令）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Command%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Command 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Command%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Command 模式结构图" style="zoom:50%;" />
 
-- Iterator（迭代器）
+5. Iterator（迭代器）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Iterator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Iterator 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Iterator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Iterator 模式结构图" style="zoom:50%;" />
 
-- Mediator（中介者）
+6. Mediator（中介者）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Mediator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Mediator 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Mediator%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Mediator 模式结构图" style="zoom:50%;" />
   >
   > 典型对象结构：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Mediator%20%E5%85%B8%E5%9E%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png" alt="Mediator 典型对象结构" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Mediator%20%E5%85%B8%E5%9E%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png" alt="Mediator 典型对象结构" style="zoom: 50%;" />
 
-- Memento（备忘录）
+7. Memento（备忘录）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Memento%20%E7%BB%93%E6%9E%84%E6%A8%A1%E5%BC%8F%E5%9B%BE.png" alt="Memento 结构模式图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Memento%20%E7%BB%93%E6%9E%84%E6%A8%A1%E5%BC%8F%E5%9B%BE.png" alt="Memento 结构模式图" style="zoom:50%;" />
 
-- Observer（观察者）
+8. Observer（观察者）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Observer%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Observer 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Observer%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Observer 模式结构图" style="zoom:50%;" />
 
-- State（状态）
+9. State（状态）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/State%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="State 模式结构图" style="zoom: 50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/State%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="State 模式结构图" style="zoom: 50%;" />
 
-- Strategy（策略）
+10. Strategy（策略）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Strategy%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Strategy 模式结构图" style="zoom:50%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Strategy%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Strategy 模式结构图" style="zoom:50%;" />
 
-- Visitor（访问者）
+11. Visitor（访问者）
 
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/Visitor%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Visitor 模式结构图"/>
+   > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Visitor%20%E6%A8%A1%E5%BC%8F%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="Visitor 模式结构图"/>
 
 
 
@@ -401,14 +401,28 @@ High level modules should not depends upon low level modules.Both should depend 
 
 ## 3.2 结构型
 
+### 3.2.5 Facade
+
+- tomcat-embed-core：ApplicationContextFacade
+
+  > ApplicationContextFacade对象即为一个Facade对象，它从web应用程序中屏蔽了tomcat-embed-core内部的ApplicationContext对象。
+  >
+  > ```java
+  > private final ApplicationContext context;
+  > ```
+  >
+  >  
+
 ### 3.2.6 Flyweight
 
-**JDK：Integer.IntegerCache**
+- **JDK：Integer.IntegerCache**
 
-- ```java
-  // 存储了 -128 and 127 范围的Integer包装类实例。在类加载时初始化。
-  static final Integer cache[];
-  ```
+  > ```java
+  > // 存储了 -128 and 127 范围的Integer包装类实例。在类加载时初始化。
+  > static final Integer cache[];
+  > ```
+
+
 
 
 

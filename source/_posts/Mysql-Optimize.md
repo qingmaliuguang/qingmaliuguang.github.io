@@ -14,13 +14,13 @@ tags: Mysql
 - 宽索引：包含查询中所需要的全部数据列。
 
 
-![Thin-Index-and-Fat-Index](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Thin-Index-and-Fat-Index.jpg)
+![Thin-Index-and-Fat-Index](/Users/luoxue/Desktop/images/mysql-Thin-Index-and-Fat-Index.jpg)
 
 ​	对于查询 `SELECT id, username, age FROM users WHERE username="draven"` 来说，(id, username) 就是一个窄索引，因为该索引没有包含存在于 SQL 查询中的 age 列，而 (id, username, age) 就是该查询的一个宽索引了，它**包含这个查询中所需要的全部数据列**。
 
 ​	宽索引能够避免二次的随机 IO，而窄索引就需要在对索引进行顺序读取之后再根据主键 id 从主键索引中查找对应的数据：
 
-![Thin-Index-and-Clustered-Index](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Thin-Index-and-Clustered-Index.jpg)
+![Thin-Index-and-Clustered-Index](/Users/luoxue/Desktop/images/mysql-Thin-Index-and-Clustered-Index.jpg)
 
 ​	对于窄索引，每一个在索引中匹配到的记录行最终都需要执行另外的随机读取从聚集索引中获得剩余的数据，如果结果集非常大，那么就会导致随机读取的次数过多进而影响性能。
 
@@ -30,11 +30,11 @@ tags: Mysql
 
 一个 SQL 查询扫描的索引片大小其实是由过滤因子决定的，也就是满足查询条件的记录行数所占的比例：
 
-![Filter-Facto](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Filter-Factor.jpg)
+![Filter-Facto](/Users/luoxue/Desktop/images/mysql-Filter-Factor.jpg)
 
 对于 users 表来说，sex=“male” 就不是一个好的过滤因子，它会选择整张表中一半的数据，所以**在一般情况下**我们最好不要使用 sex 列作为整个索引的第一列；而 name=“draven” 的使用就可以得到一个比较好的过滤因子了，它的使用能过滤整个数据表中 99.9% 的数据；当然我们也可以将这三个过滤进行组合，创建一个新的索引 (name, age, sex) 并同时使用这三列作为过滤条件：
 
-![Combined-Filter-Facto](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Combined-Filter-Factor.jpg)
+![Combined-Filter-Facto](/Users/luoxue/Desktop/images/mysql-Combined-Filter-Factor.jpg)
 
 > 当三个过滤条件都是**等值谓词**时，几个索引列的顺序其实是无所谓的，**索引列的顺序不会影响同一个 SQL 语句对索引的选择***，也就是索引 (name, age, sex) 和 (age, sex, name) 对于上图中的条件来说是完全一样的，这两个索引在执行查询时都有着完全相同的效果。
 
@@ -42,7 +42,7 @@ tags: Mysql
 
 对于一张表中的同一个列，不同的值也会有不同的过滤因子，这也就造成了同一列的不同值最终的查询性能也会有很大差别：
 
-![Same-Columns-Filter-Facto](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Same-Columns-Filter-Factor.jpg)
+![Same-Columns-Filter-Facto](/Users/luoxue/Desktop/images/mysql-Same-Columns-Filter-Factor.jpg)
 
 当我们评估一个索引是否合适时，需要考虑极端情况下查询语句的性能，比如 0% 或者 50% 等；最差的输入往往意味着最差的性能，在平均情况下表现良好的 SQL 语句在极端的输入下可能就完全无法正常工作，这也是在设计索引时需要注意的问题。
 
@@ -59,7 +59,7 @@ WHERE name = "draven" AND sex = "male" AND age > 20;
 
 虽然我们有 (name, sex, age) 索引包含了上述查询条件中的全部列，但是在这里只有 name 和 sex 两列才是匹配列，MySQL 在执行上述查询时，会选择 name 和 sex 作为匹配列，扫描所有满足条件的数据行，然后将 age 当做**过滤列**（Filtering Column）：
 
-![Match-Columns-Filter-Columns](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Match-Columns-Filter-Columns.jpg)
+![Match-Columns-Filter-Columns](/Users/luoxue/Desktop/images/mysql-Match-Columns-Filter-Columns.jpg)
 
 **过滤列虽然不能够减少索引片的大小，但是能够减少从表中随机读取数据的次数**，所以在索引中也扮演着非常重要的角色。
 
@@ -71,7 +71,7 @@ WHERE name = "draven" AND sex = "male" AND age > 20;
 
 三星索引是对于一个查询语句可能的最好索引，如果一个查询语句的索引是三星索引，那么它只需要进行**一次磁盘的随机读及一个窄索引片的顺序扫描**就可以得到全部的结果集。
 
-![Three-Star-Index](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Three-Star-Index.jpg)
+![Three-Star-Index](/Users/luoxue/Desktop/images/mysql-Three-Star-Index.jpg)
 
 为了满足三星索引中的三颗星，我们分别需要做以下几件事情：
 
@@ -81,7 +81,7 @@ WHERE name = "draven" AND sex = "male" AND age > 20;
 
 三星索引中每颗星都有其意义：
 
-![Behind-Three-Star-Index](https://gitee.com/qmlg/image-bed/raw/master/images/2017-09-11-Behind-Three-Star-Index.jpg)
+![Behind-Three-Star-Index](/Users/luoxue/Desktop/images/mysql-Behind-Three-Star-Index.jpg)
 
 1. 第一颗星不只是将等值谓词的列加入索引，它的作用是减少索引片的大小以减少需要扫描的数据行；
 2. 第二颗星用于避免排序，减少磁盘 IO 和内存的使用；
@@ -344,7 +344,7 @@ where Country.code IN (select City.Country
 
 子查询是非相关子查询。也即是我们可以独立运行内查询。semi-materialization的思想是使用city.country中可能的值填充一个临时表，然后和欧洲的国家进行关联。
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/764761-20190521094832948-695990984.png)
+![img](/Users/luoxue/Desktop/images/mysql-example for semi-join.png)
 
 这个join可以从两个方向进行：
 

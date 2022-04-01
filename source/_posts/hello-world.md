@@ -43,7 +43,7 @@ More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
 
 ## 1. 图床
 
-- Gitee + PicGo
+- oss + PicGo
 
   > - Gitee中访问大于1M的图片，需要登录。对于较大的，如git，需要压缩。
   >
@@ -54,6 +54,8 @@ More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
   >   > # -fuzz 代表压缩率
   >   > $ convert pattern_design.gif -fuzz 15% -layers Optimize new_pattern_design.gif
   >   > ```
+  >   
+  > - Gitee中不允许有过多外链，不允许作为图床使用，选用oss作为图床。
 
 ## 2. npm
 

@@ -321,6 +321,47 @@ categories: in-use
 
 
 
+# bean创建过程中所使用的缓存
+
+> - factoryBeanObjectCache
+>
+>   > - 由FactoryBeans创建的单例对象的缓存:从FactoryBean名称到它创建的对象。
+>   >
+>   > - FactoryBean实例与它管理的bean的规范化名称只相差一个前缀“&”。
+>
+> - singletonObjects
+>
+>   > - 单例对象的缓存:bean名称 -> bean实例。
+>   > - 也称一级缓存。
+>
+> - earlySingletonObjects
+>
+>   > - 早期单例对象的缓存:bean名称 -> bean实例。
+>   >
+>   > - 也称二级缓存。
+>
+> - singletonFactories
+>
+>   > - 单例工厂的缓存:bean名称 -> ObjectFactory。
+>   > - 也称三级缓存。
+
+# BeanPostProcessor
+
+> - 类图
+>
+>   > ![BeanPostProcessor](/Users/luoxue/Desktop/images/BeanPostProcessor.jpg)
+>
+> - 预过滤后处理器的内部缓存 BeanPostProcessorCache
+>
+>   - instantiationAware
+>   - smartInstantiationAware
+>   - destructionAware
+>   - mergedDefinition
+
+
+
+
+
 LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter
 
 ImportBeanDefinitionRegistrar

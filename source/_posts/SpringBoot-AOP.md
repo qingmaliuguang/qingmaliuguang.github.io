@@ -2,6 +2,7 @@
 title: SpringBoot-AOP
 date: 2022-03-21 15:06:25
 tags: SpringBoot
+categories: in-use
 ---
 
 <font color='00FF00'>——————————————————————关于Spring AOP——————————————————————</font>
@@ -254,7 +255,7 @@ tags: SpringBoot
 
 
 
-<font color='00FF00'>——————————————那么AnnotationAwareAspectJAutoProxyCreator是什么时候怎么起作用的呢？——————————————</font>
+<font color='00FF00'>—————那么AnnotationAwareAspectJAutoProxyCreator是什么时候怎么起作用的呢？—————</font>
 
 # 7. AbstractAutowireCapableBeanFactory
 

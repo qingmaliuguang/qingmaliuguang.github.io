@@ -2,6 +2,7 @@
 title: 并发编程
 date: 2021-09-09 10:58:59
 tags: Java
+categories: recycle-bin
 ---
 
 # 1. 操作系统进程的状态

@@ -2,6 +2,7 @@
 title: Mysql事务
 date: 2021-08-14 09:46:09
 tags: Mysql
+categories: in-use
 ---
 
 # 事务的特性

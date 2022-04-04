@@ -2,6 +2,7 @@
 title: Spring 抽象
 date: 2021-08-29 14:37:01
 tags: Spring
+categories: recycle-bin
 ---
 
 # 1. BeanFactory

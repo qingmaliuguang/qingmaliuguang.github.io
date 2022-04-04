@@ -2,6 +2,7 @@
 title: IO 模型
 date: 2021-08-19 14:23:44
 tags: Java、Linux
+categories: in-use
 ---
 
 结构来源：I/O多路复用  ->  应用：

@@ -2,6 +2,7 @@
 title: JVM-ReadNote
 date: 2021-09-06 12:54:04
 tags: JVM、阅读笔记
+categories: in-use
 ---
 
 # 1. 散点记录
@@ -121,7 +122,7 @@ Java里面final关键字通常在以下几种情况下被使用
 
 # 2. JVM内存模型
 
-![JVM Memory](https://gitee.com/qmlg/image-bed/raw/master/images/JVM%20Memory.jpg)
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/JVM%20Memory.jpg" alt="JVM Memory" style="zoom:50%;" />
 
 ## 2.1 局部变量表
 

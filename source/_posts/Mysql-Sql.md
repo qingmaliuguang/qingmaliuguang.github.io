@@ -2,7 +2,7 @@
 title: Mysql事务
 date: 2021-10-26 19:36:09
 tags: Mysql
-
+categories: in-use
 ---
 
 - INSERT ... ON DUPLICATE KEY UPDATE

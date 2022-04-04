@@ -2,6 +2,7 @@
 title: Design Patterns
 date: 2021-09-03 20:08:41
 tags: 设计模式
+categories: in-use
 ---
 
 # 1. 设计模式六大原则
@@ -403,7 +404,7 @@ High level modules should not depends upon low level modules.Both should depend 
 
 ### 3.2.5 Facade
 
-- tomcat-embed-core：ApplicationContextFacade
+- tomcat-embed-core：ApplicationContextFacade、StandardWrapperFacade等
 
   > ApplicationContextFacade对象即为一个Facade对象，它从web应用程序中屏蔽了tomcat-embed-core内部的ApplicationContext对象。
   >

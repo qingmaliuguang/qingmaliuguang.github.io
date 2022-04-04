@@ -2,6 +2,7 @@
 title: Redis
 date: 2021-08-22 09:44:22
 tags: Redis
+categories: in-use
 ---
 
 # 1. Redis 数据类型

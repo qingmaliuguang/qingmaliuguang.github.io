@@ -2,6 +2,7 @@
 title: Spring应用启动过程
 date: 2022-03-21 15:06:25
 tags: SpringBoot
+categories: in-use
 ---
 
 # 1. SpringApplication
@@ -156,7 +157,7 @@ tags: SpringBoot
 >   >   >
 >   >   > - **refresh()**
 >   >   >
->   >   >   > ![AbstractApplicationContext-refresh](https://gitee.com/qmlg/image-bed/raw/master/images/AbstractApplicationContext-refresh.jpg)
+>   >   >   > ![AbstractApplicationContext-refresh](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/AbstractApplicationContext-refresh.jpg)
 >   >
 >   > - GenericApplicationContext
 >   >
@@ -224,7 +225,7 @@ tags: SpringBoot
 >   >
 >   > - DefaultListableBeanFactory的supertypes hierarchy
 >   >
->   >   > ![DefaultListableBeanFactory](https://gitee.com/qmlg/image-bed/raw/master/images/DefaultListableBeanFactory.jpg)
+>   >   > ![DefaultListableBeanFactory](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DefaultListableBeanFactory.jpg)
 >   >   >
 >   >   > - SingletonBeanRegistry
 >   >   >
@@ -299,7 +300,7 @@ tags: SpringBoot
 >
 >   >  **TomcatServletWebServerFactory**
 >   >
->   > ![TomcatServletWebServerFactory](https://gitee.com/qmlg/image-bed/raw/master/images/TomcatServletWebServerFactory.jpg)
+>   > ![TomcatServletWebServerFactory](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/TomcatServletWebServerFactory-8906994.jpg)
 >   >
 >   > - 可以用来创建TomcatWebServers的AbstractServletWebServerFactory。可以使用Spring的servletcontextinitializer或Tomcat 的LifecycleListeners来初始化。
 >   >   除非显式配置，否则该工厂将创建在端口8080上侦听HTTP请求的容器。

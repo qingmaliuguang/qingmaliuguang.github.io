@@ -2,6 +2,7 @@
 title: Spring
 date: 2021-08-29 22:07:06
 tags: Spring
+categories: recycle-bin
 ---
 
 # 1. Spring 循环依赖及三级缓存
@@ -868,12 +869,6 @@ protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBea
  }
 }
 ```
-
-# 2. Spring 与 设计模式
-
-## 2.1 模版方法模式
-
-定义：模板方法模式定义了一个操作中的算法的框架，而将一些步骤延迟到子类中。使得子类可以不改变一个算法的结构即可重定义该算法的某些步骤。
 
 
 

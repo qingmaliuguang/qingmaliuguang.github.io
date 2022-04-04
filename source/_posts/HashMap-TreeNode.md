@@ -2,7 +2,7 @@
 title: HashMap中的红黑树实现-TreeNode
 date: 2021-08-12 11:30:25
 tags: Java
-
+categories: in-use
 ---
 
 红黑树源于对2-3-4树的简易实现。参考《[Sedgewick的红黑树](https://www.cnblogs.com/eniac12/p/5558848.html)》

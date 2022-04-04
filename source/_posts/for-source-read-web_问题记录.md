@@ -2,6 +2,7 @@
 title: SpringBoot-web-问题记录
 date: 2022-03-21 15:06:25
 tags: SpringBoot
+categories: in-use
 ---
 
 ### 1. lib spring-core 无法关联源码？
@@ -121,11 +122,18 @@ ConfigurationClassPostProcessor
 
 -> **ConfigurationClassBeanDefinitionReader**:loadBeanDefinitions中会检查有无@Scope注解，若有则根据其属性填充bean定义。
 
-### 8. 
+### 8. jakarta.servlet & javax.servlet  =>  jakarta与javax的关系？
 
+> - jakarta来自于javax，因捐献与版权问题而产生。参考：[没有Javax的Jakarta EE](https://blog.csdn.net/dnc8371/article/details/106701108)
+> - [Jakarta EE Platform官方文档](https://jakarta.ee/specifications/platform/)
 
+## 9. @Lookup注解
 
-
+> - 用法，[参考](https://blog.csdn.net/dezhonger/article/details/95238732)
+>
+> - 是如何起作用的？
+>
+>   > 
 
 # 待整理内容
 

@@ -2,6 +2,7 @@
 title: InnoDB
 date: 2021-08-16 13:06:04
 tags: Mysql
+categories: in-use
 ---
 
 # Mysql 架构

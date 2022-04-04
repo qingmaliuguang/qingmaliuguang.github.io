@@ -2,6 +2,7 @@
 title: Mysql 优化
 date: 2021-08-17 18:54:41
 tags: Mysql
+categories: in-use
 ---
 
 # 索引

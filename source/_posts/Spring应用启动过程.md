@@ -358,6 +358,169 @@ categories: in-use
 >   - destructionAware
 >   - mergedDefinition
 
+# 关于Bean实例化
+
+- InstantiationStrategy
+
+  > 负责创建与root bean definition相对应的实例的接口。
+  >
+  > 三种实例化方式：
+  >
+  > - 在这个工厂中返回一个具有给定名称的bean实例。【无参构造】 
+  > - 在这个工厂中返回一个具有给定名称的bean实例，并通过给定的构造函数创建它。【有参构造】 
+  > - 在这个工厂中返回一个具有给定名称的bean实例，并通过给定的工厂方法创建它。【工厂方法】 
+  >
+  > 其实现类：
+  >
+  > ![InstantiationStrategy](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/InstantiationStrategy.jpg)
+
+- CglibSubclassingInstantiationStrategy
+
+  > - 在BeanFactories中使用的默认对象实例化策略。即InstantiationStrategy的默认实现类。
+  >
+  > - 如果方法需要被容器覆盖以实现方法注入，则使用CGLIB动态生成子类。
+  >
+  > - 三种实例化方式的实现：
+  >
+  >   > - 无参构造
+  >   >
+  >   >   > ![CglibSubclassingInstantiationStrategy-instantiate-无参构造](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/CglibSubclassingInstantiationStrategy-instantiate-%E6%97%A0%E5%8F%82%E6%9E%84%E9%80%A0.jpg)
+  >   >   >
+  >   >   > - BeanUtils.instantiateClass(constructorToUse);
+  >   >   >
+  >   >   >   使用给定构造函数实例化类。【无参】
+  >   >   >
+  >   >   > - CglibSubclassCreator#instantiate
+  >   >   >
+  >   >   >   创建 动态生成的 实现了所需lookups的 子类 的新实例。 
+  >   >
+  >   > - 有参构造
+  >   >
+  >   >   > ![CglibSubclassingInstantiationStrategy-instantiate-有参构造](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/CglibSubclassingInstantiationStrategy-instantiate-%E6%9C%89%E5%8F%82%E6%9E%84%E9%80%A0.jpg)
+  >   >   >
+  >   >   > - BeanUtils.instantiateClass(ctor, args);
+  >   >   >
+  >   >   >   使用给定构造函数实例化类。【有参】
+  >   >   >
+  >   >   > - CglibSubclassCreator#instantiate
+  >   >
+  >   > - 工厂方法
+  >   >
+  >   >   > ![CglibSubclassingInstantiationStrategy-instantiate-工厂方法](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/CglibSubclassingInstantiationStrategy-instantiate-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95.jpg)
+  >   >   >
+  >   >   > - Method#invoke(Object obj, Object... args)
+  >   >   >
+  >   >   >   在具有指定参数的指定对象上调用由此method对象表示的基础方法。
+  >
+  > - CglibSubclassingInstantiationStrategy.CglibSubclassCreator
+  >
+  >   > 在Spring 3.2之前的版本中，为了避免外部依赖CGLIB而创建的内部类。
+  >   >
+  >   > - \#instantiate(@Nullable Constructor<?> ctor, Object... args)
+  >   >
+  >   >   > ![CglibSubclassCreator-instantiate](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/CglibSubclassCreator-instantiate.jpg)
+
+- ConstructorResolver
+
+  > - 用于解析构造函数和工厂方法的委托。 通过参数匹配执行构造函数解析。
+  >
+  > - 两个核心方法
+  >
+  >   - autowireConstructor
+  >
+  >     > “自动装配构造函数”(按类型使用构造函数参数)行为。如果显式指定了构造函数参数值，也将应用该方法，将所有剩余参数与来自bean工厂的bean匹配。 
+  >     >
+  >     > 这对应于构造函数注入:在这种模式下，Spring bean工厂能够承载期望基于构造函数的依赖项解析的组件。
+  >     >
+  >     > - 流程图
+  >     >
+  >     >   > ![ConstructorResolver-autowireConstructor](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConstructorResolver-autowireConstructor.jpg)
+  >     >
+  >     > - 基于InstantiationStrategy【有参构造】。
+  >     >
+  >     >   无参情况使用空参数列表EMPTY_ARGS。
+  >
+  >   - instantiateUsingFactoryMethod
+  >
+  >     > 使用指定工厂方法实例化bean。如果bean定义参数指定了一个类，而不是“工厂bean”，或者使用依赖注入(Dependency Injection)配置的工厂对象本身的实例变量，则该方法可以是静态的。
+  >     >
+  >     > - 流程图
+  >     >
+  >     >   > ![ConstructorResolver-instantiateUsingFactoryMethod](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConstructorResolver-instantiateUsingFactoryMethod.jpg)
+  >     >
+  >     > - 基于InstantiationStrategy【工厂方法】。
+
+- AbstractAutowireCapableBeanFactory\#createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
+
+  > 为指定的bean创建一个新实例，使用适当的实例化策略:工厂方法、构造函数自动装配或简单的实例化。 
+  >
+  > ![AbstractAutowireCapableBeanFactory-createBeanInstance](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/AbstractAutowireCapableBeanFactory-createBeanInstance.jpg)
+  >
+  > 实例化方式：
+  >
+  > - obtainFromSupplier
+  >
+  >   通过bean定义中给定的supplier获取一个bean实例。
+  >
+  > - 通过InstantiationStrategy的无参构造方式获取。
+  >
+  > - 通过ConstructorResolver\#autowireConstructor获取，即InstantiationStrategy的有参构造方式。
+  >
+  > - 通过ConstructorResolver\#instantiateUsingFactoryMethod获取，即InstantiationStrategy的工厂方法方式。
+
+- AbstractAutowireCapableBeanFactory#createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
+
+  > - 为给定的合并bean定义(和参数)创建一个bean实例。在子定义的情况下，bean定义将已经与父定义合并。
+  >   为了实际创建bean，所有bean检索方法都委托给这个方法。
+  >
+  > - 该类中另外两个createBean方法也委托给了这个方法。
+  >
+  > - 两种情况：
+  >
+  >   - resolveBeforeInstantiation方法让BeanPostProcessors有机会返回一个代理而不是目标bean实例。【非常规路径】
+  >
+  >   - 通过doCreateBean实际创建指定的bean。
+  >
+  >     - 两个阶段：**实例化** + **初始化**
+  >
+  >     - 实例化阶段，若为单例，优先从**factoryBeanInstanceCache**缓存中获取，否则通过**createBeanInstance**创建。
+  >
+  >     - 初始化阶段又分为：属性填充（populateBean） + 初始化实例（initializeBean）
+  >
+  >     - initializeBean包含：
+  >
+  >       applyBeanPostProcessorsBeforeInitialization + invokeInitMethods + applyBeanPostProcessorsAfterInitialization
+  >
+  >     - AOP功能：AbstractAutoProxyCreator即是一个BeanPostProcessor，在initializeBean阶段生成实例的代理替换传入的实例。
+  >
+  > - 流程图：
+  >
+  >   ![AbstractAutowireCapableBeanFactory-createBean](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/AbstractAutowireCapableBeanFactory-createBean.jpg)
+
+- AbstractAutowireCapableBeanFactory\#getObjectForBeanInstance
+
+  > - 流程图
+  >
+  >   ![AbstractAutowireCapableBeanFactory-getObjectForBeanInstance](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/AbstractAutowireCapableBeanFactory-getObjectForBeanInstance.jpg)
+  >
+  > - 基本是创建或从缓存中获取到实例后调用该方法，为什么要这样？
+  >
+  >   难道是通过它将工厂对象转换成其管理的实例。
+
+- DefaultListableBeanFactory#preInstantiateSingletons()
+
+  > - 确保所有非lazy-init单例都被实例化，也要考虑FactoryBeans。如果需要，通常在工厂设置结束时调用。
+  >
+  > - AbstractApplicationContext.refresh() -> finishBeanFactoryInitialization(beanFactory) 中触发。对比流程图《AbstractApplicationContext-refresh》。
+  >
+  > - 基于 单例缓存（getSingleton） + createBean + getObjectForBeanInstance
+  >
+  > - 流程图：
+  >
+  >   ![DefaultListableBeanFactory-preInstantiateSingletons](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DefaultListableBeanFactory-preInstantiateSingletons.jpg)
+
+- 
+
 
 
 

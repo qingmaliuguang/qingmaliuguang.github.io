@@ -1,8 +1,8 @@
 ---
 title: Synchronized
 date: 2022-03-21 15:06:25
-tags: Java、subject
-categories: in-use
+tags: Java
+categories: 整理-来自官方文档和文章
 ---
 
 表格 表示**字段**访问权限和属性的各个标志（来自Java虚拟机规范4.5）(ACC 简写自 access_flags)

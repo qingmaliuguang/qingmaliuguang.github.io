@@ -2,7 +2,7 @@
 title: Spring应用启动过程
 date: 2022-03-21 15:06:25
 tags: SpringBoot
-categories: in-use
+categories: 整理-来自代码
 ---
 
 # 1. SpringApplication
@@ -210,8 +210,6 @@ categories: in-use
 
 
 
-
-
 # BeanFactory
 
 > - 默认创建的**DefaultListableBeanFactory**的实例。
@@ -317,33 +315,29 @@ categories: in-use
 >   >
 >   > 
 
-
-
-
-
 # bean创建过程中所使用的缓存
 
 > - factoryBeanObjectCache
 >
->   > - 由FactoryBeans创建的单例对象的缓存:从FactoryBean名称到它创建的对象。
->   >
->   > - FactoryBean实例与它管理的bean的规范化名称只相差一个前缀“&”。
+>   - 由FactoryBeans创建的单例对象的缓存:从FactoryBean名称到它创建的对象。
 >
-> - singletonObjects
+>   - FactoryBean实例与它管理的bean的规范化名称只相差一个前缀“&”。
 >
->   > - 单例对象的缓存:bean名称 -> bean实例。
->   > - 也称一级缓存。
+> - DefaultSingletonBeanRegistry
 >
-> - earlySingletonObjects
+>   - singletonObjects
+>     - 单例对象的缓存:bean名称 -> bean实例。
+>     - 也称一级缓存。
 >
->   > - 早期单例对象的缓存:bean名称 -> bean实例。
->   >
->   > - 也称二级缓存。
+>   - earlySingletonObjects
 >
-> - singletonFactories
+>     - 早期单例对象的缓存:bean名称 -> bean实例。
 >
->   > - 单例工厂的缓存:bean名称 -> ObjectFactory。
->   > - 也称三级缓存。
+>     - 也称二级缓存。
+>
+>   - singletonFactories
+>     - 单例工厂的缓存:bean名称 -> ObjectFactory。
+>     - 也称三级缓存。
 
 # BeanPostProcessor
 
@@ -507,29 +501,55 @@ categories: in-use
   >
   >   难道是通过它将工厂对象转换成其管理的实例。
 
-- DefaultListableBeanFactory#preInstantiateSingletons()
+- DefaultSingletonBeanRegistry\#getSingleton
 
-  > - 确保所有非lazy-init单例都被实例化，也要考虑FactoryBeans。如果需要，通常在工厂设置结束时调用。
+  > - 两个重载方法
   >
-  > - AbstractApplicationContext.refresh() -> finishBeanFactoryInitialization(beanFactory) 中触发。对比流程图《AbstractApplicationContext-refresh》。
+  >   - getSingleton(String beanName)
   >
-  > - 基于 单例缓存（getSingleton） + createBean + getObjectForBeanInstance
+  >     返回在给定名称下注册的(原始)单例对象。
   >
-  > - 流程图：
+  >     检查已经实例化的单例，也允许对当前创建的单例的早期引用(解析循环引用)。
   >
-  >   ![DefaultListableBeanFactory-preInstantiateSingletons](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DefaultListableBeanFactory-preInstantiateSingletons.jpg)
+  >     Y：检查缓存，不负责创建单例实例（一级缓存）。最多通过三级缓存创建一个二级缓存（即早期引用）。
+  >
+  >   - getSingleton(String beanName, ObjectFactory<?> singletonFactory)
+  >
+  >     返回在给定名称下注册的(原始)单例对象，**如果还没有注册，则创建并注册**一个新对象。 
+  >
+  >     Y：若无缓存则负责创建一个单例实例（一级缓存）。
+  >
+  >     基于**ObjectFactory**的工厂方法的具体实现，比如 AbstractAutowireCapableBeanFactory\#getBean 中的实现基于AbstractAutowireCapableBeanFactory\#**createBean**。
+  >
+  > - 流程图
+  >
+  >   ![DefaultSingletonBeanRegistry-getSingleton](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DefaultSingletonBeanRegistry-getSingleton.jpg)
+
+- AbstractBeanFactory\#getBean
+
+> - 返回指定bean的实例，该实例可以是共享的，也可以是独立的。 
+> - 基于 单例缓存（getSingleton） + createBean + getObjectForBeanInstance
+> - 流程图：见《DefaultListableBeanFactory\-preInstantiateSingletons》
+- DefaultListableBeanFactory\#preInstantiateSingletons()
+
+> - 确保所有非lazy-init单例都被实例化，也要考虑FactoryBeans。如果需要，通常在工厂设置结束时调用。
+>
+> - AbstractApplicationContext.refresh() -> finishBeanFactoryInitialization(beanFactory) 中触发。对比流程图《AbstractApplicationContext\-refresh》。
+>
+> - 基于 AbstractBeanFactory\#getBean
+>
+> - 流程图：
+>
+>   ![DefaultListableBeanFactory-preInstantiateSingletons](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/DefaultListableBeanFactory-preInstantiateSingletons.jpg)
 
 - 
 
+# 关于注解注入
 
+- CommonAnnotationBeanPostProcessor
 
-
-
-LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter
-
-ImportBeanDefinitionRegistrar
-
-ForwardedHeaderFilter & FilterRegistrationBean
-
-
-
+  > - 支持开箱即用的公共Java注解的BeanPostProcessor实现，特别是jakarta.annotation包中的公共注解。许多Jakarta EE技术(例如JSF和JAX-RS)都支持这些公共Java注解。 
+  > - 这个后处理程序包括对PostConstruct和PreDestroy注解的支持——分别作为init注解和destroy注解——通过从InitDestroyAnnotationBeanPostProcessor 继承预配置的注解类型。
+  > -  中心元素是Resource注解，用于命名beans的注解驱动注入，默认情况下来自包含的Spring BeanFactory，在JNDI中只解析了映射的名称引用。“alwaysUseJndiLookup”标志强制JNDI查找等同于标准的Jakarta EE资源注入，用于名称引用和默认名称。目标bean可以是简单的POJOs，除了必须匹配的类型外，没有其他特殊需求。 
+  > -  注意:“context:annotation-config”和“context:component-scan”XML标签将会注册一个默认的CommonAnnotationBeanPostProcessor。如果您打算指定一个自定义的CommonAnnotationBeanPostProcessor bean定义，请删除或关闭那里的默认注解配置! 
+  > - 注:注解注入将在XML注入之前执行;因此，对于通过两种方法连接的属性，后一种配置将覆盖前一种配置。 

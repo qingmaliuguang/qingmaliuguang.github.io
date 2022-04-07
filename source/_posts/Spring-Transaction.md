@@ -2,7 +2,7 @@
 title: Spring 事务
 date: 2021-08-29 12:13:37
 tags: Spring
-categories: in-use
+categories: 整理-来自文章
 ---
 
 # 1. Spring事务传播特性

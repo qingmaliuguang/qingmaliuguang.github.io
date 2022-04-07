@@ -53,122 +53,6 @@ categories: recycle-bin
 
 请注意，此类不承担或实现 bean 定义注册表功能。 有关org.springframework.beans.factory.ListableBeanFactory和BeanDefinitionRegistry接口的实现，请参阅DefaultListableBeanFactory ，它们分别代表此类工厂的 API 和 SPI 视图。
 
-### createBean
-
-- 用于对bean生命周期进行细粒度控制的专用方法。
-- 使用非单例bean定义，以避免将bean注册为依赖bean。
-
-- 此类的中心方法：创建 bean 实例、填充 bean 实例、应用后处理器等。
-
-### doCreateBean
-
-- 实际创建指定的bean。 预创建处理此时已经发生，例如检查postProcessBeforeInstantiation回调。
-  区分默认 bean 实例化、工厂方法的使用和自动装配构造函数。
-
-```java
-  protected Object doCreateBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
-			throws BeanCreationException {
-
-		// Instantiate the bean.
-		BeanWrapper instanceWrapper = null;
-		if (mbd.isSingleton()) {
-      // 如果RootBeanDefinition是单例的，则移除未完成的FactoryBean实例的缓存。
-			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
-		}
-		if (instanceWrapper == null) {
-      // 使用适当的实例化策略为指定的 bean 创建一个新实例：工厂方法、构造函数自动装配或简单实例化。
-			instanceWrapper = createBeanInstance(beanName, mbd, args);
-		}
-		Object bean = instanceWrapper.getWrappedInstance();
-		Class<?> beanType = instanceWrapper.getWrappedClass();
-		if (beanType != NullBean.class) {
-			mbd.resolvedTargetType = beanType;
-		}
-
-		// Allow post-processors to modify the merged bean definition.
-		synchronized (mbd.postProcessingLock) {
-			if (!mbd.postProcessed) {
-				try {
-          // 将 MergedBeanDefinitionPostProcessors 应用于指定的 bean 定义，调用它们的postProcessMergedBeanDefinition方法。
-					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
-				}
-				catch (Throwable ex) {
-					throw new BeanCreationException(mbd.getResourceDescription(), beanName,
-							"Post-processing of merged bean definition failed", ex);
-				}
-				mbd.postProcessed = true;
-			}
-		}
-
-		// 主动缓存单例，以便能够解析循环引用，即使是在BeanFactoryAware等生命周期接口触发的情况下。
-		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
-				isSingletonCurrentlyInCreation(beanName));
-		if (earlySingletonExposure) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Eagerly caching bean '" + beanName +
-						"' to allow for resolving potential circular references");
-			}
-			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
-		}
-
-		// Initialize the bean instance.
-		Object exposedObject = bean;
-		try {
-			populateBean(beanName, mbd, instanceWrapper);
-			exposedObject = initializeBean(beanName, exposedObject, mbd);
-		}
-		catch (Throwable ex) {
-			if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
-				throw (BeanCreationException) ex;
-			}
-			else {
-				throw new BeanCreationException(
-						mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
-			}
-		}
-
-		if (earlySingletonExposure) {
-			Object earlySingletonReference = getSingleton(beanName, false);
-			if (earlySingletonReference != null) {
-				if (exposedObject == bean) {
-					exposedObject = earlySingletonReference;
-				}
-				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
-					String[] dependentBeans = getDependentBeans(beanName);
-					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
-					for (String dependentBean : dependentBeans) {
-						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
-							actualDependentBeans.add(dependentBean);
-						}
-					}
-					if (!actualDependentBeans.isEmpty()) {
-						throw new BeanCurrentlyInCreationException(beanName,
-								"Bean with name '" + beanName + "' has been injected into other beans [" +
-								StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
-								"] in its raw version as part of a circular reference, but has eventually been " +
-								"wrapped. This means that said other beans do not use the final version of the " +
-								"bean. This is often the result of over-eager type matching - consider using " +
-								"'getBeanNamesForType' with the 'allowEagerInit' flag turned off, for example.");
-					}
-				}
-			}
-		}
-
-		// Register bean as disposable.
-		try {
-			registerDisposableBeanIfNecessary(beanName, bean, mbd);
-		}
-		catch (BeanDefinitionValidationException ex) {
-			throw new BeanCreationException(
-					mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
-		}
-
-		return exposedObject;
-	}
-```
-
-
-
 ## DefaultListableBeanFactorys
 
 - Spring 对ConfigurableListableBeanFactory和BeanDefinitionRegistry接口的默认实现：一个基于 bean 定义元数据的成熟 bean 工厂，可通过后处理器扩展。
@@ -337,6 +221,88 @@ SimpleTypeConverter
 
 
 
+
+## 1. AbstractAutowireCapableBeanFactory
+
+- initializeBean -> 
+  - applyBeanPostProcessorsBeforeInitialization
+  - applyBeanPostProcessorsAfterInitialization
+
+## 2. DefaultSingletonBeanRegistry
+
+getSingleton
+
+> 处理循环引用。
+
+## PropertyAccessorFactory（spring-beans）
+
+- 获取PropertyAccessor实例的简单工厂facade，特别是对于BeanWrapper实例。隐藏实际的目标实现类及其扩展的公共签名。
+
+## HandlerInterceptor（spring-webmvc）
+
+> HandlerInterceptor基本上类似于Servlet Filter，但与后者相比，它只允许自定义预处理（可以选择禁止处理程序本身的执行），以及自定义后处理。过滤器功能更强大，例如，它们允许交换传递给链的请求和响应对象。请注意，过滤器是在web .xml中配置的，它是应用程序上下文中的HandlerInterceptor。
+
+## WebRequestInterceptor
+
+> 接口，一般的web请求拦截。允许通过构建WebRequest抽象来应用于Servlet请求。
+> 该接口采用**mvc风格的请求处理:执行一个处理程序，公开一组模型对象，然后根据该模型呈现视图。**另外，处理程序也可以完全处理请求，而不呈现视图。
+
+## RequestMappingHandlerMapping
+
+> 从@Controller类的类型和方法级的@RequestMapping注释中创建RequestMappingInfo实例。
+> 弃用注意:
+> 在5.2.4中，useSuffixPatternMatch和useRegisteredSuffixPatternMatch被弃用，以阻止使用路径扩展来进行请求映射和内容协商(与ContentNegotiationManagerFactoryBean中类似的弃用)。有关更多内容，请阅读第24719期。
+
+## BeanNameUrlHandlerMapping
+
+> 实现了org.springframe.web.servlet.HandlerMapping接口，该接口将url映射到名称以斜杠(“/”)开头的bean，类似于Struts将url映射到动作名称的方式。
+> 这是org.springframework.web.servlet使用的默认实现。DispatcherServlet，以及org.springframework.web.servlet.mvc.method.annotation .RequestMappingHandlerMapping。另外，SimpleUrlHandlerMapping允许以声明的方式自定义处理程序映射。
+> 映射是从URL到bean名。因此，一个传入的URL“/foo”将映射到一个名为“/foo”的处理程序，或者映射到“/foo /foo2”，如果多个映射到一个单独的处理程序。
+> 支持直接匹配(给定"/test" ->注册"/test")和"*"匹配(给定"/test" ->注册"/t*")。注意，默认情况下，如果适用，映射到当前servlet映射中;详见"alwaysUseFullPath"属性。关于模式选项的详细信息，请参见org.springframework.util.AntPathMatcher javadoc。
+
+## ProxyFactory
+
+> 用于编程使用的AOP代理的工厂，而不是通过bean工厂中的声明性设置。这个类提供了一种在自定义用户代码中获取和配置AOP代理实例的简单方法。
+
+## AopProxyFactory -> DefaultAopProxyFactory
+
+> **DefaultAopProxyFactory**
+>
+> 默认的AopProxyFactory实现，创建CGLIB代理或JDK动态代理。
+>
+> 创建一个CGLIB代理，如果一个给定的AdvisedSupport实例如下所示:
+>
+> - 设置了 optimize 标志
+> - 设置了 proxyTargetClass 标志
+> - 没有指定代理接口
+>
+> 通常，指定proxyTargetClass来强制使用CGLIB代理，或者指定一个或多个接口来使用JDK动态代理
+
+- createAopProxy
+
+
+
+
+
+## BeanDefinitionRegistry
+
+- 保存bean定义的注册中心的接口，例如RootBeanDefinition和ChildBeanDefinition实例。 通常由内部使用AbstractBeanDefinition层次结构的Beanfactories实现。
+- 这是Spring bean工厂包中封装bean定义注册的唯一接口。标准的BeanFactory接口只包括对完全配置的工厂实例的访问。
+- Spring bean定义的读者希望使用这个接口的实现。Spring core 中已知的实现者有DefaultListableBeanFactory和GenericApplicationContext。
+
+
+
+
+
+
+
+
+
+LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter
+
+ImportBeanDefinitionRegistrar
+
+ForwardedHeaderFilter & FilterRegistrationBean
 
 
 

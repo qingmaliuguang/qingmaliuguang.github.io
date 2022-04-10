@@ -301,10 +301,47 @@ AnnotationAwareAspectJAutoProxyCreator继承了超类AbstractAutoProxyCreator对
 
 - 另外两个后处理方法postProcessAfterInstantiation和postProcessBeforeInitialization均继承的接口中的默认实现，无特殊处理。
 
+# 3. 代理创建过程
 
+- AnnotationAwareAspectJAutoProxyCreator-createProxy
 
+  > ![AnnotationAwareAspectJAutoProxyCreator-createProxy](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/AnnotationAwareAspectJAutoProxyCreator-createProxy-9605280.jpg)
+  >
+  > - 两种代理
+  >   - JdkDynamicAopProxy
+  >   - ObjenesisCglibAopProxy
+  >
+  > - 创建一个CGLIB代理，如果一个给定的AdvisedSupport实例如下所示:
+  >
+  >   1. 设置了 optimize 标志
+  >   2. 设置了 proxyTargetClass 标志
+  >   3. 没有指定代理接口
+  >      通常，指定proxyTargetClass来强制使用CGLIB代理，或者指定一个或多个接口来使用JDK动态代理。 
+  >
+  > - 两种生成代理的方式简单看流程的话都大致都有三步：
+  >
+  >   1. 生成类的字节码；
+  >   2. 加载类；
+  >   3. 获取其构造函数对象，调用其newInstance，构造代理实例。
+  >
+  >   想了解详情可阅读Java序列化规范。
 
+- JdkDynamicAopProxy-getProxy
 
-```
-jdk.proxy.ProxyGenerator.saveGeneratedFiles
-```
+  > ![JdkDynamicAopProxy-getProxy](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/JdkDynamicAopProxy-getProxy.jpg)
+
+- Proxy-ProxyBuilder-build
+
+  > ![Proxy-ProxyBuilder-build](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Proxy-ProxyBuilder-build-9605787.jpg)
+
+- Constructor-newInstance
+
+  > ![Constructor-newInstance](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Constructor-newInstance.jpg)
+
+- ObjenesisCglibAopProxy-getProxy
+
+  > ![ObjenesisCglibAopProxy-getProxy](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ObjenesisCglibAopProxy-getProxy.jpg)
+
+- Enhancer-createClass
+
+  > ![Enhancer-createClass](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/Enhancer-createClass.jpg)

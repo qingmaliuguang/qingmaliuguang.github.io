@@ -42,24 +42,24 @@
 <meta property="og:site_name" content="青马流光的博客">
 <meta property="og:description" content="1. 散点记录 -Xms &amp; -Xmx  -XX:+HeapDumpOnOutOfMemoryError 当抛出java.lang.OutOfMemoryError异常时，Dump出当前的内存堆转储快照以便进行事后分析。  从Java7开始字符串常量池从方法区移到了Java堆中，通过String.intern方法填充字符串常量池因此的OutOfMemoryError: Java heap">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/JVM%20Memory.jpg">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153546322.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153650569.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153730127.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012155934401.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012160026138.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012212915394.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/JVM%20Memory.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153546322.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153650569.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153730127.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012155934401.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012160026138.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012212915394.png">
 <meta property="article:published_time" content="2021-09-06T04:54:04.000Z">
-<meta property="article:modified_time" content="2022-03-21T07:14:11.003Z">
+<meta property="article:modified_time" content="2023-04-29T03:17:09.282Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="JVM、阅读笔记">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/JVM%20Memory.jpg">
+<meta name="twitter:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/JVM%20Memory.jpg">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
@@ -619,7 +619,8 @@
 <li>Final Classes</li>
 </ul>
 <p>在Java里面final常量不能被改变，final类不能被继承，final方法不能被重写。</p>
-<h1 id="2-JVM内存模型"><a href="#2-JVM内存模型" class="headerlink" title="2. JVM内存模型"></a>2. JVM内存模型</h1><p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/JVM%20Memory.jpg" alt="JVM Memory"></p>
+<h1 id="2-JVM内存模型"><a href="#2-JVM内存模型" class="headerlink" title="2. JVM内存模型"></a>2. JVM内存模型</h1><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/JVM%20Memory.jpg" alt="JVM Memory" style="zoom:50%;" />
+
 <h2 id="2-1-局部变量表"><a href="#2-1-局部变量表" class="headerlink" title="2.1 局部变量表"></a>2.1 局部变量表</h2><p>**局部变量表(Local Variable Table)**是一组变量值存储空间，用于存放方法参数和方法内定义的局部变量。局部变量表的容量以变量槽(Variable Slot)为最小单位，Java虚拟机规范并没有定义一个槽所应该占用内存空间的大小，但是规定了一个槽应该可以存放一个32位以内的数据类型。</p>
 <blockquote>
 <p>在Java程序编译为Class文件时,就在方法的Code属性中的max_locals数据项中确定了该方法所需分配的局部变量表的最大容量。(最大Slot数量)</p>
@@ -692,7 +693,7 @@
 <li>对象的第三部分是对齐填充，由于HotSpot虚拟机的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是任何对象的大小都必须是8字节的整数倍。对象头部分已经被精心设计成正好是8字节的倍数（1倍或者2倍），因此，如果对象实例数据部分没有对齐的话，就需要通过对齐填充来补全。</li>
 </ul>
 <p>HotSpot虚拟机对象头Mark Word</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png" alt="截屏 2021-10-12 下午2.30.21"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png" alt="截屏 2021-10-12 下午2.30.21"></p>
 <ul>
 <li>此外，如果对象是一个Java数组，那在对象头中还必须有一块用于记录数组长度的数据，因为虚拟机可以通过普通Java对象的元数据信息确定Java对象的大小，但是如果数组的长度是不确定的，将无法通过元数据中的信息推断出数组的大小。</li>
 </ul>
@@ -718,9 +719,9 @@
 <p>-Xms 和 -Xmx 设置堆大小限制。</p>
 <p>-XX:+HeapDumpOnOutOfMemoryError  让虚拟机在发生内存溢出时Dump出当前的内存堆转储快照以便进行事后分析。</p>
 <p>测试：-Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153546322.png" alt="image-20211012153546322"></p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153650569.png" alt="image-20211012153650569"></p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153730127.png" alt="image-20211012153730127"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153546322.png" alt="image-20211012153546322"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153650569.png" alt="image-20211012153650569"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153730127.png" alt="image-20211012153730127"></p>
 </blockquote>
 </li>
 </ul>
@@ -777,9 +778,9 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 如下，通过http://localhost:7000查看分析结果。</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> jhat java_pid97001.hprof</span></span><br><span class="line">Reading from java_pid97001.hprof...</span><br><span class="line">Dump file created Tue Oct 12 15:22:00 CST 2021</span><br><span class="line">Snapshot read, resolving...</span><br><span class="line">Resolving 818254 objects...</span><br><span class="line">WARNING:  Failed to resolve object id 0x7bf3aab60 for field type (signature L)</span><br><span class="line">Chasing references, expect 163 dots...................................................................................................................................................................</span><br><span class="line">Eliminating duplicate references...................................................................................................................................................................</span><br><span class="line">Snapshot resolved.</span><br><span class="line">Started HTTP server on port 7000</span><br><span class="line">Server is ready.</span><br></pre></td></tr></table></figure>
 
 <blockquote>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012155934401.png" alt="image-20211012155934401"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012155934401.png" alt="image-20211012155934401"></p>
 <p>点击Show heap histogram</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012160026138.png" alt="image-20211012160026138"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012160026138.png" alt="image-20211012160026138"></p>
 <p>Y：也可使用JProfiler等工具打开堆转储文件，进行查看。</p>
 </blockquote>
 <h3 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h3><p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zhaozheng7758/article/details/8623549">https://blog.csdn.net/zhaozheng7758/article/details/8623549</a></p>
@@ -899,7 +900,7 @@
 </li>
 </ul>
 <p><strong>HotSpot 的经典垃圾收集器</strong></p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png" alt="截屏 2021-10-12 下午5.54.50" style="zoom: 25%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png" alt="截屏 2021-10-12 下午5.54.50" style="zoom: 25%;" />
 
 <ul>
 <li><p>ParNew/CMS/Serial Old【JDK8默认的组合方式】</p>
@@ -908,7 +909,7 @@
 <p>-XX:SurvivorRatio</p>
 </blockquote>
 <p>CMS：</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png" alt="截屏 2021-10-12 下午8.03.22"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png" alt="截屏 2021-10-12 下午8.03.22"></p>
 <p>优点：并发收集、低停顿</p>
 <p>缺点：</p>
 <ul>
@@ -925,9 +926,9 @@
 <p>-XX:G1HeapRegionSize -&gt; 设置Region容量大小，该值是2的幂，范围从1mb到32mb。默认的区域大小是根据堆大小决定的，目标大约是2048个区域。</p>
 <p>-XX:MaxGCPauseMillis -&gt; 设置最大G1收集器GC暂停时间的目标(以毫秒为单位)。默认200ms，</p>
 </blockquote>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png" alt="截屏 2021-10-12 下午8.43.09" style="zoom:25%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png" alt="截屏 2021-10-12 下午8.43.09" style="zoom:25%;" />
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png" alt="截屏 2021-10-12 下午8.42.12" style="zoom: 25%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png" alt="截屏 2021-10-12 下午8.42.12" style="zoom: 25%;" />
 
 <ul>
 <li><p>Region中还有一类特殊的<strong>Humongous区域，专门用来存储大对象</strong>。G1认为只要大小超过了一个Region容量一半的对象即可判定为大对象。每个Region的大小可以通过参数-XX：G1HeapRegionSize设定，取值范围为1MB～32MB，且应为2的N次幂。而对于那些超过了整个Region容量的超级大对象，将会被存放在N个连续的Humongous Region之中，G1的大多数行为都把<strong>Humongous Region作为老年代的一部分来进行看待</strong>。</p>
@@ -974,7 +975,7 @@
 <li><p>-Xmn</p>
 <p>为分代收集器中的年轻代设置堆的初始大小和最大大小(以字节为单位)。堆的年轻代区域用于新对象。与其他区域相比，该区域执行GC的频率更高。如果年轻代的大小太小，那么将执行大量minor GC。如果大小太大，则只执行full GC，这可能需要很长时间才能完成。建议您不要为G1收集器设置年轻代的大小，并且对于其它收集器保持年轻代的大小大于总体堆大小的25%而小于50%。</p>
 </li>
-<li><p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012212915394.png" alt="image-20211012212915394"></p>
+<li><p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012212915394.png" alt="image-20211012212915394"></p>
 </li>
 </ul>
 <hr>
@@ -1041,7 +1042,7 @@
     
         2014 -
     
-    2022
+    2023
     <span class="footer-author">青马流光.</span>
     <span class="power-by">
         Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>

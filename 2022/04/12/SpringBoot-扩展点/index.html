@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="学习笔记"/>
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2022/04/12/SpringBoot-扩展点/"/>
+
+
+<meta name="description" content="1. ApplicationContextInitializer在刷新之前初始化一个Spring ConfigurableApplicationContext的回调接口。 -&gt; 有时会通过向上下文添加BeanFactoryPostProcessor实例来完成特定功能  initialize(C applicationContext)  初始化给定的应用程序上下文。   BeanFactory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="青马流光的博客">
+<meta property="og:url" content="http://blog.coder.love/2022/04/12/SpringBoot-%E6%89%A9%E5%B1%95%E7%82%B9/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="1. ApplicationContextInitializer在刷新之前初始化一个Spring ConfigurableApplicationContext的回调接口。 -&gt; 有时会通过向上下文添加BeanFactoryPostProcessor实例来完成特定功能  initialize(C applicationContext)  初始化给定的应用程序上下文。   BeanFactory">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassPostProcessor-postProcessBeanDefinitionRegistry.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassBeanDefinitionReader-loadBeanDefinitionsForConfigurationClass.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassParser-parse.jpg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassPostProcessor-postProcessBeanFactory.jpg">
+<meta property="article:published_time" content="2022-04-12T04:17:57.988Z">
+<meta property="article:modified_time" content="2022-04-26T13:12:51.963Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Java、数据">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassPostProcessor-postProcessBeanDefinitionRegistry.jpg">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title>  - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          
+        
+      </h1>
+
+      <time class="post-time">
+          4月 12 2022
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="1-ApplicationContextInitializer"><a href="#1-ApplicationContextInitializer" class="headerlink" title="1. ApplicationContextInitializer"></a>1. ApplicationContextInitializer</h1><p>在刷新之前初始化一个Spring ConfigurableApplicationContext的回调接口。</p>
+<p>-&gt; 有时会通过向上下文添加BeanFactoryPostProcessor实例来完成特定功能</p>
+<ul>
+<li><p>initialize(C applicationContext)</p>
+<blockquote>
+<p>初始化给定的应用程序上下文。</p>
+</blockquote>
+</li>
+<li><p>BeanFactoryPostProcessor</p>
+<blockquote>
+<p>工厂钩子，允许自定义修改应用程序上下文的bean定义，调整上下文的底层bean工厂的bean属性值。 适用于针对系统管理员的定制配置文件，这些配置文件覆盖了在应用程序上下文中配置的bean属性。请参阅PropertyResourceConfigurer及其具体实现，了解满足此类配置需求的开箱即用解决方案。 BeanFactoryPostProcessor可以与bean定义进行交互和修改，但不能与bean实例进行交互。这样做可能会导致bean过早实例化，违反容器并导致意想不到的副作用。如果需要bean实例交互，可以考虑实现BeanPostProcessor。</p>
+<ul>
+<li><p>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)</p>
+<blockquote>
+<p>在标准初始化后修改应用程序上下文的内部bean工厂。所有bean定义都将被加载，但是还没有bean被实例化。这就允许重写或添加属性，甚至是对 eager initializing beans。 </p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>BeanDefinitionRegistryPostProcessor</p>
+<blockquote>
+<p>扩展到标准的BeanFactoryPostProcessor SPI，允许在常规BeanFactoryPostProcessor检测开始之前注册更多的bean定义。特别是，BeanDefinitionRegistryPostProcessor可以注册更多的bean定义，这些定义反过来又定义了BeanFactoryPostProcessor实例。</p>
+<ul>
+<li><p>postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)</p>
+<blockquote>
+<p>在标准初始化后修改应用程序上下文的内部bean定义注册表。所有常规bean定义都将被加载，但是还没有bean被实例化。这允许在下一个后处理阶段开始之前进一步添加bean定义。 </p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="1-1-spring-boot包"><a href="#1-1-spring-boot包" class="headerlink" title="1.1 spring-boot包"></a>1.1 spring-boot包</h2><h3 id="1-1-1-ConfigurationWarningsApplicationContextInitializer"><a href="#1-1-1-ConfigurationWarningsApplicationContextInitializer" class="headerlink" title="1.1.1 ConfigurationWarningsApplicationContextInitializer"></a>1.1.1 ConfigurationWarningsApplicationContextInitializer</h3><p>ApplicationContextInitializer，用于报告常见配置错误的警告。</p>
+<ul>
+<li><p>添加ConfigurationWarningsPostProcessor【BeanDefinitionRegistryPostProcessor】</p>
+</li>
+<li><p>ConfigurationWarningsPostProcessor</p>
+<blockquote>
+<p>对bean定义注册表应用ComponentScanPackageCheck。</p>
+</blockquote>
+</li>
+<li><p>ComponentScanPackageCheck</p>
+<blockquote>
+<p>ConfigurationWarningsApplicationContextInitializer.Check，用于检查@ComponentScan中的有问题的包。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="1-1-2-ContextIdApplicationContextInitializer"><a href="#1-1-2-ContextIdApplicationContextInitializer" class="headerlink" title="1.1.2 ContextIdApplicationContextInitializer"></a>1.1.2 ContextIdApplicationContextInitializer</h3><p>设置Spring ApplicationContext ID的ApplicationContextInitializer。spring.application.name属性用于创建ID。如果没有设置该属性，则使用application。</p>
+<blockquote>
+<p>向beanFactory注册一个ContextId实例。</p>
+</blockquote>
+<h3 id="1-1-3-DelegatingApplicationContextInitializer"><a href="#1-1-3-DelegatingApplicationContextInitializer" class="headerlink" title="1.1.3 DelegatingApplicationContextInitializer"></a>1.1.3 DelegatingApplicationContextInitializer</h3><p>ApplicationContextInitializer，它委托给在<font color='00FF00'>context.initializer.classes</font>环境属性下指定的其他初始化器。</p>
+<ul>
+<li>获取、加载、实例化context.initializer.classes中指定的初始化器，排序并依次调用其initialize方法。</li>
+</ul>
+<h3 id="1-1-4-RSocketPortInfoApplicationContextInitializer"><a href="#1-1-4-RSocketPortInfoApplicationContextInitializer" class="headerlink" title="1.1.4 RSocketPortInfoApplicationContextInitializer"></a>1.1.4 RSocketPortInfoApplicationContextInitializer</h3><p>为RSocketServer服务器实际监听的端口设置环境属性的ApplicationContextInitializer。local.rsocket.server.port属性可以使用@Value直接注入到测试中，或者通过环境获取。 属性自动传播到任何父上下文。 </p>
+<blockquote>
+<ul>
+<li>注册一个ApplicationListener，监听RSocketServerInitializedEvent。从事件中获取port，设置到环境中的local.rsocket.server.port属性。</li>
+</ul>
+<p>Y：可以了解一下RSocket。一种对标Http的应用层协议。</p>
+</blockquote>
+<h3 id="1-1-5-ServerPortInfoApplicationContextInitializer"><a href="#1-1-5-ServerPortInfoApplicationContextInitializer" class="headerlink" title="1.1.5 ServerPortInfoApplicationContextInitializer"></a>1.1.5 ServerPortInfoApplicationContextInitializer</h3><p>ApplicationContextInitializer，为WebServer服务器实际监听的端口设置环境属性。属性“local.server.port”可以使用@Value直接注入到测试中，或者通过环境获取。 如果WebServerInitializedEvent有一个服务器名称空间，它将被用来构造属性名。例如，“management”执行器上下文将具有属性名称“local.management.port”。 属性自动传播到任何父上下文。</p>
+<blockquote>
+<ul>
+<li>注册一个ApplicationListener （即其自身），监听WebServerInitializedEvent。</li>
+</ul>
+</blockquote>
+<h2 id="1-2-spring-boot-autoconfigure包"><a href="#1-2-spring-boot-autoconfigure包" class="headerlink" title="1.2 spring-boot-autoconfigure包"></a>1.2 spring-boot-autoconfigure包</h2><h3 id="1-2-1-SharedMetadataReaderFactoryContextInitializer"><a href="#1-2-1-SharedMetadataReaderFactoryContextInitializer" class="headerlink" title="1.2.1 SharedMetadataReaderFactoryContextInitializer"></a>1.2.1 SharedMetadataReaderFactoryContextInitializer</h3><p>ApplicationContextInitializer，在ConfigurationClassPostProcessor和Spring Boot之间创建一个共享的CachingMetadataReaderFactory。</p>
+<blockquote>
+<ul>
+<li><p>添加CachingMetadataReaderFactoryPostProcessor</p>
+</li>
+<li><p><strong>CachingMetadataReaderFactoryPostProcessor</strong></p>
+<blockquote>
+<p>BeanDefinitionRegistryPostProcessor，注册CachingMetadataReaderFactory并配置ConfigurationClassPostProcessor。</p>
+<ul>
+<li><p>注册名称为org.springframework.boot.autoconfigure.internalCachingMetadataReaderFactory的bean定义。</p>
+<blockquote>
+<ul>
+<li><p>SharedMetadataReaderFactoryBean </p>
+<blockquote>
+<p>FactoryBean，创建共享的MetadataReaderFactory（即ConcurrentReferenceCachingMetadataReaderFactory实例）。</p>
+<ul>
+<li><p>监听ContextRefreshedEvent，触发清除整个MetadataReader缓存，删除所有缓存的类元数据。</p>
+</li>
+<li><p>ConcurrentReferenceCachingMetadataReaderFactory</p>
+<blockquote>
+<p>由ConcurrentReferenceHashMap支持的MetadataReaderFactory接口的缓存实现，每个Spring资源句柄(即每个“.class”文件)缓存MetadataReader。</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>配置org.springframework.context.annotation.internalConfigurationAnnotationProcessor实例。为其配置metadataReaderFactory属性。</p>
+<blockquote>
+<ul>
+<li><font color='00FF00'>ConfigurationClassPostProcessor</font></li>
+<li>是在AnnotationConfigServletWebServerApplicationContext的构造函数中注册的。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h3 id="1-2-2-ConditionEvaluationReportLoggingListener"><a href="#1-2-2-ConditionEvaluationReportLoggingListener" class="headerlink" title="1.2.2 ConditionEvaluationReportLoggingListener"></a>1.2.2 ConditionEvaluationReportLoggingListener</h3><p>将ConditionEvaluationReport写入日志的ApplicationContextInitializer。报告以DEBUG级别记录。崩溃报告触发提示用户再次运行的信息输出，并启用调试以显示报告。 此初始化器不打算在多个应用程序上下文实例之间共享。 </p>
+<blockquote>
+<ul>
+<li>注册一个ApplicationListener（ConditionEvaluationReportListener），监听ContextRefreshedEven和ApplicationFailedEvent，记录或打印的状态评估报告。</li>
+</ul>
+</blockquote>
+<h1 id="2-BeanDefinitionRegistryPostProcessor"><a href="#2-BeanDefinitionRegistryPostProcessor" class="headerlink" title="2. BeanDefinitionRegistryPostProcessor"></a>2. BeanDefinitionRegistryPostProcessor</h1><p>扩展到标准的BeanFactoryPostProcessor SPI，允许<strong>在常规BeanFactoryPostProcessor检测开始之前注册更多的bean定义</strong>。特别是，BeanDefinitionRegistryPostProcessor可以注册更多的bean定义，这些定义反过来又定义了BeanFactoryPostProcessor实例。</p>
+<h2 id="2-1-添加自AnnotationConfigServletWebServerApplicationContext构造函数"><a href="#2-1-添加自AnnotationConfigServletWebServerApplicationContext构造函数" class="headerlink" title="2.1 添加自AnnotationConfigServletWebServerApplicationContext构造函数"></a>2.1 添加自AnnotationConfigServletWebServerApplicationContext构造函数</h2><ul>
+<li><p>ConfigurationClassPostProcessor</p>
+<blockquote>
+<p>BeanFactoryPostProcessor用于@Configuration类的引导处理。<br>使用  &lt;context:annotation-config/&gt; 或 &lt;context:component-scan/&gt;时默认注册。否则，可以像使用任何其他BeanFactoryPostProcessor一样手动声明。<br>这个后处理程序是按优先级排序的，因为在@Configuration类中声明的任何@Bean方法都必须在任何其他BeanFactoryPostProcessor执行之前注册其相应的bean定义，这一点很重要。</p>
+<ul>
+<li><p>bean名称：org.springframework.context.annotation.internalConfigurationAnnotationProcessor</p>
+</li>
+<li><p>postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)</p>
+<blockquote>
+<p>从注册表中的配置类进一步派生bean定义。</p>
+<p>流程图：</p>
+<p>postProcessBeanDefinitionRegistry：</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassPostProcessor-postProcessBeanDefinitionRegistry.jpg" alt="ConfigurationClassPostProcessor-postProcessBeanDefinitionRegistry"></p>
+<p>loadBeanDefinitionsForConfigurationClass：</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassBeanDefinitionReader-loadBeanDefinitionsForConfigurationClass.jpg" alt="ConfigurationClassBeanDefinitionReader-loadBeanDefinitionsForConfigurationClass"></p>
+<p>parse：</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassParser-parse.jpg" alt="ConfigurationClassParser-parse"></p>
+</blockquote>
+</li>
+<li><p>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)</p>
+<blockquote>
+<p>通过用cglib增强的子类替换Configuration类，为运行时服务bean请求准备Configuration类。 </p>
+<p>流程图：</p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images/ConfigurationClassPostProcessor-postProcessBeanFactory.jpg" alt="ConfigurationClassPostProcessor-postProcessBeanFactory"></p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>EventListenerMethodProcessor</p>
+<blockquote>
+<p>将EventListener方法注册为单个ApplicationListener实例。实现BeanFactoryPostProcessor(从5.1开始)主要是为了早期检索，避免了对这个处理器bean及其EventListenerFactory委托进行AOP检查。 </p>
+<ul>
+<li><p>bean名称：org.springframework.context.event.internalEventListenerProcessor</p>
+</li>
+<li><p>DefaultEventListenerFactory</p>
+<blockquote>
+<p>默认的EventListenerFactory实现，支持常规的EventListener注解。</p>
+<ul>
+<li>bean名称：org.springframework.context.event.internalEventListenerFactory</li>
+<li>添加自AnnotationConfigServletWebServerApplicationContext构造函数。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h1 id="3-BeanPostProcessor"><a href="#3-BeanPostProcessor" class="headerlink" title="3. BeanPostProcessor"></a>3. BeanPostProcessor</h1><h2 id="3-1-添加自AnnotationConfigServletWebServerApplicationContext构造函数"><a href="#3-1-添加自AnnotationConfigServletWebServerApplicationContext构造函数" class="headerlink" title="3.1 添加自AnnotationConfigServletWebServerApplicationContext构造函数"></a>3.1 添加自AnnotationConfigServletWebServerApplicationContext构造函数</h2><ul>
+<li><p>AutowiredAnnotationBeanPostProcessor</p>
+<blockquote>
+<p>自动连接注解字段、setter方法和任意配置方法的BeanPostProcessor实现。这些要注入的成员是通过注解来检测的:默认情况下，是Spring的@Autowired和@Value注解。</p>
+<ul>
+<li>bean名称：org.springframework.context.annotation.internalAutowiredAnnotationProcessor</li>
+</ul>
+</blockquote>
+</li>
+<li><p>CommonAnnotationBeanPostProcessor</p>
+<blockquote>
+<ul>
+<li>bean名称：org.springframework.context.annotation.internalCommonAnnotationProcessor</li>
+</ul>
+</blockquote>
+</li>
+<li><p>InitDestroyAnnotationBeanPostProcessor</p>
+<blockquote>
+<ul>
+<li>bean名称：org.springframework.context.annotation.internalJsr250AnnotationProcessor</li>
+<li>检查是否支持JSR-250，如果存在，为PostConstruct/PreDestroy的javax变体添加InitDestroyAnnotationBeanPostProcessor。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>PersistenceAnnotationBeanPostProcessor</p>
+<blockquote>
+<ul>
+<li>bean名称：org.springframework.context.annotation.internalPersistenceAnnotationProcessor</li>
+<li>检查JPA支持，如果有，添加PersistenceAnnotationBeanPostProcessor。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h2 id="3-2-添加自BeanDefinitionRegistryPostProcessor"><a href="#3-2-添加自BeanDefinitionRegistryPostProcessor" class="headerlink" title="3.2 添加自BeanDefinitionRegistryPostProcessor"></a>3.2 添加自BeanDefinitionRegistryPostProcessor</h2><ul>
+<li><p>ImportAwareBeanPostProcessor</p>
+<blockquote>
+<ul>
+<li>ConfigurationClassPostProcessor#postProcessBeanFactory 中 注册。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h1 id="其它接口"><a href="#其它接口" class="headerlink" title="其它接口"></a>其它接口</h1><h3 id="ConfigurationWarningsApplicationContextInitializer-Check"><a href="#ConfigurationWarningsApplicationContextInitializer-Check" class="headerlink" title="ConfigurationWarningsApplicationContextInitializer.Check"></a>ConfigurationWarningsApplicationContextInitializer.Check</h3><ul>
+<li><p>getWarning(BeanDefinitionRegistry registry);</p>
+<blockquote>
+<p>如果检查失败，返回警告;如果没有问题，返回null。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="扩展点"><a href="#扩展点" class="headerlink" title="扩展点"></a>扩展点</h1><ul>
+<li><p>spring.factories</p>
+</li>
+<li><p>ontext.initializer.classes环境属性</p>
+<blockquote>
+<p>可用来指定初始化器。</p>
+<ul>
+<li>DelegatingApplicationContextInitializer实现的此功能。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2022/04/12/SpringBoot-%E5%B7%A5%E5%85%B7%E7%B1%BB/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default"></span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2022/04/11/SpringBoot-EnableAutoConfiguration/">
+        <span class="next-text nav-default"></span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2023
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

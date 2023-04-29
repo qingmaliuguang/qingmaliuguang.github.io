@@ -35,22 +35,22 @@
 <link rel="canonical" href="http://blog.coder.love/2021/08/29/Spring-Abstract/"/>
 
 
-<meta name="description" content="1. BeanFactory用于访问Spring bean容器的 root 接口。 这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。 该接口由包含许多bean定义的对象实现，每个bean定义都由一个String名称唯一标">
+<meta name="description" content="1. BeanFactory用于一访问Spring bean容器的 root 接口。 这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。 该接口由包含许多bean定义的对象实现，每个bean定义都由一个String名称唯一">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring 抽象">
 <meta property="og:url" content="http://blog.coder.love/2021/08/29/Spring-Abstract/index.html">
 <meta property="og:site_name" content="青马流光的博客">
-<meta property="og:description" content="1. BeanFactory用于访问Spring bean容器的 root 接口。 这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。 该接口由包含许多bean定义的对象实现，每个bean定义都由一个String名称唯一标">
+<meta property="og:description" content="1. BeanFactory用于一访问Spring bean容器的 root 接口。 这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。 该接口由包含许多bean定义的对象实现，每个bean定义都由一个String名称唯一">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1731892-20210610131522589-2144305263.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/20180909205040343.jpeg">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/70-20210829161437067.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1731892-20210610131522589-2144305263.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/20180909205040343.jpeg">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/70-20210829161437067.png">
 <meta property="article:published_time" content="2021-08-29T06:37:01.000Z">
-<meta property="article:modified_time" content="2022-03-21T07:26:14.296Z">
+<meta property="article:modified_time" content="2023-04-29T03:17:09.311Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1731892-20210610131522589-2144305263.png">
+<meta name="twitter:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1731892-20210610131522589-2144305263.png">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
@@ -142,12 +142,12 @@
 
     
             <div class="post-content">
-            <h1 id="1-BeanFactory"><a href="#1-BeanFactory" class="headerlink" title="1. BeanFactory"></a>1. BeanFactory</h1><p>用于访问Spring bean容器的 root 接口。</p>
+            <h1 id="1-BeanFactory"><a href="#1-BeanFactory" class="headerlink" title="1. BeanFactory"></a>1. BeanFactory</h1><p>用于一访问Spring bean容器的 root 接口。</p>
 <p>这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。</p>
 <p>该接口由包含许多bean定义的对象实现，每个bean定义都由一个String名称唯一标识。根据bean定义，工厂将返回被包含对象的独立实例(Prototype设计模式)，或单个共享实例(Singleton设计模式的更好选择，在该模式中，实例是工厂范围内的一个单例)。返回哪种类型的实例取决于bean工厂配置:API是相同的。从Spring 2.0开始，根据具体的应用程序上下文(例如。web环境中的“请求”和“会话”范围)。</p>
 <p>这种方法的要点在于，BeanFactory是应用程序组件的中央注册中心，并集中应用程序组件的配置(例如，单个对象不再需要读取属性文件)。</p>
 <p>请注意，依赖依赖项注入(“push”配置)通过setters或constructors配置应用程序对象通常比使用任何形式的“pull”配置(如BeanFactory查找)更好。Spring的依赖注入功能是使用这个BeanFactory接口及其子接口实现的。</p>
-<p><strong>Bean工厂实现应该尽可能支持标准的Bean生命周期接口。完整的初始化方法及其标准顺序为:</strong></p>
+<p><strong>Bean工厂实现应该尽可能支持标准的Bean生命周期接口。完整的初始化方法及其标准顺序为:</strong>  </p>
 <ol>
 <li>BeanNameAware的setBeanName</li>
 <li>BeanClassLoaderAware的setBeanClassLoader</li>
@@ -170,25 +170,10 @@
 <li>DisposableBean 的 destroy</li>
 <li>自定义的 destroy-method 定义</li>
 </ol>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/1731892-20210610131522589-2144305263.png" alt="BeanFactoryUML_01"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1731892-20210610131522589-2144305263.png" alt="BeanFactoryUML_01"></p>
 <h2 id="AbstractAutowireCapableBeanFactory"><a href="#AbstractAutowireCapableBeanFactory" class="headerlink" title="AbstractAutowireCapableBeanFactory"></a>AbstractAutowireCapableBeanFactory</h2><p>实现默认 bean 创建的抽象 bean 工厂超类，具有RootBeanDefinition类指定的全部功能。 除了 AbstractBeanFactory 的createBean方法之外，还实现AutowireCapableBeanFactory接口。<br>提供 bean 创建（具有构造函数解析）、属性填充、wiring（包括autowiring）和初始化。 处理运行时 bean 引用、解析托管集合、调用初始化方法等。支持自动装配构造函数、按名称的属性和按类型的属性。</p>
 <p>子类要实现的主要<strong>模板方法</strong>是<strong>resolveDependency</strong>(DependencyDescriptor, String, Set, TypeConverter) ，用于按类型自动装配。 如果工厂能够搜索其 bean 定义，匹配 bean 通常将通过这样的搜索来实现。 对于其他工厂样式，可以实现简化的匹配算法。</p>
 <p>请注意，此类不承担或实现 bean 定义注册表功能。 有关org.springframework.beans.factory.ListableBeanFactory和BeanDefinitionRegistry接口的实现，请参阅DefaultListableBeanFactory ，它们分别代表此类工厂的 API 和 SPI 视图。</p>
-<h3 id="createBean"><a href="#createBean" class="headerlink" title="createBean"></a>createBean</h3><ul>
-<li><p>用于对bean生命周期进行细粒度控制的专用方法。</p>
-</li>
-<li><p>使用非单例bean定义，以避免将bean注册为依赖bean。</p>
-</li>
-<li><p>此类的中心方法：创建 bean 实例、填充 bean 实例、应用后处理器等。</p>
-</li>
-</ul>
-<h3 id="doCreateBean"><a href="#doCreateBean" class="headerlink" title="doCreateBean"></a>doCreateBean</h3><ul>
-<li>实际创建指定的bean。 预创建处理此时已经发生，例如检查postProcessBeforeInstantiation回调。<br>区分默认 bean 实例化、工厂方法的使用和自动装配构造函数。</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">protected</span> Object <span class="title">doCreateBean</span><span class="params">(String beanName, RootBeanDefinition mbd, <span class="meta">@Nullable</span> Object[] args)</span></span></span><br><span class="line"><span class="function">		<span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Instantiate the bean.</span></span><br><span class="line">	BeanWrapper instanceWrapper = <span class="keyword">null</span>;</span><br><span class="line">	<span class="keyword">if</span> (mbd.isSingleton()) &#123;</span><br><span class="line">     <span class="comment">// 如果RootBeanDefinition是单例的，则移除未完成的FactoryBean实例的缓存。</span></span><br><span class="line">		instanceWrapper = <span class="keyword">this</span>.factoryBeanInstanceCache.remove(beanName);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (instanceWrapper == <span class="keyword">null</span>) &#123;</span><br><span class="line">     <span class="comment">// 使用适当的实例化策略为指定的 bean 创建一个新实例：工厂方法、构造函数自动装配或简单实例化。</span></span><br><span class="line">		instanceWrapper = createBeanInstance(beanName, mbd, args);</span><br><span class="line">	&#125;</span><br><span class="line">	Object bean = instanceWrapper.getWrappedInstance();</span><br><span class="line">	Class&lt;?&gt; beanType = instanceWrapper.getWrappedClass();</span><br><span class="line">	<span class="keyword">if</span> (beanType != NullBean.class) &#123;</span><br><span class="line">		mbd.resolvedTargetType = beanType;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Allow post-processors to modify the merged bean definition.</span></span><br><span class="line">	<span class="keyword">synchronized</span> (mbd.postProcessingLock) &#123;</span><br><span class="line">		<span class="keyword">if</span> (!mbd.postProcessed) &#123;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">         <span class="comment">// 将 MergedBeanDefinitionPostProcessors 应用于指定的 bean 定义，调用它们的postProcessMergedBeanDefinition方法。</span></span><br><span class="line">				applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbd.getResourceDescription(), beanName,</span><br><span class="line">						<span class="string">&quot;Post-processing of merged bean definition failed&quot;</span>, ex);</span><br><span class="line">			&#125;</span><br><span class="line">			mbd.postProcessed = <span class="keyword">true</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 主动缓存单例，以便能够解析循环引用，即使是在BeanFactoryAware等生命周期接口触发的情况下。</span></span><br><span class="line">	<span class="keyword">boolean</span> earlySingletonExposure = (mbd.isSingleton() &amp;&amp; <span class="keyword">this</span>.allowCircularReferences &amp;&amp;</span><br><span class="line">			isSingletonCurrentlyInCreation(beanName));</span><br><span class="line">	<span class="keyword">if</span> (earlySingletonExposure) &#123;</span><br><span class="line">		<span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">			logger.trace(<span class="string">&quot;Eagerly caching bean &#x27;&quot;</span> + beanName +</span><br><span class="line">					<span class="string">&quot;&#x27; to allow for resolving potential circular references&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		addSingletonFactory(beanName, () -&gt; getEarlyBeanReference(beanName, mbd, bean));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Initialize the bean instance.</span></span><br><span class="line">	Object exposedObject = bean;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		populateBean(beanName, mbd, instanceWrapper);</span><br><span class="line">		exposedObject = initializeBean(beanName, exposedObject, mbd);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">		<span class="keyword">if</span> (ex <span class="keyword">instanceof</span> BeanCreationException &amp;&amp; beanName.equals(((BeanCreationException) ex).getBeanName())) &#123;</span><br><span class="line">			<span class="keyword">throw</span> (BeanCreationException) ex;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(</span><br><span class="line">					mbd.getResourceDescription(), beanName, <span class="string">&quot;Initialization of bean failed&quot;</span>, ex);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (earlySingletonExposure) &#123;</span><br><span class="line">		Object earlySingletonReference = getSingleton(beanName, <span class="keyword">false</span>);</span><br><span class="line">		<span class="keyword">if</span> (earlySingletonReference != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">if</span> (exposedObject == bean) &#123;</span><br><span class="line">				exposedObject = earlySingletonReference;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> <span class="keyword">if</span> (!<span class="keyword">this</span>.allowRawInjectionDespiteWrapping &amp;&amp; hasDependentBean(beanName)) &#123;</span><br><span class="line">				String[] dependentBeans = getDependentBeans(beanName);</span><br><span class="line">				Set&lt;String&gt; actualDependentBeans = <span class="keyword">new</span> LinkedHashSet&lt;&gt;(dependentBeans.length);</span><br><span class="line">				<span class="keyword">for</span> (String dependentBean : dependentBeans) &#123;</span><br><span class="line">					<span class="keyword">if</span> (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) &#123;</span><br><span class="line">						actualDependentBeans.add(dependentBean);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> (!actualDependentBeans.isEmpty()) &#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> BeanCurrentlyInCreationException(beanName,</span><br><span class="line">							<span class="string">&quot;Bean with name &#x27;&quot;</span> + beanName + <span class="string">&quot;&#x27; has been injected into other beans [&quot;</span> +</span><br><span class="line">							StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +</span><br><span class="line">							<span class="string">&quot;] in its raw version as part of a circular reference, but has eventually been &quot;</span> +</span><br><span class="line">							<span class="string">&quot;wrapped. This means that said other beans do not use the final version of the &quot;</span> +</span><br><span class="line">							<span class="string">&quot;bean. This is often the result of over-eager type matching - consider using &quot;</span> +</span><br><span class="line">							<span class="string">&quot;&#x27;getBeanNamesForType&#x27; with the &#x27;allowEagerInit&#x27; flag turned off, for example.&quot;</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Register bean as disposable.</span></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		registerDisposableBeanIfNecessary(beanName, bean, mbd);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">catch</span> (BeanDefinitionValidationException ex) &#123;</span><br><span class="line">		<span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(</span><br><span class="line">				mbd.getResourceDescription(), beanName, <span class="string">&quot;Invalid destruction signature&quot;</span>, ex);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> exposedObject;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
 <h2 id="DefaultListableBeanFactorys"><a href="#DefaultListableBeanFactorys" class="headerlink" title="DefaultListableBeanFactorys"></a>DefaultListableBeanFactorys</h2><ul>
 <li>Spring 对ConfigurableListableBeanFactory和BeanDefinitionRegistry接口的默认实现：一个基于 bean 定义元数据的成熟 bean 工厂，可通过后处理器扩展。</li>
 <li>典型用法是在访问 bean 之前首先注册所有 bean 定义（可能从 bean 定义文件中读取）。 因此，按名称查找 Bean 是在本地 bean 定义表中的廉价操作，对预先解析的 bean 定义元数据对象进行操作。</li>
@@ -267,7 +252,7 @@
 <li>而如果是<strong>调用方</strong>来制定接口，<strong>实现方</strong>来针对接口来实现不同的实现。<strong>调用方</strong>来选择自己需要的实现方。</li>
 </ul>
 <p>从面向接口编程说起</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/20180909205040343.jpeg" alt="这里写图片描述"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/20180909205040343.jpeg" alt="这里写图片描述"></p>
 <p>当我们选择在<strong>调用方</strong> 和 <strong>实现方</strong> 中间引入接口。上图没有给出“接口”应该位于哪个“包”中，从纯粹的可能性上考虑，我们有三种选择：</p>
 <ol>
 <li>接口位于<strong>实现方</strong>所在的包中；</li>
@@ -294,7 +279,7 @@
 <h2 id="2-3-接口位于独立的包中"><a href="#2-3-接口位于独立的包中" class="headerlink" title="2.3 接口位于独立的包中"></a>2.3 接口位于独立的包中</h2><p>如果一个“接口”在一个上下文是API，在另一个上下文是SPI，那么你就可以这么组织</p>
 <p>需要注意的事项</p>
 <p>SPI 和 API 也不一定是接口，这里都是指狭义的具体的接口。</p>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/70-20210829161437067.png" alt="这里写图片描述"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/70-20210829161437067.png" alt="这里写图片描述"></p>
 <p><strong>Java类库中的实例</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(<span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>);</span><br><span class="line">Connection conn = DriverManager.getConnection(</span><br><span class="line">              <span class="string">&quot;jdbc:mysql://localhost:3306/test&quot;</span>, <span class="string">&quot;root&quot;</span>, <span class="string">&quot;123456&quot;</span>);</span><br><span class="line">Statement stmt = conn.createStatement();</span><br><span class="line">ResultSet rs = stmt.executeQuery(<span class="string">&quot;select * from Users&quot;</span>);</span><br></pre></td></tr></table></figure>
 
@@ -317,6 +302,57 @@
 <h1 id="TypeConverterDelegate"><a href="#TypeConverterDelegate" class="headerlink" title="TypeConverterDelegate"></a>TypeConverterDelegate</h1><ul>
 <li>用于将属性值转换为目标类型的内部助手类。</li>
 </ul>
+<h2 id="1-AbstractAutowireCapableBeanFactory"><a href="#1-AbstractAutowireCapableBeanFactory" class="headerlink" title="1. AbstractAutowireCapableBeanFactory"></a>1. AbstractAutowireCapableBeanFactory</h2><ul>
+<li>initializeBean -&gt; <ul>
+<li>applyBeanPostProcessorsBeforeInitialization</li>
+<li>applyBeanPostProcessorsAfterInitialization</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-DefaultSingletonBeanRegistry"><a href="#2-DefaultSingletonBeanRegistry" class="headerlink" title="2. DefaultSingletonBeanRegistry"></a>2. DefaultSingletonBeanRegistry</h2><p>getSingleton</p>
+<blockquote>
+<p>处理循环引用。</p>
+</blockquote>
+<h2 id="PropertyAccessorFactory（spring-beans）"><a href="#PropertyAccessorFactory（spring-beans）" class="headerlink" title="PropertyAccessorFactory（spring-beans）"></a>PropertyAccessorFactory（spring-beans）</h2><ul>
+<li>获取PropertyAccessor实例的简单工厂facade，特别是对于BeanWrapper实例。隐藏实际的目标实现类及其扩展的公共签名。</li>
+</ul>
+<h2 id="HandlerInterceptor（spring-webmvc）"><a href="#HandlerInterceptor（spring-webmvc）" class="headerlink" title="HandlerInterceptor（spring-webmvc）"></a>HandlerInterceptor（spring-webmvc）</h2><blockquote>
+<p>HandlerInterceptor基本上类似于Servlet Filter，但与后者相比，它只允许自定义预处理（可以选择禁止处理程序本身的执行），以及自定义后处理。过滤器功能更强大，例如，它们允许交换传递给链的请求和响应对象。请注意，过滤器是在web .xml中配置的，它是应用程序上下文中的HandlerInterceptor。</p>
+</blockquote>
+<h2 id="WebRequestInterceptor"><a href="#WebRequestInterceptor" class="headerlink" title="WebRequestInterceptor"></a>WebRequestInterceptor</h2><blockquote>
+<p>接口，一般的web请求拦截。允许通过构建WebRequest抽象来应用于Servlet请求。<br>该接口采用<strong>mvc风格的请求处理:执行一个处理程序，公开一组模型对象，然后根据该模型呈现视图。</strong>另外，处理程序也可以完全处理请求，而不呈现视图。</p>
+</blockquote>
+<h2 id="RequestMappingHandlerMapping"><a href="#RequestMappingHandlerMapping" class="headerlink" title="RequestMappingHandlerMapping"></a>RequestMappingHandlerMapping</h2><blockquote>
+<p>从@Controller类的类型和方法级的@RequestMapping注释中创建RequestMappingInfo实例。<br>弃用注意:<br>在5.2.4中，useSuffixPatternMatch和useRegisteredSuffixPatternMatch被弃用，以阻止使用路径扩展来进行请求映射和内容协商(与ContentNegotiationManagerFactoryBean中类似的弃用)。有关更多内容，请阅读第24719期。</p>
+</blockquote>
+<h2 id="BeanNameUrlHandlerMapping"><a href="#BeanNameUrlHandlerMapping" class="headerlink" title="BeanNameUrlHandlerMapping"></a>BeanNameUrlHandlerMapping</h2><blockquote>
+<p>实现了org.springframe.web.servlet.HandlerMapping接口，该接口将url映射到名称以斜杠(“/”)开头的bean，类似于Struts将url映射到动作名称的方式。<br>这是org.springframework.web.servlet使用的默认实现。DispatcherServlet，以及org.springframework.web.servlet.mvc.method.annotation .RequestMappingHandlerMapping。另外，SimpleUrlHandlerMapping允许以声明的方式自定义处理程序映射。<br>映射是从URL到bean名。因此，一个传入的URL“/foo”将映射到一个名为“/foo”的处理程序，或者映射到“/foo /foo2”，如果多个映射到一个单独的处理程序。<br>支持直接匹配(给定”/test” -&gt;注册”/test”)和”<em>“匹配(给定”/test” -&gt;注册”/t</em>“)。注意，默认情况下，如果适用，映射到当前servlet映射中;详见”alwaysUseFullPath”属性。关于模式选项的详细信息，请参见org.springframework.util.AntPathMatcher javadoc。</p>
+</blockquote>
+<h2 id="ProxyFactory"><a href="#ProxyFactory" class="headerlink" title="ProxyFactory"></a>ProxyFactory</h2><blockquote>
+<p>用于编程使用的AOP代理的工厂，而不是通过bean工厂中的声明性设置。这个类提供了一种在自定义用户代码中获取和配置AOP代理实例的简单方法。</p>
+</blockquote>
+<h2 id="AopProxyFactory-gt-DefaultAopProxyFactory"><a href="#AopProxyFactory-gt-DefaultAopProxyFactory" class="headerlink" title="AopProxyFactory -&gt; DefaultAopProxyFactory"></a>AopProxyFactory -&gt; DefaultAopProxyFactory</h2><blockquote>
+<p><strong>DefaultAopProxyFactory</strong></p>
+<p>默认的AopProxyFactory实现，创建CGLIB代理或JDK动态代理。</p>
+<p>创建一个CGLIB代理，如果一个给定的AdvisedSupport实例如下所示:</p>
+<ul>
+<li>设置了 optimize 标志</li>
+<li>设置了 proxyTargetClass 标志</li>
+<li>没有指定代理接口</li>
+</ul>
+<p>通常，指定proxyTargetClass来强制使用CGLIB代理，或者指定一个或多个接口来使用JDK动态代理</p>
+</blockquote>
+<ul>
+<li>createAopProxy</li>
+</ul>
+<h2 id="BeanDefinitionRegistry"><a href="#BeanDefinitionRegistry" class="headerlink" title="BeanDefinitionRegistry"></a>BeanDefinitionRegistry</h2><ul>
+<li>保存bean定义的注册中心的接口，例如RootBeanDefinition和ChildBeanDefinition实例。 通常由内部使用AbstractBeanDefinition层次结构的Beanfactories实现。</li>
+<li>这是Spring bean工厂包中封装bean定义注册的唯一接口。标准的BeanFactory接口只包括对完全配置的工厂实例的访问。</li>
+<li>Spring bean定义的读者希望使用这个接口的实现。Spring core 中已知的实现者有DefaultListableBeanFactory和GenericApplicationContext。</li>
+</ul>
+<p>LazyInitializationBeanFactoryPostProcessor + LazyInitializationExcludeFilter</p>
+<p>ImportBeanDefinitionRegistrar</p>
+<p>ForwardedHeaderFilter &amp; FilterRegistrationBean</p>
 <hr>
 <blockquote>
 <p>内容来源：</p>
@@ -343,9 +379,9 @@
         
   <nav class="post-nav">
     
-      <a class="prev" href="/2021/08/29/Spring/">
+      <a class="prev" href="/2021/09/02/JDK-utility-class-collection/">
         <i class="iconfont icon-left"></i>
-        <span class="prev-text nav-default">Spring</span>
+        <span class="prev-text nav-default">JDK中好用的工具类收集</span>
         <span class="prev-text nav-mobile">Prev</span>
       </a>
     
@@ -378,7 +414,7 @@
     
         2014 -
     
-    2022
+    2023
     <span class="footer-author">青马流光.</span>
     <span class="power-by">
         Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>

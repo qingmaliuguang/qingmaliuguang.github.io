@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1">
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="description" content="学习笔记"/>
+
+
+
+
+
+
+
+
+  <link rel="alternate" href="/default" title="青马流光的博客" >
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.1" />
+
+
+
+<link rel="canonical" href="http://blog.coder.love/2022/04/11/SpringBoot-EnableAutoConfiguration/"/>
+
+
+<meta name="description" content="AopAutoConfiguration略，见《SpringBoot-AOP》 CacheAutoConfiguration缓存抽象的自动配置。当通过@EnableCaching启用缓存时，创建一个CacheManager。缓存存储可以自动检测或通过配置显式指定。   ProxyCachingConfiguration  Configuration类，它注册了支持基于代理的注解驱动的缓存管理所需的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="青马流光的博客">
+<meta property="og:url" content="http://blog.coder.love/2022/04/11/SpringBoot-EnableAutoConfiguration/index.html">
+<meta property="og:site_name" content="青马流光的博客">
+<meta property="og:description" content="AopAutoConfiguration略，见《SpringBoot-AOP》 CacheAutoConfiguration缓存抽象的自动配置。当通过@EnableCaching启用缓存时，创建一个CacheManager。缓存存储可以自动检测或通过配置显式指定。   ProxyCachingConfiguration  Configuration类，它注册了支持基于代理的注解驱动的缓存管理所需的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-11T10:22:30.196Z">
+<meta property="article:modified_time" content="2022-04-12T04:17:29.137Z">
+<meta property="article:author" content="青马流光">
+<meta property="article:tag" content="Java、数据">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>
+
+
+
+
+
+<script type="text/javascript">
+  var themeConfig = {
+    fancybox: {
+      enable: false
+    },
+  };
+</script>
+
+
+
+
+  <script id="baidu_analytics">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?65a3f3228e88e62009896032ddcfdf2b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+    <title>  - 青马流光的博客 </title>
+  <meta name="generator" content="Hexo 5.4.0"></head>
+
+  <body>
+    <div id="page">
+      <header id="masthead"><div class="site-header-inner">
+    <h1 class="site-title">
+        <a href="/." class="logo">青马流光的博客</a>
+    </h1>
+
+    <nav id="nav-top">
+        
+            <ul id="menu-top" class="nav-top-items">
+                
+                    <li class="menu-item">
+                        <a href="/archives">
+                            
+                            
+                                Archives
+                            
+                        </a>
+                    </li>
+                
+                    <li class="menu-item">
+                        <a href="/about">
+                            
+                            
+                                About
+                            
+                        </a>
+                    </li>
+                
+            </ul>
+        
+  </nav>
+</div>
+
+      </header>
+      <div id="content">
+        
+    <div id="primary">
+        
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">
+        
+          
+        
+      </h1>
+
+      <time class="post-time">
+          4月 11 2022
+      </time>
+    </header>
+
+
+
+    
+            <div class="post-content">
+            <h1 id="AopAutoConfiguration"><a href="#AopAutoConfiguration" class="headerlink" title="AopAutoConfiguration"></a>AopAutoConfiguration</h1><p>略，见《SpringBoot-AOP》</p>
+<h1 id="CacheAutoConfiguration"><a href="#CacheAutoConfiguration" class="headerlink" title="CacheAutoConfiguration"></a>CacheAutoConfiguration</h1><p>缓存抽象的自动配置。当通过@EnableCaching启用缓存时，创建一个CacheManager。缓存存储可以自动检测或通过配置显式指定。</p>
+<blockquote>
+<ul>
+<li><p>ProxyCachingConfiguration</p>
+<blockquote>
+<p>Configuration类，它注册了支持基于代理的注解驱动的缓存管理所需的Spring基础设施bean。</p>
+<ul>
+<li><p>BeanFactoryCacheOperationSourceAdvisor</p>
+</li>
+<li><p>CacheOperationSource</p>
+</li>
+<li><p>CacheInterceptor</p>
+<blockquote>
+<p>其父类CacheAspectSupport实现了SmartInitializingSingleton，其afterSingletonsInstantiated()实现中，获取CacheManager实例创建CacheResolver实例。</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>RedisAutoConfiguration</p>
+<blockquote>
+<p>Spring Data的Redis支持的自动配置</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<h1 id="ConfigurationPropertiesAutoConfiguration"><a href="#ConfigurationPropertiesAutoConfiguration" class="headerlink" title="ConfigurationPropertiesAutoConfiguration"></a>ConfigurationPropertiesAutoConfiguration</h1><p>ConfigurationProperties bean的自动配置。自动绑定和验证任何带有@ConfigurationProperties注解的bean。</p>
+<blockquote>
+<ul>
+<li>其作用在于它添加的@EnableConfigurationProperties注解，通过@Import注解导入了EnableConfigurationPropertiesRegistrar。</li>
+</ul>
+</blockquote>
+<h1 id="LifecycleAutoConfiguration"><a href="#LifecycleAutoConfiguration" class="headerlink" title="LifecycleAutoConfiguration"></a>LifecycleAutoConfiguration</h1><p>与应用程序上下文生命周期相关的自动配置。</p>
+<blockquote>
+<ul>
+<li>通过 @Bean 注册 DefaultLifecycleProcessor 实例。</li>
+</ul>
+</blockquote>
+<h1 id="MessageSourceAutoConfiguration"><a href="#MessageSourceAutoConfiguration" class="headerlink" title="MessageSourceAutoConfiguration"></a>MessageSourceAutoConfiguration</h1><h1 id="SpringDataWebAutoConfiguration"><a href="#SpringDataWebAutoConfiguration" class="headerlink" title="SpringDataWebAutoConfiguration"></a>SpringDataWebAutoConfiguration</h1><p>Spring Data的web支持的自动配置。 实际上，自动配置相当于通过@EnableSpringDataWebSupport注解启用SpringData的web支持。 </p>
+<h1 id="JdbcTemplateAutoConfiguration"><a href="#JdbcTemplateAutoConfiguration" class="headerlink" title="JdbcTemplateAutoConfiguration"></a>JdbcTemplateAutoConfiguration</h1>
+            </div>
+          
+
+    
+      <footer class="post-footer">
+		
+
+        
+        
+  <nav class="post-nav">
+    
+      <a class="prev" href="/2022/04/12/SpringBoot-%E6%89%A9%E5%B1%95%E7%82%B9/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default"></span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    
+    
+      <a class="next" href="/2022/04/07/Spring%E5%BA%94%E7%94%A8%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B-2/">
+        <span class="next-text nav-default">Spring应用启动过程-2</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    
+  </nav>
+
+        
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+      </footer>
+    
+  </article>
+
+    </div>
+
+      </div>
+
+      <footer id="colophon"><span class="copyright-year">
+    
+        &copy;
+    
+        2014 -
+    
+    2023
+    <span class="footer-author">青马流光.</span>
+    <span class="power-by">
+        Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>
+    </span>
+</span>
+
+      </footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div>
+    
+
+
+    
+
+
+
+
+  
+    <script type="text/javascript" src="/lib/jquery/jquery-3.1.1.min.js"></script>
+  
+
+  
+
+    <script type="text/javascript" src="/js/src/theme.js?v=1.1"></script>
+<script type="text/javascript" src="/js/src/bootstrap.js?v=1.1"></script>
+
+  </body>
+</html>

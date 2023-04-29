@@ -42,22 +42,22 @@
 <meta property="og:site_name" content="青马流光的博客">
 <meta property="og:description" content="处理器缓存  内存屏障  Java多线程机制   三个关注点：原子性、可见性、有序性  可见性即内存可见性；有序性即禁止重排序   硬件  硬件保证某些从语义上看起来需要多次操作的行为可以只通过一条处理器指令就能完成，这类指令常用的有：   测试并设置（Test-and-Set）；  获取并增加（Fetch-and-Increment）；  交换（Swap）；  比较并交换（Compare-an">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1575361630931085.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000810955.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000856693.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png">
-<meta property="og:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/work%20stealing.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1575361630931085.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000810955.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000856693.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png">
+<meta property="og:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/work%20stealing.png">
 <meta property="article:published_time" content="2022-03-21T07:06:25.000Z">
-<meta property="article:modified_time" content="2022-03-21T10:01:04.348Z">
+<meta property="article:modified_time" content="2023-04-29T03:17:09.284Z">
 <meta property="article:author" content="青马流光">
 <meta property="article:tag" content="Java、subject">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/qmlg/image-bed/raw/master/images/1575361630931085.png">
+<meta name="twitter:image" content="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1575361630931085.png">
 
 
 <link rel="stylesheet" type="text/css" href="/css/style.css?v=1.1" />
@@ -249,7 +249,7 @@
 </li>
 <li><p>final：有序性 =&gt; 需要避免构造函数溢出问题（示例见FinalReferenceEscapeExample，参考<a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/136261">final引用不能从构造函数内“溢出”</a>）。</p>
 <blockquote>
-<p><img src="https://gitee.com/qmlg/image-bed/raw/master/images/1575361630931085.png" alt="image.png"></p>
+<p><img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1575361630931085.png" alt="image.png"></p>
 </blockquote>
 </li>
 </ul>
@@ -257,7 +257,7 @@
 <li><p>从底向上看volatile背后的原理：</p>
 </li>
 </ul>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png" alt="截屏 2021-10-29 下午2.54.08" style="zoom: 33%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png" alt="截屏 2021-10-29 下午2.54.08" style="zoom: 33%;" />
 
 <ul>
 <li><p>CPU 的 CAS（Compare and Swap）指令 =&gt; unsafe中的CAS操作：CAS能够将read-modify-write和check-and-act之类的操作转换为原子操作。</p>
@@ -270,7 +270,7 @@
 </li>
 <li><p>Java部分多线程相关类的实现</p>
 <p>整个Concurrent包的层次体系：</p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png" alt="截屏 2021-10-29 下午2.59.24" style="zoom: 33%;"/>
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png" alt="截屏 2021-10-29 下午2.59.24" style="zoom: 33%;"/>
 
 <ul>
 <li><p>Atomic类</p>
@@ -332,13 +332,13 @@
 
 
 <p><strong>ReentrantLock</strong></p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000810955.png" alt="image-20211030000810955" style="zoom: 33%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000810955.png" alt="image-20211030000810955" style="zoom: 33%;" />
 
 <ul>
 <li>ReentrantLock.Sync采用的独占模式，其中实现了tryRelease和isHeldExclusively，tryAcquire交由子类实现，FairSync和NonfairSync分别通过该方法实现了公平锁和非公平锁。（非公平锁的tryAcquire逻辑使用了Sync的nonfairTryAcquire，因为ReentrantLock的tryLock方法会直接调用sync.nonfairTryAcquire即使用非公平锁逻辑）。</li>
 </ul>
 <p><strong>ReentrantReadWriteLock</strong></p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000856693.png" alt="image-20211030000856693" style="zoom: 50%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000856693.png" alt="image-20211030000856693" style="zoom: 50%;" />
 
 <ul>
 <li>acquire/release、acquireShared/releaseShared 是AQS里面的两对模板方法。互斥锁和读写锁的写锁都是基于acquire/release模板方法来实现的。读写锁的读锁是基于acquireShared/releaseShared这对模板方法来实现的。</li>
@@ -415,14 +415,14 @@
 <li><p>同步工具</p>
 <blockquote>
 <p><strong>Semaphore</strong></p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png" alt="截屏 2021-10-31 下午3.12.49" style="zoom:33%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png" alt="截屏 2021-10-31 下午3.12.49" style="zoom:33%;" />
 
 <p><strong>CountDownLatch</strong></p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png" alt="截屏 2021-10-31 下午3.29.21" style="zoom:33%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png" alt="截屏 2021-10-31 下午3.29.21" style="zoom:33%;" />
 
 <ul>
 <li><p>因为是基于 AQS 阻塞队列来实现的，所以可以让多个线程都阻塞在state=0条件上，通过countDown()一直累减state，减到0后一次性唤醒所有线程。如图4-4所示，假设初始总数为M，N个线程await()，M个线程countDown()，减到0之后，N个线程被唤醒。</p>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png" alt="截屏 2021-10-31 下午3.35.29" style="zoom: 50%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png" alt="截屏 2021-10-31 下午3.35.29" style="zoom: 50%;" />
 
 <p>Y：</p>
 <ul>
@@ -458,7 +458,7 @@
 </blockquote>
 <p><strong>Phaser</strong></p>
 <blockquote>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png" alt="截屏 2021-10-31 下午5.05.41" style="zoom: 50%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png" alt="截屏 2021-10-31 下午5.05.41" style="zoom: 50%;" />
 
 <p>基于volatile state + CAS + 无锁栈 Treiber Stack（等待队列）。</p>
 <p>主要方法：</p>
@@ -704,7 +704,7 @@
 </li>
 <li><p>使用示例：ForkJoinCalculator，参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/f641385712/article/details/83749798">ForkJoinPool线程池的使用以及原理</a></p>
 <blockquote>
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/work%20stealing.png" alt="work stealing" style="zoom: 67%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/work%20stealing.png" alt="work stealing" style="zoom: 67%;" />
 
 <ul>
 <li>ForkJoinPool 的每个工作线程都维护着一个工作队列（WorkQueue），这是一个双端队列（Deque），里面存放的对象是任务（ForkJoinTask）。</li>
@@ -821,8 +821,8 @@
       </a>
     
     
-      <a class="next" href="/2022/03/21/Synchronized/">
-        <span class="next-text nav-default">Synchronized</span>
+      <a class="next" href="/2022/03/21/SpringBoot-AOP/">
+        <span class="next-text nav-default">SpringBoot-AOP</span>
         <span class="prev-text nav-mobile">Next</span>
         <i class="iconfont icon-right"></i>
       </a>
@@ -849,7 +849,7 @@
     
         2014 -
     
-    2022
+    2023
     <span class="footer-author">青马流光.</span>
     <span class="power-by">
         Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> and <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/frostfan/hexo-theme-polarbear">Polar Bear</a>

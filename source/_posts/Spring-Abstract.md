@@ -7,7 +7,7 @@ categories: recycle-bin
 
 # 1. BeanFactory
 
-用于访问Spring bean容器的 root 接口。
+用于一访问Spring bean容器的 root 接口。
 
 这是bean容器的基本客户端视图;其他接口如ListableBeanFactory和org.springframework.beans.factory.config.ConfigurableBeanFactory可用于特定用途。
 
@@ -17,7 +17,7 @@ categories: recycle-bin
 
 请注意，依赖依赖项注入(“push”配置)通过setters或constructors配置应用程序对象通常比使用任何形式的“pull”配置(如BeanFactory查找)更好。Spring的依赖注入功能是使用这个BeanFactory接口及其子接口实现的。
 
-**Bean工厂实现应该尽可能支持标准的Bean生命周期接口。完整的初始化方法及其标准顺序为:**
+**Bean工厂实现应该尽可能支持标准的Bean生命周期接口。完整的初始化方法及其标准顺序为:**  
 
 1. BeanNameAware的setBeanName
 2. BeanClassLoaderAware的setBeanClassLoader
@@ -40,7 +40,7 @@ categories: recycle-bin
 2. DisposableBean 的 destroy
 3. 自定义的 destroy-method 定义
 
-![BeanFactoryUML_01](https://gitee.com/qmlg/image-bed/raw/master/images/1731892-20210610131522589-2144305263.png)
+![BeanFactoryUML_01](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1731892-20210610131522589-2144305263.png)
 
 
 
@@ -106,7 +106,7 @@ SPI (Service Provider Interface)
 
 从面向接口编程说起
 
-![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/20180909205040343.jpeg)
+![这里写图片描述](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/20180909205040343.jpeg)
 
 当我们选择在**调用方** 和 **实现方** 中间引入接口。上图没有给出“接口”应该位于哪个“包”中，从纯粹的可能性上考虑，我们有三种选择：
 
@@ -143,7 +143,7 @@ SPI (Service Provider Interface)
 
 SPI 和 API 也不一定是接口，这里都是指狭义的具体的接口。
 
-![这里写图片描述](https://gitee.com/qmlg/image-bed/raw/master/images/70-20210829161437067.png)
+![这里写图片描述](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/70-20210829161437067.png)
 
 **Java类库中的实例**
 

@@ -140,7 +140,7 @@ class proxy$A{
 
 **使用AOP 代理后的方法调用执行流程：**
 
-![img](https://gitee.com/qmlg/image-bed/raw/master/images/%E4%BD%BF%E7%94%A8AOP%20%E4%BB%A3%E7%90%86%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.png)
+![img](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E4%BD%BF%E7%94%A8AOP%20%E4%BB%A3%E7%90%86%E5%90%8E%E7%9A%84%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B.png)
 
 
 
@@ -187,7 +187,7 @@ Spring框架的TransactionInterceptor为命令式和响应式编程模型提供�
 
 下图展示了在事务代理上调用方法的概念视图:
 
-![tx](https://gitee.com/qmlg/image-bed/raw/master/images/tx.png)
+![tx](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/tx.png)
 
 
 
@@ -197,13 +197,13 @@ Spring框架的TransactionInterceptor为命令式和响应式编程模型提供�
 
 ##### 理解`PROPAGATION_REQUIRED`
 
-![需要tx道具](https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_required.png)
+![需要tx道具](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/tx_prop_required.png)
 
 `PROPAGATION_REQUIRED`执行物理事务，如果不存在事务，则在本地为当前范围执行，或参与为更大范围定义的现有“外”事务。这是同一线程中常见调用堆栈安排中的良好默认值（例如，将服务立面委托给多个存储库方法，所有基础资源都必须参与服务级事务）。
 
 ##### 理解`PROPAGATION_REQUIRES_NEW`
 
-![tx道具需要新的](https://gitee.com/qmlg/image-bed/raw/master/images/tx_prop_requires_new.png)
+![tx道具需要新的](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/tx_prop_requires_new.png)
 
 # 2. @Transactional的其它属性
 

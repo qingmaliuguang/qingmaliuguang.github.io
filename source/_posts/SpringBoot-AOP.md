@@ -77,6 +77,12 @@ categories: 整理-来自代码
 
 **@EnableAspectJAutoProxy通过添加@Import注解引入了AspectJAutoProxyRegistrar.class。**
 
+- **AopAutoConfiguration**
+
+  > - spring-boot-autoconfigure包的spring.factories中配置了自动配置AopAutoConfiguration。
+  > - 在类路径中有org.aspectj.weaver.Advice的情况下，会根据spring.aop.proxy-target-class属性加载空静态类JdkDynamicAutoProxyConfiguration或CglibAutoProxyConfiguration，其作用是让@EnableAspectJAutoProxy注解生效，并根据spring.aop.proxy-target-class属性设置**@EnableAspectJAutoProxy**注解的proxyTargetClass属性。
+  > - **因为该类的自动配置，所以可省略在项目启动类上添加@EnableAspectJAutoProxy注解。**
+
 ## 1.2 AspectJAutoProxyRegistrar
 
 - 根据给定的@EnableAspectJAutoProxy注解，在当前的BeanDefinitionRegistry中注册一个**AnnotationAwareAspectJAutoProxyCreator**。

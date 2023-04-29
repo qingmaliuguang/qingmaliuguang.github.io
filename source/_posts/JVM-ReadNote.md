@@ -217,7 +217,7 @@ Java虚拟机栈中，每个栈帧都包含一个指向运行时常量池中该�
 
 HotSpot虚拟机对象头Mark Word
 
-![截屏 2021-10-12 下午2.30.21](https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png)
+![截屏 2021-10-12 下午2.30.21](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%882.30.21.png)
 
 - 此外，如果对象是一个Java数组，那在对象头中还必须有一块用于记录数组长度的数据，因为虚拟机可以通过普通Java对象的元数据信息确定Java对象的大小，但是如果数组的长度是不确定的，将无法通过元数据中的信息推断出数组的大小。
 
@@ -249,11 +249,11 @@ JVM只会抛出两种异常：OutOfMemoryError、StackOverflowError。
     >
     > 测试：-Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError
     >
-    > ![image-20211012153546322](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153546322.png)
+    > ![image-20211012153546322](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153546322.png)
     >
-    > ![image-20211012153650569](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153650569.png)
+    > ![image-20211012153650569](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153650569.png)
     >
-    > ![image-20211012153730127](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012153730127.png)
+    > ![image-20211012153730127](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012153730127.png)
 
 - **虚拟机栈和本地方法栈**
 
@@ -319,11 +319,11 @@ Started HTTP server on port 7000
 Server is ready.
 ```
 
-> ![image-20211012155934401](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012155934401.png)
+> ![image-20211012155934401](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012155934401.png)
 >
 > 点击Show heap histogram
 >
-> ![image-20211012160026138](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012160026138.png)
+> ![image-20211012160026138](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012160026138.png)
 >
 > Y：也可使用JProfiler等工具打开堆转储文件，进行查看。
 
@@ -461,7 +461,7 @@ jps -v
 
 **HotSpot 的经典垃圾收集器**
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png" alt="截屏 2021-10-12 下午5.54.50" style="zoom: 25%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%885.54.50.png" alt="截屏 2021-10-12 下午5.54.50" style="zoom: 25%;" />
 
 - ParNew/CMS/Serial Old【JDK8默认的组合方式】
 
@@ -471,7 +471,7 @@ jps -v
 
   CMS：
 
-  ![截屏 2021-10-12 下午8.03.22](https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png)
+  ![截屏 2021-10-12 下午8.03.22](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.03.22.png)
 
   优点：并发收集、低停顿
 
@@ -490,9 +490,9 @@ jps -v
   >
   > -XX:MaxGCPauseMillis -> 设置最大G1收集器GC暂停时间的目标(以毫秒为单位)。默认200ms，
 
-  <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png" alt="截屏 2021-10-12 下午8.43.09" style="zoom:25%;" />
+  <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.43.09.png" alt="截屏 2021-10-12 下午8.43.09" style="zoom:25%;" />
 
-  <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png" alt="截屏 2021-10-12 下午8.42.12" style="zoom: 25%;" />
+  <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-12%20%E4%B8%8B%E5%8D%888.42.12.png" alt="截屏 2021-10-12 下午8.42.12" style="zoom: 25%;" />
 
   - Region中还有一类特殊的**Humongous区域，专门用来存储大对象**。G1认为只要大小超过了一个Region容量一半的对象即可判定为大对象。每个Region的大小可以通过参数-XX：G1HeapRegionSize设定，取值范围为1MB～32MB，且应为2的N次幂。而对于那些超过了整个Region容量的超级大对象，将会被存放在N个连续的Humongous Region之中，G1的大多数行为都把**Humongous Region作为老年代的一部分来进行看待**。
 
@@ -538,7 +538,7 @@ jps -v
 
   为分代收集器中的年轻代设置堆的初始大小和最大大小(以字节为单位)。堆的年轻代区域用于新对象。与其他区域相比，该区域执行GC的频率更高。如果年轻代的大小太小，那么将执行大量minor GC。如果大小太大，则只执行full GC，这可能需要很长时间才能完成。建议您不要为G1收集器设置年轻代的大小，并且对于其它收集器保持年轻代的大小大于总体堆大小的25%而小于50%。
 
-- ![image-20211012212915394](https://gitee.com/qmlg/image-bed/raw/master/images/image-20211012212915394.png)
+- ![image-20211012212915394](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211012212915394.png)
 
 ------
 

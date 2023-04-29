@@ -91,11 +91,11 @@ categories: in-use
   >
   >   - final：有序性 => 需要避免构造函数溢出问题（示例见FinalReferenceEscapeExample，参考[final引用不能从构造函数内“溢出”](https://bbs.huaweicloud.com/blogs/136261)）。
   >
-  >     > ![image.png](https://gitee.com/qmlg/image-bed/raw/master/images/1575361630931085.png)
+  >     > ![image.png](https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/1575361630931085.png)
   >
   > - 从底向上看volatile背后的原理：
   >
-  > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png" alt="截屏 2021-10-29 下午2.54.08" style="zoom: 33%;" />
+  > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.54.08.png" alt="截屏 2021-10-29 下午2.54.08" style="zoom: 33%;" />
   >
   > - CPU 的 CAS（Compare and Swap）指令 => unsafe中的CAS操作：CAS能够将read-modify-write和check-and-act之类的操作转换为原子操作。
   >
@@ -105,7 +105,7 @@ categories: in-use
 
   整个Concurrent包的层次体系：
 
-  <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png" alt="截屏 2021-10-29 下午2.59.24" style="zoom: 33%;"/>
+  <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-29%20%E4%B8%8B%E5%8D%882.59.24.png" alt="截屏 2021-10-29 下午2.59.24" style="zoom: 33%;"/>
 
   - Atomic类
 
@@ -205,13 +205,13 @@ categories: in-use
     >
     > **ReentrantLock**
     >
-    > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000810955.png" alt="image-20211030000810955" style="zoom: 33%;" />
+    > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000810955.png" alt="image-20211030000810955" style="zoom: 33%;" />
     >
     > - ReentrantLock.Sync采用的独占模式，其中实现了tryRelease和isHeldExclusively，tryAcquire交由子类实现，FairSync和NonfairSync分别通过该方法实现了公平锁和非公平锁。（非公平锁的tryAcquire逻辑使用了Sync的nonfairTryAcquire，因为ReentrantLock的tryLock方法会直接调用sync.nonfairTryAcquire即使用非公平锁逻辑）。
     >
     > **ReentrantReadWriteLock**
     >
-    > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/image-20211030000856693.png" alt="image-20211030000856693" style="zoom: 50%;" />
+    > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/image-20211030000856693.png" alt="image-20211030000856693" style="zoom: 50%;" />
     >
     > - acquire/release、acquireShared/releaseShared 是AQS里面的两对模板方法。互斥锁和读写锁的写锁都是基于acquire/release模板方法来实现的。读写锁的读锁是基于acquireShared/releaseShared这对模板方法来实现的。
     >
@@ -251,15 +251,15 @@ categories: in-use
   
     > **Semaphore**
     >
-    > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png" alt="截屏 2021-10-31 下午3.12.49" style="zoom:33%;" />
+    > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.12.49.png" alt="截屏 2021-10-31 下午3.12.49" style="zoom:33%;" />
     >
     > **CountDownLatch**
     >
-    > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png" alt="截屏 2021-10-31 下午3.29.21" style="zoom:33%;" />
+    > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.29.21.png" alt="截屏 2021-10-31 下午3.29.21" style="zoom:33%;" />
     >
     > - 因为是基于 AQS 阻塞队列来实现的，所以可以让多个线程都阻塞在state=0条件上，通过countDown()一直累减state，减到0后一次性唤醒所有线程。如图4-4所示，假设初始总数为M，N个线程await()，M个线程countDown()，减到0之后，N个线程被唤醒。
     >
-    >   <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png" alt="截屏 2021-10-31 下午3.35.29" style="zoom: 50%;" />
+    >   <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%883.35.29.png" alt="截屏 2021-10-31 下午3.35.29" style="zoom: 50%;" />
     >
     >   Y：
     >
@@ -291,7 +291,7 @@ categories: in-use
     >
     > **Phaser**
     >
-    > > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png" alt="截屏 2021-10-31 下午5.05.41" style="zoom: 50%;" />
+    > > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/%E6%88%AA%E5%B1%8F%202021-10-31%20%E4%B8%8B%E5%8D%885.05.41.png" alt="截屏 2021-10-31 下午5.05.41" style="zoom: 50%;" />
     > >
     > > 基于volatile state + CAS + 无锁栈 Treiber Stack（等待队列）。
     > >
@@ -486,7 +486,7 @@ categories: in-use
     >   >
     >   > - 使用示例：ForkJoinCalculator，参考：[ForkJoinPool线程池的使用以及原理](https://blog.csdn.net/f641385712/article/details/83749798)
     >   >
-    >   >   > <img src="https://gitee.com/qmlg/image-bed/raw/master/images/work%20stealing.png" alt="work stealing" style="zoom: 67%;" />
+    >   >   > <img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/work%20stealing.png" alt="work stealing" style="zoom: 67%;" />
     >   >   >
     >   >   > - ForkJoinPool 的每个工作线程都维护着一个工作队列（WorkQueue），这是一个双端队列（Deque），里面存放的对象是任务（ForkJoinTask）。
     >   >   > - 每个工作线程在运行中产生新的任务（通常是因为调用了 fork()）时，会放入工作队列的队尾，并且工作线程在处理自己的工作队列时，使用的是 LIFO 方式，也就是说每次从队尾取出任务来执行。

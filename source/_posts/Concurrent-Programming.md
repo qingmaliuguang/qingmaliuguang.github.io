@@ -19,7 +19,7 @@ categories: recycle-bin
 
   > Y：阻塞是在等待CPU之外的资源？好像不止，等待事件，比如建立Socket连接的请求事件。
 
-<img src="https://gitee.com/qmlg/image-bed/raw/master/images/process_state_trans.jpeg" alt="进程三种基本状态转换图" style="zoom: 50%;" />
+<img src="https://love-coder-blog-images.oss-cn-beijing.aliyuncs.com/images-unnamed/process_state_trans.jpeg" alt="进程三种基本状态转换图" style="zoom: 50%;" />
 
 各个状态切换发生的原因：
 
